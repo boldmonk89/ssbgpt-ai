@@ -1,5 +1,5 @@
 import { OLQ_NAMES, OLQ_FACTORS } from '@/store/appStore';
-import { Shield, Brain, Heart, Flame, Dumbbell, ArrowRight, Sparkles } from 'lucide-react';
+import { Shield, Brain, Heart, Flame, Dumbbell, ArrowRight, Sparkles, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const FACTOR_ICONS: Record<string, any> = {
