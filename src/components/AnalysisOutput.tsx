@@ -1,3 +1,5 @@
+import { ExportPdfButton } from './ExportPdfButton';
+
 interface AnalysisOutputProps {
   content: string;
   title?: string;
@@ -17,11 +19,9 @@ export function AnalysisOutput({ content, title }: AnalysisOutputProps) {
       if (line.startsWith('# ')) {
         return <h1 key={i} className="text-lg font-heading font-bold text-gold mt-6 mb-3">{line.replace('# ', '')}</h1>;
       }
-      // Full bold line
       if (line.startsWith('**') && line.endsWith('**')) {
         return <p key={i} className="font-heading font-bold text-sm text-accent mt-4 mb-1">{line.replace(/\*\*/g, '')}</p>;
       }
-      // Inline bold
       if (line.includes('**')) {
         const parts = line.split(/(\*\*[^*]+\*\*)/g);
         return (
@@ -34,7 +34,6 @@ export function AnalysisOutput({ content, title }: AnalysisOutputProps) {
           </p>
         );
       }
-      // Numbered list
       if (/^\d+\.\s/.test(line)) {
         return <li key={i} className="ml-4 text-sm text-foreground/85 leading-relaxed list-decimal">{line.replace(/^\d+\.\s/, '')}</li>;
       }
@@ -52,10 +51,16 @@ export function AnalysisOutput({ content, title }: AnalysisOutputProps) {
   return (
     <div className="glass-card scroll-reveal">
       {title && (
-        <>
-          <h3 className="text-base font-heading font-bold text-gold gold-border-left mb-4">{title}</h3>
-          <div className="gold-stripe mb-4" />
-        </>
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <h3 className="text-base font-heading font-bold text-gold gold-border-left">{title}</h3>
+          <ExportPdfButton content={content} title={title} />
+        </div>
+      )}
+      {title && <div className="gold-stripe mb-4" />}
+      {!title && (
+        <div className="flex justify-end mb-3">
+          <ExportPdfButton content={content} />
+        </div>
       )}
       <div className="font-body text-sm space-y-0.5 max-h-[70vh] overflow-y-auto pr-2">
         {renderContent(content)}

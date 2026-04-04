@@ -148,30 +148,74 @@
     background: linear-gradient(90deg, transparent 10%, hsl(var(--foreground) / 0.06) 50%, transparent 90%);
   }
 
+  /* ── Liquid Glass Button System (Apple-style) ── */
   .glass-button {
-    @apply relative px-5 py-2.5 rounded-xl font-heading font-bold text-sm tracking-wider uppercase transition-all duration-300;
-    backdrop-filter: blur(16px);
+    @apply relative px-5 py-2.5 rounded-2xl font-heading font-bold text-sm tracking-wider uppercase;
+    backdrop-filter: blur(20px) saturate(1.8);
+    border: 1px solid hsl(var(--foreground) / 0.1);
     box-shadow:
       0 4px 20px hsl(var(--background) / 0.5),
-      0 1px 0 hsl(var(--foreground) / 0.08) inset;
+      0 1px 0 hsl(var(--foreground) / 0.08) inset,
+      0 -0.5px 0 hsl(var(--background) / 0.3) inset;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow: hidden;
+  }
+
+  .glass-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--foreground) / 0.06) 0%,
+      transparent 40%,
+      transparent 60%,
+      hsl(var(--foreground) / 0.03) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .glass-button::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      hsl(var(--foreground) / 0.08) 0%,
+      transparent 50%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
   }
 
   .glass-button:hover {
+    transform: translateY(-3px) scale(1.02);
+    border-color: hsl(var(--foreground) / 0.18);
     box-shadow:
-      0 8px 40px hsl(var(--background) / 0.6),
-      0 1px 0 hsl(var(--foreground) / 0.12) inset;
-    transform: translateY(-2px);
+      0 12px 48px hsl(var(--background) / 0.7),
+      0 1px 0 hsl(var(--foreground) / 0.15) inset,
+      0 -0.5px 0 hsl(var(--background) / 0.2) inset;
   }
+
+  .glass-button:hover::before { opacity: 1; }
+  .glass-button:hover::after { opacity: 1; }
 
   .glass-button:active {
     transform: translateY(0) scale(0.97);
+    transition-duration: 0.1s;
   }
 
   .glass-button-gold {
     @apply glass-button text-gold-foreground;
     background: linear-gradient(135deg, hsl(43 60% 62%) 0%, hsl(var(--gold)) 50%, hsl(43 55% 45%) 100%);
+    border: 1px solid hsl(43 60% 70% / 0.4);
     box-shadow:
-      0 4px 24px hsl(var(--gold) / 0.4),
+      0 4px 24px hsl(var(--gold) / 0.35),
       0 1px 0 hsl(43 60% 80% / 0.3) inset,
       0 -1px 0 hsl(var(--gold) / 0.3) inset;
   }
@@ -179,8 +223,10 @@
   .glass-button-gold:hover {
     background: linear-gradient(135deg, hsl(43 65% 68%) 0%, hsl(43 60% 62%) 50%, hsl(var(--gold)) 100%);
     box-shadow:
-      0 8px 40px hsl(var(--gold) / 0.5),
-      0 1px 0 hsl(43 60% 85% / 0.4) inset;
+      0 16px 56px hsl(var(--gold) / 0.45),
+      0 2px 0 hsl(43 60% 85% / 0.5) inset,
+      0 -1px 0 hsl(var(--gold) / 0.2) inset;
+    border-color: hsl(43 60% 75% / 0.5);
   }
 
   .glass-button-accent {
@@ -196,8 +242,9 @@
   .glass-button-accent:hover {
     background: linear-gradient(135deg, hsl(var(--accent) / 0.5) 0%, hsl(var(--accent) / 0.3) 100%);
     box-shadow:
-      0 8px 32px hsl(var(--accent) / 0.3),
-      0 1px 0 hsl(var(--foreground) / 0.1) inset;
+      0 12px 40px hsl(var(--accent) / 0.35),
+      0 1px 0 hsl(var(--foreground) / 0.12) inset;
+    border-color: hsl(var(--accent) / 0.6);
   }
 
   .glass-input {
@@ -267,6 +314,65 @@
 
   .glow-accent {
     box-shadow: 0 0 24px hsl(var(--accent) / 0.2), 0 0 48px hsl(var(--accent) / 0.06);
+  }
+
+  /* ── Liquid Glass Card Hover ── */
+  .liquid-card {
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .liquid-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow:
+      0 20px 60px hsl(var(--background) / 0.7),
+      0 1px 0 hsl(var(--foreground) / 0.1) inset;
+    border-color: hsl(var(--foreground) / 0.15);
+  }
+
+  /* ── Stagger animation for children ── */
+  .stagger-children > * {
+    animation: revealUp 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 80ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 160ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 240ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 320ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 400ms; }
+  .stagger-children > *:nth-child(7) { animation-delay: 480ms; }
+  .stagger-children > *:nth-child(8) { animation-delay: 560ms; }
+
+  /* ── Floating particle effect ── */
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-8px) rotate(2deg); }
+    66% { transform: translateY(-4px) rotate(-1deg); }
+  }
+
+  .float-slow { animation: float 6s ease-in-out infinite; }
+  .float-medium { animation: float 4s ease-in-out infinite 0.5s; }
+  .float-fast { animation: float 3s ease-in-out infinite 1s; }
+
+  /* ── Shimmer effect for premium feel ── */
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  .shimmer-text {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--gold)) 0%,
+      hsl(43 70% 75%) 25%,
+      hsl(var(--gold)) 50%,
+      hsl(43 70% 75%) 75%,
+      hsl(var(--gold)) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s linear infinite;
   }
 
   /* Scrollbar */
