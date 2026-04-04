@@ -59,6 +59,18 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Mobile Navigation Hint */}
+      <div className="lg:hidden glass-card-subtle flex items-center gap-3 py-3 px-4 border-l-[3px] border-gold">
+        <div className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{
+          background: 'linear-gradient(135deg, hsl(var(--gold) / 0.2), hsl(var(--gold) / 0.05))',
+        }}>
+          <Menu className="h-4 w-4 text-gold" />
+        </div>
+        <p className="font-body text-xs text-muted-foreground leading-snug">
+          Tap the <strong className="text-gold">☰ menu button</strong> (top-left) to navigate between tests — PIQ, TAT, WAT, SRT, SD & Full Analysis.
+        </p>
+      </div>
+
       {/* Quick Nav Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 stagger-children">
         {[
