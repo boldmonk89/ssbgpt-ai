@@ -1,0 +1,277 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Crimson+Pro:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* SSB Military Dark — Glassy HD Theme */
+    --background: 220 65% 3%;
+    --foreground: 220 20% 93%;
+
+    --card: 220 50% 8%;
+    --card-foreground: 220 20% 93%;
+
+    --popover: 220 45% 12%;
+    --popover-foreground: 220 20% 93%;
+
+    --primary: 215 55% 22%;
+    --primary-foreground: 220 20% 93%;
+
+    --secondary: 215 60% 30%;
+    --secondary-foreground: 220 20% 93%;
+
+    --muted: 220 40% 12%;
+    --muted-foreground: 220 18% 55%;
+
+    --accent: 215 65% 45%;
+    --accent-foreground: 220 20% 93%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 220 20% 93%;
+
+    --success: 155 65% 32%;
+    --success-foreground: 220 20% 93%;
+
+    --gold: 43 55% 58%;
+    --gold-foreground: 220 65% 3%;
+
+    --border: 215 40% 16%;
+    --input: 215 40% 16%;
+    --ring: 215 65% 45%;
+
+    --radius: 0.875rem;
+
+    --sidebar-background: 220 55% 5%;
+    --sidebar-foreground: 220 20% 93%;
+    --sidebar-primary: 43 55% 58%;
+    --sidebar-primary-foreground: 220 65% 3%;
+    --sidebar-accent: 220 40% 12%;
+    --sidebar-accent-foreground: 220 20% 93%;
+    --sidebar-border: 215 40% 14%;
+    --sidebar-ring: 215 65% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    overflow-wrap: break-word;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Crimson Text', serif;
+    letter-spacing: 0.03em;
+    font-weight: 700;
+  }
+
+  h1 { @apply text-3xl md:text-4xl leading-tight; }
+  h2 { @apply text-2xl md:text-3xl leading-snug; }
+  h3 { @apply text-xl md:text-2xl leading-snug; }
+}
+
+@layer utilities {
+  .gold-stripe {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.6), transparent);
+  }
+
+  .gold-border-left {
+    border-left: 3px solid hsl(var(--gold));
+    padding-left: 1rem;
+  }
+
+  /* ── Glassmorphism System ── */
+  .glass-card {
+    @apply relative overflow-hidden p-5 md:p-6 rounded-2xl;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card) / 0.75) 0%,
+      hsl(var(--card) / 0.45) 50%,
+      hsl(var(--card) / 0.35) 100%
+    );
+    border: 1px solid hsl(var(--border) / 0.6);
+    backdrop-filter: blur(32px) saturate(2);
+    box-shadow:
+      0 8px 40px hsl(var(--background) / 0.6),
+      0 1px 0 hsl(var(--foreground) / 0.05) inset,
+      0 -1px 0 hsl(var(--background) / 0.4) inset;
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 5%, hsl(var(--foreground) / 0.12) 30%, hsl(var(--gold) / 0.15) 50%, hsl(var(--foreground) / 0.12) 70%, transparent 95%);
+  }
+
+  .glass-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 30% 0%, hsl(var(--foreground) / 0.03) 0%, transparent 60%);
+  }
+
+  .glass-card-subtle {
+    @apply relative overflow-hidden p-4 md:p-5 rounded-xl;
+    background: linear-gradient(
+      145deg,
+      hsl(var(--card) / 0.55) 0%,
+      hsl(var(--card) / 0.3) 100%
+    );
+    border: 1px solid hsl(var(--border) / 0.4);
+    backdrop-filter: blur(20px) saturate(1.6);
+    box-shadow:
+      0 4px 20px hsl(var(--background) / 0.5),
+      0 1px 0 hsl(var(--foreground) / 0.03) inset;
+  }
+
+  .glass-card-subtle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 10%, hsl(var(--foreground) / 0.06) 50%, transparent 90%);
+  }
+
+  .glass-button {
+    @apply relative px-5 py-2.5 rounded-xl font-heading font-bold text-sm tracking-wider uppercase transition-all duration-300;
+    backdrop-filter: blur(16px);
+    box-shadow:
+      0 4px 20px hsl(var(--background) / 0.5),
+      0 1px 0 hsl(var(--foreground) / 0.08) inset;
+  }
+
+  .glass-button:hover {
+    box-shadow:
+      0 8px 40px hsl(var(--background) / 0.6),
+      0 1px 0 hsl(var(--foreground) / 0.12) inset;
+    transform: translateY(-2px);
+  }
+
+  .glass-button:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  .glass-button-gold {
+    @apply glass-button text-gold-foreground;
+    background: linear-gradient(135deg, hsl(43 60% 62%) 0%, hsl(var(--gold)) 50%, hsl(43 55% 45%) 100%);
+    box-shadow:
+      0 4px 24px hsl(var(--gold) / 0.4),
+      0 1px 0 hsl(43 60% 80% / 0.3) inset,
+      0 -1px 0 hsl(var(--gold) / 0.3) inset;
+  }
+
+  .glass-button-gold:hover {
+    background: linear-gradient(135deg, hsl(43 65% 68%) 0%, hsl(43 60% 62%) 50%, hsl(var(--gold)) 100%);
+    box-shadow:
+      0 8px 40px hsl(var(--gold) / 0.5),
+      0 1px 0 hsl(43 60% 85% / 0.4) inset;
+  }
+
+  .glass-button-accent {
+    @apply glass-button;
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.35) 0%, hsl(var(--accent) / 0.18) 100%);
+    border: 1px solid hsl(var(--accent) / 0.45);
+    color: hsl(var(--accent-foreground));
+    box-shadow:
+      0 4px 20px hsl(var(--accent) / 0.18),
+      0 1px 0 hsl(var(--foreground) / 0.06) inset;
+  }
+
+  .glass-button-accent:hover {
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.5) 0%, hsl(var(--accent) / 0.3) 100%);
+    box-shadow:
+      0 8px 32px hsl(var(--accent) / 0.3),
+      0 1px 0 hsl(var(--foreground) / 0.1) inset;
+  }
+
+  .glass-input {
+    @apply w-full px-4 py-3 font-body text-sm text-foreground rounded-xl;
+    @apply placeholder:text-muted-foreground/40;
+    @apply focus:outline-none;
+    background: linear-gradient(145deg, hsl(var(--muted) / 0.7) 0%, hsl(var(--muted) / 0.35) 100%);
+    border: 1px solid hsl(var(--border) / 0.55);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 10px hsl(var(--background) / 0.4) inset;
+    transition: all 0.3s ease;
+  }
+
+  .glass-input:focus {
+    border-color: hsl(var(--gold) / 0.5);
+    box-shadow:
+      0 0 0 3px hsl(var(--gold) / 0.08),
+      0 0 20px hsl(var(--gold) / 0.06),
+      0 2px 10px hsl(var(--background) / 0.4) inset;
+  }
+
+  .glass-textarea {
+    @apply glass-input resize-y leading-relaxed;
+  }
+
+  /* ── Cards & Layout ── */
+  .military-card {
+    @apply glass-card;
+  }
+
+  .topo-bg {
+    background-image:
+      radial-gradient(ellipse at 15% 80%, hsl(var(--accent) / 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 20%, hsl(var(--gold) / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.1) 0%, transparent 70%),
+      linear-gradient(180deg, hsl(var(--background)) 0%, hsl(220 60% 5%) 100%);
+  }
+
+  .olq-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-heading font-semibold rounded-lg;
+    background: hsl(var(--muted) / 0.6);
+    border: 1px solid;
+    backdrop-filter: blur(8px);
+  }
+
+  .pulse-loading {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.5; box-shadow: 0 0 24px hsl(var(--gold) / 0.15); }
+    50% { opacity: 1; box-shadow: 0 0 48px hsl(var(--gold) / 0.25); }
+  }
+
+  .scroll-reveal {
+    animation: revealUp 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 36px hsl(var(--gold) / 0.25), 0 0 72px hsl(var(--gold) / 0.08);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 24px hsl(var(--accent) / 0.2), 0 0 48px hsl(var(--accent) / 0.06);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border) / 0.8); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
+}

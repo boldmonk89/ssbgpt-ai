@@ -1,0 +1,161 @@
+import { useState, useCallback } from 'react';
+import { useAppStore } from '@/store/appStore';
+import { callGemini, buildPiqPrompt, fileToBase64 } from '@/lib/gemini';
+import { LoadingCard } from '@/components/LoadingCard';
+import { Upload, User, CheckCircle, FileText } from 'lucide-react';
+import { toast } from 'sonner';
+
+export default function PIQPage() {
+  const { piqContext, setPiqContext, piqImageUrl, setPiqImageUrl } = useAppStore();
+  const [loading, setLoading] = useState(false);
+  const [fileData, setFileData] = useState<string | null>(piqImageUrl);
+  const [fileType, setFileType] = useState<'image' | 'pdf'>('image');
+
+  const handleFileUpload = useCallback(async (file: File) => {
+    const base64 = await fileToBase64(file);
+    setFileData(base64);
+    setPiqImageUrl(base64);
+    setFileType(file.type === 'application/pdf' ? 'pdf' : 'image');
+  }, [setPiqImageUrl]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && (file.type.startsWith('image/') || file.type === 'application/pdf')) {
+      handleFileUpload(file);
+    }
+  }, [handleFileUpload]);
+
+  const analyze = async () => {
+    if (!fileData) { toast.error('Please upload your PIQ first.'); return; }
+    setLoading(true);
+    try {
+      const result = await callGemini(buildPiqPrompt(), fileData);
+      const jsonMatch = result.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        setPiqContext(JSON.parse(jsonMatch[0]));
+      } else {
+        setPiqContext({ rawAnalysis: result });
+      }
+      toast.success('PIQ analysis complete');
+    } catch (err: any) {
+      toast.error(err.message || 'Analysis failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6 scroll-reveal">
+      <div className="gold-border-left">
+        <h1 className="text-2xl">PIQ — Personal Information Questionnaire</h1>
+        <p className="text-muted-foreground font-body text-sm mt-1">
+          Upload your PIQ (PDF or photograph) for AI psychological profiling.
+        </p>
+      </div>
+      <div className="gold-stripe" />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}
+          className="glass-card flex flex-col items-center justify-center min-h-[300px] border-2 border-dashed border-border/40 hover:border-gold/40 transition-all duration-300 cursor-pointer"
+          onClick={() => document.getElementById('piq-upload')?.click()}>
+          {fileData ? (
+            <div className="relative w-full">
+              {fileType === 'pdf' ? (
+                <div className="flex flex-col items-center gap-3 py-8">
+                  <FileText className="h-16 w-16 text-gold" />
+                  <p className="font-heading font-semibold text-sm text-foreground">PIQ PDF Uploaded</p>
+                  <p className="text-xs text-muted-foreground font-body">Click to change</p>
+                </div>
+              ) : (
+                <img src={fileData} alt="PIQ" className="max-h-[400px] mx-auto object-contain rounded-xl" />
+              )}
+              <div className="absolute top-2 right-2"><CheckCircle className="h-5 w-5 text-success" /></div>
+            </div>
+          ) : (
+            <div className="text-center">
+              <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="font-heading font-semibold text-muted-foreground">Drop your PIQ here</p>
+              <p className="text-xs text-muted-foreground/50 font-body mt-1">PDF (2 pages) or photograph</p>
+            </div>
+          )}
+          <input id="piq-upload" type="file" accept="image/*,application/pdf" className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) { handleFileUpload(f); e.target.value = ''; } }} />
+        </div>
+
+        <div>
+          {loading ? (
+            <LoadingCard message="Analyzing PIQ... extracting personality indicators..." />
+          ) : piqContext ? (
+            <div className="glass-card space-y-4">
+              <h3 className="text-base font-heading font-bold text-gold gold-border-left">Psychological Profile</h3>
+              <div className="gold-stripe" />
+              {piqContext.overallProfile && (
+                <p className="font-body text-sm leading-relaxed text-foreground/85">{piqContext.overallProfile}</p>
+              )}
+              {piqContext.traits && (
+                <div>
+                  <p className="font-heading font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Personality Traits</p>
+                  <div className="flex flex-wrap gap-2">
+                    {piqContext.traits.map((t: string, i: number) => (
+                      <span key={i} className="olq-badge border-accent/50 text-accent">{t}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {piqContext.keyThemes && (
+                <div>
+                  <p className="font-heading font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Key Themes</p>
+                  <div className="flex flex-wrap gap-2">
+                    {piqContext.keyThemes.map((t: string, i: number) => (
+                      <span key={i} className="olq-badge border-gold/50 text-gold">{t}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {piqContext.olqInitialMapping && (
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <p className="font-heading font-semibold text-xs text-success uppercase tracking-wider mb-2">Likely Strong OLQs</p>
+                    {piqContext.olqInitialMapping.likelyStrong?.map((o: string, i: number) => (
+                      <p key={i} className="text-sm font-body text-success/80">• {o}</p>
+                    ))}
+                  </div>
+                  <div>
+                    <p className="font-heading font-semibold text-xs text-destructive uppercase tracking-wider mb-2">Likely Weak OLQs</p>
+                    {piqContext.olqInitialMapping.likelyWeak?.map((o: string, i: number) => (
+                      <p key={i} className="text-sm font-body text-destructive/80">• {o}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {piqContext.rawAnalysis && (
+                <p className="font-body text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">{piqContext.rawAnalysis}</p>
+              )}
+            </div>
+          ) : (
+            <div className="glass-card flex flex-col items-center justify-center min-h-[300px] text-muted-foreground">
+              <User className="h-12 w-12 mb-4 opacity-30" />
+              <p className="font-heading text-sm">Upload and analyze to see your profile</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {piqContext && !loading ? (
+        <div className="glass-card-subtle border-gold/20 text-center py-3">
+          <p className="font-heading text-xs text-gold mb-2">✓ PIQ has already been analyzed</p>
+          <button onClick={analyze} disabled={!fileData || loading}
+            className="glass-button-accent text-xs py-2">
+            Request Fresh Analysis
+          </button>
+        </div>
+      ) : (
+        <button onClick={analyze} disabled={!fileData || loading}
+          className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold">
+          {loading ? 'ANALYZING...' : 'ANALYZE PIQ'}
+        </button>
+      )}
+    </div>
+  );
+}
