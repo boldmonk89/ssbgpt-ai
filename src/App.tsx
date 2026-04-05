@@ -10,6 +10,7 @@ import TATPage from "./pages/TAT";
 import WATPage from "./pages/WAT";
 import SRTPage from "./pages/SRT";
 import SDPage from "./pages/SD";
+import AIPracticePage from "./pages/AIPractice";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/wat" element={<WATPage />} />
             <Route path="/srt" element={<SRTPage />} />
             <Route path="/sd" element={<SDPage />} />
+            <Route path="/ai-practice" element={<AIPracticePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>

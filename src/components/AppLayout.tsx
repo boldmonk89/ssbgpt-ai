@@ -1,9 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList } from 'lucide-react';
+import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit } from 'lucide-react';
 import { useState } from 'react';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
+  { to: '/ai-practice', label: 'AI Practice', icon: BrainCircuit },
   { to: '/full-analysis', label: 'Full Analysis', icon: ClipboardList },
   { to: '/piq', label: 'PIQ', icon: UserCircle },
   { to: '/tat', label: 'TAT', icon: FileText },
