@@ -29,6 +29,7 @@ const App = () => (
             <Route path="/wat" element={<WATPage />} />
             <Route path="/srt" element={<SRTPage />} />
             <Route path="/sd" element={<SDPage />} />
+            <Route path="/ai-practice" element={<AIPracticePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>
