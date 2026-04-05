@@ -140,6 +140,24 @@ export default function DashboardPage() {
         })}
       </div>
 
+      {/* AI Practice CTA */}
+      <div className="glass-card glow-gold text-center liquid-card">
+        <div className="flex justify-center mb-3">
+          <BrainCircuit className="h-6 w-6 text-gold" />
+        </div>
+        <h3 className="font-heading font-bold text-lg text-foreground mb-2">AI Practice Mode</h3>
+        <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
+          Upload a TAT image to get AI-generated stories, enter a word for WAT responses, or type a situation for SRT reactions — all with embedded OLQs.
+        </p>
+        <div className="flex justify-center mt-5">
+          <button onClick={() => navigate('/ai-practice')} className="glass-button-gold flex items-center gap-2 text-sm">
+            <BrainCircuit className="h-4 w-4" />
+            Go to AI Practice
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
       {/* Full Analysis CTA */}
       <div className="glass-card glow-gold text-center liquid-card">
         <div className="flex justify-center mb-3">
