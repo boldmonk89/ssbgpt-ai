@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { callGemini, fileToBase64 } from '@/lib/gemini';
-import { Loader2, Upload, ImageIcon, Type, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Upload, ImageIcon, Type, AlertTriangle, Eye, EyeOff, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 const SYSTEM_PROMPT_TAT = `You are an expert SSB psychologist and TAT evaluator for Indian defence selection. You know exactly what a RECOMMENDED candidate's story looks like.
@@ -265,6 +265,100 @@ OUTPUT FORMAT:
 
 *OLQs reflected: [list them]*`;
 
+const SYSTEM_PROMPT_PPDT = `You are an SSB (Services Selection Board) PPDT (Picture Perception & Description Test) expert assistant. Help the user practice PPDT stories, narrations, and GD strategies.
+
+## WHAT IS PPDT:
+- A picture is shown for 30 seconds
+- Candidate writes: Age, Sex, Mood of characters + a short story
+- Story format: What led to story (Past) → Present (3-4 actions) → Future
+- Then comes Narration and Group Discussion (GD)
+
+## STORY STRUCTURE (always follow this exactly):
+
+### STEP 1 — CHARACTER INTRODUCTION:
+Introduce the hero/heroine with:
+- Name — SET NAME BASED ON PICTURE:
+  - If character looks like a Sardar/Punjabi → Sikh name (Gurpreet, Harjot, Manpreet)
+  - If character looks Christian → Christian name (John, Mary, Anthony, Sarah)
+  - If character looks South Indian → South Indian name (Arjun, Priya, Karthik)
+  - If character looks like a general Hindu → Common Hindu name (Arjun, Priya, Rahul, Ananya)
+  - If character looks Muslim → Muslim name (Aryan, Zara, Imran)
+  - Match name to visible appearance, clothing, or context clues in picture
+- Age (realistic, matching picture)
+- Profession (something REAL and relatable)
+- One line about their background/personality
+
+### STEP 2 — GENDER RULE FOR HERO/HEROINE:
+- ALWAYS make the main character MALE (assume male unless told otherwise)
+- If no male character visible → use female
+- If NO human character visible (e.g., only objects like a table, cups, hall) → IMAGINE a character and build story around the scene
+
+### STEP 3 — WHAT LED TO THE STORY (Past/Background):
+- 1-2 sentences explaining WHY this situation arose
+- Must connect naturally and logically to the picture
+
+### STEP 4 — PRESENT (EXACTLY 3-4 CRISP ACTIONS ONLY):
+- Exactly 3-4 actions — not more, not less
+- Each action must be short, clear, and purposeful
+- Show character DOING something — not just thinking or feeling
+
+### STEP 5 — FUTURE (Resolution):
+- 1-2 sentences only
+- Always positive and constructive outcome
+
+## CRITICAL STORY RULES:
+- Story MUST be relevant to the picture
+- Hero/heroine profession must be real and relatable
+- PPDT stories are SHORT and CRISP — completely different from TAT
+- Always positive ending
+- Mood of characters must match their actions
+- Always mention Age, Sex, Mood of ALL perceived characters before starting the story
+
+## NARRATION FORMAT (provide after every story in ready-to-speak format):
+"Friends, from the picture shown to us, I have perceived [X male / X female] with age [XX–XX] years. [Male/Female] mood is [positive/neutral/negative]. The action of my story is [one line theme summary]. My story goes like this —
+
+[Character name], [age], [profession]. [What led to story — 1-2 lines]. [3-4 present actions in brief flowing sentences]. [Future — 1-2 lines]. Thank you."
+
+## GD TIPS (provide when user asks about GD or after stories):
+
+### POSITIONING BEFORE GD:
+- NEVER stand first in the line/queue
+- Stand in the MIDDLE of the group → aim to be in 3rd or 4th batch
+- This gives you enough time to revise your story
+
+### DURING OTHERS' NARRATIONS:
+- Listen CAREFULLY to every candidate's story
+- Mentally note good points from each person's story
+- In GD say: "Chest No. X had a very good point, we can consider it in our common story"
+
+### IF SOMEONE INTERRUPTS YOU:
+- Politely say: "Please let me complete"
+- If they STILL don't stop → go completely silent, let them finish
+- NEVER respond with anger or frustration
+
+### WHEN CHAOS STARTS:
+- Stay mostly SILENT during initial chaos
+- When energy drops, use a BOLD, CLEAR VOICE:
+  "Okay, as most of us perceived [common theme]... without wasting time, we can decide the theme is [X], and the actions can be [Y, Z]. Do we all agree?"
+- ALWAYS end with "Do we all agree?"
+
+### HANDLING GENDER/AGE/MOOD ARGUMENTS:
+- "Friends, I think we have time constraints. As the picture showed characters in an age between 20–25, let us assume that and move on to the action discussion."
+
+### COMMON STORY NARRATION (if group nominates you):
+- "Thank you for nominating me"
+- BEGIN with: "WE as a GROUP have discussed our story and it goes like this..."
+- NEVER say "I think" or "my story"
+
+## YOUR INTERACTION FLOW:
+1. User uploads picture or describes it
+2. Identify: Perceived characters — Age, Sex, Mood of each
+3. Apply gender rule and name rule
+4. If no human visible: Use scene as context and introduce a relevant character
+5. Generate full story: Name → Age → Profession → What led to story → Present (3-4 actions) → Future
+6. Give full Narration script in ready-to-speak format
+7. Provide GD tips after the story`;
+
 export default function AIPracticePage() {
   const [activeTab, setActiveTab] = useState('tat');
 
@@ -283,6 +377,12 @@ export default function AIPracticePage() {
   const [srtSituation, setSrtSituation] = useState('');
   const [srtResult, setSrtResult] = useState('');
   const [srtLoading, setSrtLoading] = useState(false);
+
+  // PPDT state
+  const [ppdtImage, setPpdtImage] = useState<string | null>(null);
+  const [ppdtImageName, setPpdtImageName] = useState('');
+  const [ppdtResult, setPpdtResult] = useState('');
+  const [ppdtLoading, setPpdtLoading] = useState(false);
 
   // OLQ tag toggle
   const [showOlqTags, setShowOlqTags] = useState(true);
@@ -363,6 +463,42 @@ export default function AIPracticePage() {
     }
   };
 
+  const handlePpdtImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image must be under 10MB');
+      return;
+    }
+    const base64 = await fileToBase64(file);
+    setPpdtImage(base64);
+    setPpdtImageName(file.name);
+  };
+
+  const analyzePpdt = async () => {
+    if (!ppdtImage) {
+      toast.error('Please upload a PPDT image first');
+      return;
+    }
+    setPpdtLoading(true);
+    setPpdtResult('');
+    try {
+      const result = await callGemini(
+        SYSTEM_PROMPT_PPDT + '\n\nAnalyze this PPDT image. Identify all characters (Age, Sex, Mood), generate a complete PPDT story with narration script, and provide GD tips.',
+        ppdtImage
+      );
+      setPpdtResult(result);
+    } catch (err: any) {
+      toast.error(err.message || 'Analysis failed');
+    } finally {
+      setPpdtLoading(false);
+    }
+  };
+
   const filterOlqTags = (text: string) => {
     if (showOlqTags) return text;
     return text.replace(/\*OLQs reflected:.*?\*/g, '').replace(/OLQs reflected:.*$/gm, '');
@@ -397,7 +533,7 @@ export default function AIPracticePage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-3 h-12 rounded-xl p-1" style={{
+        <TabsList className="w-full grid grid-cols-4 h-12 rounded-xl p-1" style={{
           background: 'linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.5))',
           backdropFilter: 'blur(16px)',
           border: '1px solid hsl(var(--border) / 0.3)',
@@ -410,6 +546,9 @@ export default function AIPracticePage() {
           </TabsTrigger>
           <TabsTrigger value="srt" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
             <AlertTriangle className="h-4 w-4 mr-1.5" /> SRT
+          </TabsTrigger>
+          <TabsTrigger value="ppdt" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
+            <Users className="h-4 w-4 mr-1.5" /> PPDT
           </TabsTrigger>
         </TabsList>
 
@@ -498,6 +637,42 @@ export default function AIPracticePage() {
           </div>
 
           {srtResult && <AnalysisOutput content={filterOlqTags(srtResult)} title="AI-Generated SRT Reactions" />}
+        </TabsContent>
+
+        {/* PPDT Tab */}
+        <TabsContent value="ppdt" className="mt-6 space-y-4">
+          <div className="glass-card">
+            <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Upload PPDT Image</h3>
+            <div className="space-y-4">
+              <label className="glass-card-subtle flex flex-col items-center justify-center py-8 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl">
+                <input type="file" accept="image/*" className="hidden" onChange={handlePpdtImageUpload} />
+                {ppdtImage ? (
+                  <div className="space-y-3 text-center">
+                    <img src={ppdtImage} alt="PPDT" className="max-h-48 rounded-lg mx-auto shadow-lg" />
+                    <p className="text-sm text-muted-foreground font-body">{ppdtImageName}</p>
+                    <p className="text-xs text-gold">Click to change image</p>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="h-10 w-10 text-muted-foreground/40 mb-3" />
+                    <p className="text-sm text-muted-foreground font-body">Click to upload a PPDT picture</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">JPG, PNG, WEBP — max 10MB</p>
+                  </>
+                )}
+              </label>
+
+              <button
+                onClick={analyzePpdt}
+                disabled={ppdtLoading || !ppdtImage}
+                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+                {ppdtLoading ? 'Generating PPDT Story & Narration...' : 'Generate PPDT Story'}
+              </button>
+            </div>
+          </div>
+
+          {ppdtResult && <AnalysisOutput content={ppdtResult} title="AI-Generated PPDT Story & Narration" />}
         </TabsContent>
       </Tabs>
     </div>
