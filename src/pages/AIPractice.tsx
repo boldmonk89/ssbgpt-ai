@@ -20,7 +20,7 @@ What makes this story recommended-level:
 - Ends with positive societal outcome — no personal award or glory
 - OLQs visible through ACTIONS, never stated explicitly
 - Clear past → present → future flow
-- Exactly 70-80 words
+- 120-150 words per story
 
 STEP 1 — IMAGE ANALYSIS (show before stories):
 Scan image clockwise from top-left. Identify and show:
@@ -47,7 +47,7 @@ MANDATORY STORY STRUCTURE:
 Exception: If picture shows award/victory/celebration — write what led to it, skip strict past-present-future format
 
 STORY QUALITY RULES:
-- Exactly 70-80 words per story
+- 120-150 words per story — NOT shorter
 - Logical, realistic, grounded — no magical or fantasy solutions
 - No self-rewarding endings (getting award/medal/praise as climax = wrong)
 - Never open with "One fine day"
@@ -79,7 +79,7 @@ COMMON MISTAKES TO AVOID:
 
 OUTPUT FORMAT:
 **Story [N] — Theme: [Theme Name]**
-[Story text — 70-80 words]
+[Story text — 120-150 words]
 *OLQs reflected: [list]*`;
 
 const SYSTEM_PROMPT_WAT = `You are an expert SSB psychologist specializing in WAT (Word Association Test) for Indian defence selection.
