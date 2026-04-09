@@ -87,6 +87,12 @@
     padding-left: 1rem;
   }
 
+  /* ── Sweeping Shine Keyframe ── */
+  @keyframes card-shine-sweep {
+    0% { transform: translateX(-100%) rotate(25deg); }
+    100% { transform: translateX(300%) rotate(25deg); }
+  }
+
   /* ── Glassmorphism System ── */
   .glass-card {
     @apply relative overflow-hidden p-5 md:p-6 rounded-2xl;
@@ -104,6 +110,7 @@
       0 -1px 0 hsl(var(--background) / 0.4) inset;
   }
 
+  /* Top edge highlight */
   .glass-card::before {
     content: '';
     position: absolute;
@@ -112,17 +119,31 @@
     right: 0;
     height: 1px;
     background: linear-gradient(90deg, transparent 5%, hsl(var(--foreground) / 0.12) 30%, hsl(var(--gold) / 0.15) 50%, hsl(var(--foreground) / 0.12) 70%, transparent 95%);
+    z-index: 2;
   }
 
+  /* Sweeping shine line */
   .glass-card::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -50%;
+    left: -50%;
+    width: 30%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--foreground) / 0.04) 30%,
+      hsl(var(--gold) / 0.08) 45%,
+      hsl(var(--foreground) / 0.12) 50%,
+      hsl(var(--gold) / 0.08) 55%,
+      hsl(var(--foreground) / 0.04) 70%,
+      transparent 100%
+    );
+    transform: rotate(25deg);
+    animation: card-shine-sweep 5s ease-in-out infinite;
     pointer-events: none;
-    background: radial-gradient(ellipse at 30% 0%, hsl(var(--foreground) / 0.03) 0%, transparent 60%);
+    z-index: 1;
   }
 
   .glass-card-subtle {
@@ -213,10 +234,10 @@
     transition-duration: 0.1s;
   }
 
-  /* ── Gold Button with Live Shimmer + Glow Pulse ── */
-  @keyframes btn-shimmer {
-    0% { transform: translateX(-100%) skewX(-15deg); }
-    100% { transform: translateX(200%) skewX(-15deg); }
+  /* ── Gold Button with Sweeping Shine Line + Glow Pulse ── */
+  @keyframes btn-shine-sweep {
+    0% { left: -40%; }
+    100% { left: 140%; }
   }
 
   @keyframes btn-glow-pulse {
@@ -240,23 +261,26 @@
       0 -1px 0 hsl(var(--gold) / 0.3) inset;
   }
 
-  /* Traveling shimmer highlight */
+  /* Thin sweeping shine line across button */
   .glass-button-gold::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 40%;
-    height: 100%;
+    top: -20%;
+    left: -40%;
+    width: 20%;
+    height: 140%;
     background: linear-gradient(
       90deg,
       transparent 0%,
-      hsl(43 80% 85% / 0.4) 40%,
-      hsl(43 90% 95% / 0.6) 50%,
-      hsl(43 80% 85% / 0.4) 60%,
+      hsl(43 90% 90% / 0.15) 35%,
+      hsl(43 95% 95% / 0.5) 48%,
+      hsl(0 0% 100% / 0.6) 50%,
+      hsl(43 95% 95% / 0.5) 52%,
+      hsl(43 90% 90% / 0.15) 65%,
       transparent 100%
     );
-    animation: btn-shimmer 3s ease-in-out infinite;
+    transform: skewX(-20deg);
+    animation: btn-shine-sweep 4s ease-in-out infinite;
     pointer-events: none;
     border-radius: inherit;
   }
@@ -392,6 +416,13 @@
   .stagger-children > *:nth-child(6) { animation-delay: 400ms; }
   .stagger-children > *:nth-child(7) { animation-delay: 480ms; }
   .stagger-children > *:nth-child(8) { animation-delay: 560ms; }
+
+  /* Stagger shine sweep on cards */
+  .stagger-children > *:nth-child(1)::after { animation-delay: 0s; }
+  .stagger-children > *:nth-child(2)::after { animation-delay: 0.8s; }
+  .stagger-children > *:nth-child(3)::after { animation-delay: 1.6s; }
+  .stagger-children > *:nth-child(4)::after { animation-delay: 2.4s; }
+  .stagger-children > *:nth-child(5)::after { animation-delay: 3.2s; }
 
   /* ── Floating particle effect ── */
   @keyframes float {
