@@ -1,40 +1,36 @@
 /**
  * SSB GPT — Service Worker
- * Strategy: Cache-first for static assets, Network-first for API calls
+ * Cache-first for static assets, Network-first for API/Supabase calls
  */
 
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v2.0.0';
 const STATIC_CACHE  = `ssbgpt-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `ssbgpt-dynamic-${CACHE_VERSION}`;
-const API_CACHE     = `ssbgpt-api-${CACHE_VERSION}`;
 
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/offline.html',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-];
-
-// Install
+// Install — cache the app shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return cache.addAll([
+        '/',
+        '/index.html',
+        '/offline.html',
+        '/manifest.json',
+        '/favicon.png',
+      ]);
     }).then(() => self.skipWaiting())
   );
 });
 
-// Activate
+// Activate — clean old caches
 self.addEventListener('activate', (event) => {
-  const allowedCaches = [STATIC_CACHE, DYNAMIC_CACHE, API_CACHE];
+  const allowed = [STATIC_CACHE, DYNAMIC_CACHE];
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => !allowedCaches.includes(k)).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
-     .then(() => self.clients.matchAll({ type: 'window' }))
-     .then((clients) => clients.forEach((c) => c.postMessage({ type: 'SW_UPDATED' })))
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => !allowed.includes(k)).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ type: 'window' }))
+      .then((clients) => clients.forEach((c) => c.postMessage({ type: 'SW_UPDATED' })))
   );
 });
 
@@ -43,73 +39,78 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Skip non-GET, non-HTTP, OAuth redirects
   if (request.method !== 'GET') return;
   if (!url.protocol.startsWith('http')) return;
-  // Never cache OAuth redirects
   if (url.pathname.startsWith('/~oauth')) return;
 
+  // API / Supabase — network only, never cache
   if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase')) {
-    event.respondWith(networkFirst(request, API_CACHE));
+    event.respondWith(
+      fetch(request).catch(() =>
+        new Response(JSON.stringify({ error: 'Offline', fallback: true }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      )
+    );
     return;
   }
 
-  if (isStaticAsset(url.pathname)) {
-    event.respondWith(cacheFirst(request, STATIC_CACHE));
-    return;
-  }
-
+  // Navigation requests (HTML pages) — network first, fallback to cache, then offline page
   if (request.mode === 'navigate') {
-    event.respondWith(navigationHandler(request));
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          const root = await caches.match('/');
+          if (root) return root;
+          return caches.match('/offline.html');
+        })
+    );
     return;
   }
 
-  event.respondWith(staleWhileRevalidate(request, DYNAMIC_CACHE));
+  // Static assets (JS, CSS, images, fonts) — cache first
+  if (isStaticAsset(url.pathname)) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        }).catch(() => new Response('', { status: 503 }));
+      })
+    );
+    return;
+  }
+
+  // Everything else — stale-while-revalidate
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      const networkFetch = fetch(request).then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      }).catch(() => null);
+      return cached || networkFetch || new Response('', { status: 503 });
+    })
+  );
 });
 
-async function networkFirst(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  try {
-    const response = await Promise.race([
-      fetch(request.clone()),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
-    ]);
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  } catch {
-    return (await cache.match(request)) || new Response(
-      JSON.stringify({ error: 'Offline' }), { status: 503, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-}
-
-async function cacheFirst(request, cacheName) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  try {
-    const response = await fetch(request);
-    if (response.ok) { const cache = await caches.open(cacheName); cache.put(request, response.clone()); }
-    return response;
-  } catch { return new Response('Offline', { status: 503 }); }
-}
-
-async function navigationHandler(request) {
-  try {
-    const response = await fetch(request);
-    if (response.ok) { const cache = await caches.open(DYNAMIC_CACHE); cache.put(request, response.clone()); }
-    return response;
-  } catch {
-    return (await caches.match(request)) || (await caches.match('/')) || (await caches.match('/offline.html'))
-      || new Response('<h1>Offline</h1>', { headers: { 'Content-Type': 'text/html' } });
-  }
-}
-
-async function staleWhileRevalidate(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
-  const networkFetch = fetch(request).then((r) => { if (r.ok) cache.put(request, r.clone()); return r; }).catch(() => null);
-  return cached || await networkFetch || new Response('Offline', { status: 503 });
-}
-
 function isStaticAsset(p) {
-  return /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webp|avif)(\?.*)?$/.test(p);
+  return /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webp|avif|mp4)(\?.*)?$/.test(p);
 }
