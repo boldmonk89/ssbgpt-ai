@@ -87,6 +87,12 @@
     padding-left: 1rem;
   }
 
+  /* ── Sweeping Shine Keyframe ── */
+  @keyframes card-shine-sweep {
+    0% { transform: translateX(-100%) rotate(25deg); }
+    100% { transform: translateX(300%) rotate(25deg); }
+  }
+
   /* ── Glassmorphism System ── */
   .glass-card {
     @apply relative overflow-hidden p-5 md:p-6 rounded-2xl;
@@ -104,6 +110,7 @@
       0 -1px 0 hsl(var(--background) / 0.4) inset;
   }
 
+  /* Top edge highlight */
   .glass-card::before {
     content: '';
     position: absolute;
@@ -112,17 +119,31 @@
     right: 0;
     height: 1px;
     background: linear-gradient(90deg, transparent 5%, hsl(var(--foreground) / 0.12) 30%, hsl(var(--gold) / 0.15) 50%, hsl(var(--foreground) / 0.12) 70%, transparent 95%);
+    z-index: 2;
   }
 
+  /* Sweeping shine line */
   .glass-card::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -50%;
+    left: -50%;
+    width: 30%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--foreground) / 0.04) 30%,
+      hsl(var(--gold) / 0.08) 45%,
+      hsl(var(--foreground) / 0.12) 50%,
+      hsl(var(--gold) / 0.08) 55%,
+      hsl(var(--foreground) / 0.04) 70%,
+      transparent 100%
+    );
+    transform: rotate(25deg);
+    animation: card-shine-sweep 5s ease-in-out infinite;
     pointer-events: none;
-    background: radial-gradient(ellipse at 30% 0%, hsl(var(--foreground) / 0.03) 0%, transparent 60%);
+    z-index: 1;
   }
 
   .glass-card-subtle {
