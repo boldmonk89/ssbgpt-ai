@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit } from 'lucide-react';
 import { useState } from 'react';
+import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
@@ -49,10 +50,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       }}>
         <div className="p-6 pb-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 border-2 border-gold/60 flex items-center justify-center rounded-xl glow-gold" style={{
-              background: 'linear-gradient(135deg, hsl(var(--gold) / 0.15) 0%, hsl(var(--gold) / 0.05) 100%)',
-            }}>
-              <span className="text-gold font-heading font-bold text-base">☸</span>
+            <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-gold/60 glow-gold flex-shrink-0">
+              <img src={ssbgptLogo} alt="SSBGPT" width={40} height={40} className="h-full w-full object-cover" />
             </div>
             <div>
               <h1 className="font-heading font-bold text-sm tracking-wider text-foreground">AI PSYCH</h1>
