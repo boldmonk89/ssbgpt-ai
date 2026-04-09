@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, ArrowRight, Sparkles, Menu, FileText, MessageSquare, Zap, UserCircle, ClipboardList, BrainCircuit } from 'lucide-react';
+import { Shield, ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import slide1 from '@/assets/slideshow/slide1.jpg';
@@ -9,13 +9,19 @@ import slide4 from '@/assets/slideshow/slide4.jpg';
 import slide5 from '@/assets/slideshow/slide5.jpg';
 import slide6 from '@/assets/slideshow/slide6.jpg';
 
+import logoTat from '@/assets/logos/logo-tat.png';
+import logoWat from '@/assets/logos/logo-wat.png';
+import logoSrt from '@/assets/logos/logo-srt.png';
+import logoSd from '@/assets/logos/logo-sd.png';
+import logoPiq from '@/assets/logos/logo-piq.png';
+
 const SLIDES = [slide1, slide2, slide3, slide4, slide5, slide6];
 
 const TEST_CARDS = [
   {
     label: 'TAT',
     path: '/tat',
-    icon: FileText,
+    logo: logoTat,
     title: 'Thematic Apperception Test',
     desc: 'Write or upload your TAT stories. Get structure analysis, theme evaluation, OLQ signals, score out of 10, and AI-rewritten improved versions.',
     color: '#2e6db4',
@@ -23,7 +29,7 @@ const TEST_CARDS = [
   {
     label: 'WAT',
     path: '/wat',
-    icon: MessageSquare,
+    logo: logoWat,
     title: 'Word Association Test',
     desc: 'Enter your word-sentence pairs. Each response is checked for word count, positivity, pronouns, and mapped to specific OLQs.',
     color: '#1e7d4f',
@@ -31,7 +37,7 @@ const TEST_CARDS = [
   {
     label: 'SRT',
     path: '/srt',
-    icon: Zap,
+    logo: logoSrt,
     title: 'Situation Reaction Test',
     desc: 'Submit your situation-response pairs. Each is categorized, evaluated for realism and officer qualities, and scored with improvements.',
     color: '#c0392b',
@@ -39,7 +45,7 @@ const TEST_CARDS = [
   {
     label: 'SD',
     path: '/sd',
-    icon: Shield,
+    logo: logoSd,
     title: 'Self Description',
     desc: 'Write all 5 SD paragraphs — Parents, Teachers, Friends, Self, and Qualities to develop. Get authenticity analysis and OLQ coverage.',
     color: '#8e44ad',
@@ -47,7 +53,7 @@ const TEST_CARDS = [
   {
     label: 'PIQ',
     path: '/piq',
-    icon: UserCircle,
+    logo: logoPiq,
     title: 'Personal Information Questionnaire',
     desc: 'Upload your PIQ form and get an AI-extracted psychological profile with OLQ mapping, personality traits, and leadership indicators.',
     color: '#c9a84c',
@@ -136,7 +142,6 @@ export default function DashboardPage() {
       {/* Test Cards */}
       <div className="space-y-4 stagger-children">
         {TEST_CARDS.map((test) => {
-          const Icon = test.icon;
           return (
             <button
               key={test.path}
@@ -144,12 +149,7 @@ export default function DashboardPage() {
               className="glass-card liquid-card w-full text-left group cursor-pointer"
             >
               <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0 float-slow" style={{
-                  background: `linear-gradient(135deg, ${test.color}33 0%, ${test.color}11 100%)`,
-                  border: `1px solid ${test.color}44`,
-                }}>
-                  <Icon className="h-6 w-6" style={{ color: test.color }} />
-                </div>
+                <img src={test.logo} alt={test.label} loading="lazy" width={56} height={56} className="h-14 w-14 flex-shrink-0 float-slow object-contain" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1">
                     <span className="font-heading font-bold text-xl" style={{ color: test.color }}>
