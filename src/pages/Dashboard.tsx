@@ -16,6 +16,8 @@ import logoSrt from '@/assets/logos/logo-srt.png';
 import logoSd from '@/assets/logos/logo-sd.png';
 import logoPiq from '@/assets/logos/logo-piq.png';
 
+import ssbMentorPreview from '@/assets/ssbmentor-preview.mp4.asset.json';
+
 const SLIDES = [slide1, slide2, slide3, slide4, slide5, slide6];
 
 const TEST_CARDS = [
@@ -239,6 +241,18 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        {/* Preview Video */}
+        <div className="mb-6 rounded-xl overflow-hidden border border-border/30">
+          <video
+            src={ssbMentorPreview.url}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full"
+            style={{ aspectRatio: '16/9', objectFit: 'cover' }}
+          />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           {[
             { icon: BookOpen, title: '3 Ebooks', desc: 'SSB Blueprint, Test of You & TAT-100 — covering psychology, GTO, interview & mindset' },
