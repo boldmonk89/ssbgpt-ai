@@ -45,16 +45,21 @@ export default function Footer() {
             </div>
           </a>
 
-          {/* Telegram QR */}
-          <div className="flex flex-col items-center gap-2">
-            <div className="h-28 w-28 rounded-xl overflow-hidden border border-border/30 bg-white p-1">
-              <img src={telegramQr} alt="Telegram QR - @SCORCHIEE" className="h-full w-full object-contain" />
+          {/* Telegram */}
+          <a
+            href="https://t.me/scorchiee"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center gap-2 group"
+          >
+            <div className="h-28 w-28 rounded-xl overflow-hidden border border-border/30 bg-white p-1 transition-all group-hover:scale-105">
+              <img src={telegramQr} alt="Telegram QR - @scorchiee" className="h-full w-full object-contain" />
             </div>
             <div className="flex items-center gap-1.5">
               <Send className="h-3.5 w-3.5 text-gold" />
-              <p className="font-body text-xs text-muted-foreground">@SCORCHIEE on Telegram</p>
+              <p className="font-body text-xs text-muted-foreground">@scorchiee on Telegram</p>
             </div>
-          </div>
+          </a>
         </div>
 
         {/* Bottom Bar */}
