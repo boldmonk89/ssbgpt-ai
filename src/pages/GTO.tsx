@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
-import { callGemini, fileToBase64 } from '@/lib/gemini';
-import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight } from 'lucide-react';
+import { callGemini, callGeminiMultiPart, fileToBase64, getFileMimeType } from '@/lib/gemini';
+import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 import gtoTask1 from '@/assets/gto/gto-task-1.jpg';
@@ -237,6 +237,8 @@ export default function GTOPage() {
   const [gpeUserSolution, setGpeUserSolution] = useState('');
   const [gpeUserAnalysis, setGpeUserAnalysis] = useState('');
   const [gpeUserLoading, setGpeUserLoading] = useState(false);
+  const [gpePdfFile, setGpePdfFile] = useState<string | null>(null);
+  const [gpePdfName, setGpePdfName] = useState('');
 
   // Lecturette state
   const [lecTopic, setLecTopic] = useState('');
@@ -245,6 +247,18 @@ export default function GTOPage() {
   const [lecUserText, setLecUserText] = useState('');
   const [lecUserAnalysis, setLecUserAnalysis] = useState('');
   const [lecUserLoading, setLecUserLoading] = useState(false);
+  
+  // Video recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoAnalyzing, setVideoAnalyzing] = useState(false);
+  const [videoAnalysis, setVideoAnalysis] = useState('');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Image slideshow
   useEffect(() => {
@@ -301,20 +315,111 @@ export default function GTOPage() {
     }
   };
 
-  const analyzeGpeUserSolution = async () => {
-    if (!gpeUserSolution.trim()) { toast.error('Please enter your solution'); return; }
+  // GPE PDF upload handler
+  const handleGpePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf' && !file.type.startsWith('image/')) {
+      toast.error('Please upload a PDF or image file'); return;
+    }
+    if (file.size > 15 * 1024 * 1024) { toast.error('File must be under 15MB'); return; }
+    const base64 = await fileToBase64(file);
+    setGpePdfFile(base64);
+    setGpePdfName(file.name);
+  };
+
+  const analyzeGpePdf = async () => {
+    if (!gpePdfFile) { toast.error('Please upload your GPE solution PDF'); return; }
     setGpeUserLoading(true);
     setGpeUserAnalysis('');
     try {
-      const result = await callGemini(
-        SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nThe candidate's own solution is:\n"${gpeUserSolution.trim()}"\n\nAnalyze their solution — what they did well, what they missed, specific improvements, and score out of 10.`,
-        gpeImage || undefined
+      const mimeType = gpePdfFile.startsWith('data:application/pdf') ? 'application/pdf' : 'image/jpeg';
+      const result = await callGeminiMultiPart(
+        SYSTEM_PROMPT_GPE + `\n\nThe candidate has uploaded their GPE solution as a PDF/image. Analyze their solution:\n- What they did well\n- What they missed\n- Specific improvements with suggestions\n- Prioritization accuracy\n- Resource utilization\n- Time management\n- OLQs demonstrated\n- Score out of 10\n\n${gpeParagraph ? `The original GPE problem was: "${gpeParagraph.trim()}"` : ''}`,
+        [{ base64: gpePdfFile, mimeType }]
       );
       setGpeUserAnalysis(result);
     } catch (err: any) {
-      toast.error(err.message || 'Failed to analyze your solution');
+      toast.error(err.message || 'Failed to analyze your GPE solution');
     } finally {
       setGpeUserLoading(false);
+    }
+  };
+
+  // Video recording functions
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      streamRef.current = stream;
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        setVideoBlob(blob);
+        setVideoUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach(t => t.stop());
+      };
+
+      mediaRecorder.start(1000);
+      setIsRecording(true);
+      setRecordingTime(0);
+      setVideoBlob(null);
+      setVideoUrl(null);
+      setVideoAnalysis('');
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 179) { // 3 minutes = 180 seconds
+            stopRecording();
+            return 180;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      toast.error('Microphone access denied. Please allow mic access.');
+    }
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsRecording(false);
+  }, []);
+
+  const analyzeRecordedLecturette = async () => {
+    if (!videoBlob) { toast.error('No recording found'); return; }
+    setVideoAnalyzing(true);
+    setVideoAnalysis('');
+    try {
+      // Convert blob to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(videoBlob);
+      });
+      const base64 = await base64Promise;
+
+      const result = await callGeminiMultiPart(
+        SYSTEM_PROMPT_LECTURETTE + `\n\nThe candidate has recorded a ${Math.round(recordingTime / 60)}:${String(recordingTime % 60).padStart(2, '0')} minute audio lecturette on the topic: "${lecTopic.trim() || 'Unknown topic'}"\n\nTranscribe the audio and then analyze:\n- Structure (Opening quote + Jay Hind / Body parts / Personal opinion / Closing)\n- Time management (was it close to 3 minutes?)\n- Content quality and current facts used\n- Fluency, filler words, pauses\n- What to rephrase and what NOT to say\n- How to better structure the lecturette\n- Score out of 10\n- Provide specific improvements`,
+        [{ base64, mimeType: 'audio/webm' }]
+      );
+      setVideoAnalysis(result);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to analyze your lecturette');
+    } finally {
+      setVideoAnalyzing(false);
     }
   };
 
@@ -472,20 +577,72 @@ export default function GTOPage() {
             <div className="glass-card">
               <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Submit Your Solution for Review</h3>
               <div className="space-y-4">
+                {/* Option 1: Upload PDF */}
+                <label className="glass-card-subtle flex flex-col items-center justify-center py-5 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl">
+                  <input type="file" accept=".pdf,image/*" className="hidden" onChange={handleGpePdfUpload} />
+                  {gpePdfFile ? (
+                    <div className="text-center space-y-1">
+                      <FileText className="h-6 w-6 text-gold mx-auto" />
+                      <p className="text-sm text-foreground font-body">{gpePdfName}</p>
+                      <p className="text-xs text-gold">Click to change file</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="h-6 w-6 text-muted-foreground/40 mb-1" />
+                      <p className="text-sm text-muted-foreground font-body">Upload your GPE solution (PDF or image)</p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">AI will analyze and give suggestions</p>
+                    </>
+                  )}
+                </label>
+
+                {gpePdfFile && (
+                  <button
+                    onClick={analyzeGpePdf}
+                    disabled={gpeUserLoading}
+                    className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {gpeUserLoading ? 'Analyzing Your Solution...' : 'Analyze Uploaded Solution'}
+                  </button>
+                )}
+
+                <div className="flex items-center gap-3 my-2">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-xs text-muted-foreground font-body">OR type below</span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+
                 <Textarea
-                  placeholder="Paste your own GPE solution here — AI will analyze and give improvements..."
+                  placeholder="Paste your own GPE solution here..."
                   value={gpeUserSolution}
                   onChange={(e) => setGpeUserSolution(e.target.value)}
                   className="min-h-[100px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
                 />
-                <button
-                  onClick={analyzeGpeUserSolution}
-                  disabled={gpeUserLoading || !gpeUserSolution.trim()}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
-                  {gpeUserLoading ? 'Analyzing Your Solution...' : 'Analyze My Solution'}
-                </button>
+                {gpeUserSolution.trim() && (
+                  <button
+                    onClick={async () => {
+                      if (!gpeUserSolution.trim()) return;
+                      setGpeUserLoading(true);
+                      setGpeUserAnalysis('');
+                      try {
+                        const result = await callGemini(
+                          SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nThe candidate's own solution is:\n"${gpeUserSolution.trim()}"\n\nAnalyze their solution — what they did well, what they missed, specific improvements, and score out of 10.`,
+                          gpeImage || undefined
+                        );
+                        setGpeUserAnalysis(result);
+                      } catch (err: any) {
+                        toast.error(err.message || 'Failed to analyze your solution');
+                      } finally {
+                        setGpeUserLoading(false);
+                      }
+                    }}
+                    disabled={gpeUserLoading}
+                    className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {gpeUserLoading ? 'Analyzing Your Solution...' : 'Analyze My Solution'}
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -518,11 +675,85 @@ export default function GTOPage() {
 
           {lecResult && <AnalysisOutput content={lecResult} title="AI-Generated Model Lecturette" />}
 
-          {/* User lecturette analysis */}
+          {/* User lecturette analysis — text or audio */}
           {lecResult && (
             <div className="glass-card">
               <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Submit Your Lecturette for Review</h3>
               <div className="space-y-4">
+                {/* Audio Recording */}
+                <div className="glass-card-subtle p-4 rounded-xl space-y-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Video className="h-4 w-4 text-gold" />
+                    <span className="font-heading font-semibold text-sm text-foreground">Record Your Lecturette (3 min max)</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    {!isRecording ? (
+                      <button
+                        onClick={startRecording}
+                        disabled={videoAnalyzing}
+                        className="glass-button-gold flex items-center gap-2 text-sm"
+                      >
+                        <Mic className="h-4 w-4" />
+                        Start Recording
+                      </button>
+                    ) : (
+                      <button
+                        onClick={stopRecording}
+                        className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl font-heading font-semibold bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-all"
+                      >
+                        <Square className="h-3 w-3 fill-current" />
+                        Stop Recording
+                      </button>
+                    )}
+
+                    {(isRecording || recordingTime > 0) && (
+                      <div className="flex items-center gap-2">
+                        {isRecording && <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />}
+                        <span className="font-mono text-sm text-foreground">
+                          {Math.floor(recordingTime / 60)}:{String(recordingTime % 60).padStart(2, '0')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">/ 3:00</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Progress bar */}
+                  {(isRecording || recordingTime > 0) && (
+                    <div className="w-full h-1.5 rounded-full bg-muted/30 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-1000"
+                        style={{
+                          width: `${Math.min((recordingTime / 180) * 100, 100)}%`,
+                          background: recordingTime > 160 ? 'hsl(0 70% 50%)' : 'hsl(var(--gold))',
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {videoUrl && !isRecording && (
+                    <div className="space-y-3">
+                      <audio src={videoUrl} controls className="w-full h-10" />
+                      <button
+                        onClick={analyzeRecordedLecturette}
+                        disabled={videoAnalyzing}
+                        className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {videoAnalyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {videoAnalyzing ? 'Analyzing Your Lecturette...' : 'Analyze My Recorded Lecturette'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {videoAnalysis && <AnalysisOutput content={videoAnalysis} title="Your Recorded Lecturette — AI Review" />}
+
+                <div className="flex items-center gap-3 my-2">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-xs text-muted-foreground font-body">OR paste text</span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+
                 <Textarea
                   placeholder="Paste your own lecturette text here — AI will analyze structure, facts, and flow..."
                   value={lecUserText}
