@@ -61,19 +61,19 @@ export default function DashboardPage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 5000);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
   return (
     <div className="space-y-10 scroll-reveal">
       {/* Hero — Liquid Glass with Slideshow */}
-      <div className="glass-card glow-gold text-center py-10 md:py-14 relative overflow-hidden min-h-[320px]">
-        {/* Slideshow Background */}
+      <div className="relative text-center py-10 md:py-14 overflow-hidden min-h-[320px] rounded-2xl">
+        {/* Slideshow Background — full bleed, no card border */}
         {SLIDES.map((src, i) => (
           <div
             key={i}
-            className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
+            className="absolute inset-0 transition-opacity duration-700 ease-in-out"
             style={{
               opacity: currentSlide === i ? 1 : 0,
               backgroundImage: `url(${src})`,
@@ -83,7 +83,7 @@ export default function DashboardPage() {
           />
         ))}
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-background/60" />
 
         <div className="absolute top-6 left-8 h-16 w-16 rounded-full opacity-20 float-slow"
           style={{ background: 'radial-gradient(circle, hsl(var(--gold) / 0.4), transparent)' }} />
@@ -105,20 +105,7 @@ export default function DashboardPage() {
             Your SSB psychological tests evaluated on <strong className="text-gold">15 Officer Like Qualities</strong> — the core traits the Services Selection Board uses to determine your officer potential.
           </p>
 
-          {/* Slide indicators */}
-          <div className="flex justify-center gap-1.5 mt-4">
-            {SLIDES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentSlide(i)}
-                className="h-1.5 rounded-full transition-all duration-500"
-                style={{
-                  width: currentSlide === i ? '24px' : '6px',
-                  background: currentSlide === i ? 'hsl(var(--gold))' : 'hsl(var(--foreground) / 0.2)',
-                }}
-              />
-            ))}
-          </div>
+          {/* Slide indicators removed */}
 
           <div className="flex justify-center mt-6">
             <button

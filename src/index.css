@@ -60,13 +60,14 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 400;
     overflow-wrap: break-word;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-style: italic;
-    letter-spacing: 0.02em;
+    font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    font-style: normal;
+    letter-spacing: -0.01em;
     font-weight: 700;
   }
 
