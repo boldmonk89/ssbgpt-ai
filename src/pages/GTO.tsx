@@ -577,20 +577,72 @@ export default function GTOPage() {
             <div className="glass-card">
               <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Submit Your Solution for Review</h3>
               <div className="space-y-4">
+                {/* Option 1: Upload PDF */}
+                <label className="glass-card-subtle flex flex-col items-center justify-center py-5 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl">
+                  <input type="file" accept=".pdf,image/*" className="hidden" onChange={handleGpePdfUpload} />
+                  {gpePdfFile ? (
+                    <div className="text-center space-y-1">
+                      <FileText className="h-6 w-6 text-gold mx-auto" />
+                      <p className="text-sm text-foreground font-body">{gpePdfName}</p>
+                      <p className="text-xs text-gold">Click to change file</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="h-6 w-6 text-muted-foreground/40 mb-1" />
+                      <p className="text-sm text-muted-foreground font-body">Upload your GPE solution (PDF or image)</p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">AI will analyze and give suggestions</p>
+                    </>
+                  )}
+                </label>
+
+                {gpePdfFile && (
+                  <button
+                    onClick={analyzeGpePdf}
+                    disabled={gpeUserLoading}
+                    className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {gpeUserLoading ? 'Analyzing Your Solution...' : 'Analyze Uploaded Solution'}
+                  </button>
+                )}
+
+                <div className="flex items-center gap-3 my-2">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-xs text-muted-foreground font-body">OR type below</span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+
                 <Textarea
-                  placeholder="Paste your own GPE solution here — AI will analyze and give improvements..."
+                  placeholder="Paste your own GPE solution here..."
                   value={gpeUserSolution}
                   onChange={(e) => setGpeUserSolution(e.target.value)}
                   className="min-h-[100px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
                 />
-                <button
-                  onClick={analyzeGpeUserSolution}
-                  disabled={gpeUserLoading || !gpeUserSolution.trim()}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
-                  {gpeUserLoading ? 'Analyzing Your Solution...' : 'Analyze My Solution'}
-                </button>
+                {gpeUserSolution.trim() && (
+                  <button
+                    onClick={async () => {
+                      if (!gpeUserSolution.trim()) return;
+                      setGpeUserLoading(true);
+                      setGpeUserAnalysis('');
+                      try {
+                        const result = await callGemini(
+                          SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nThe candidate's own solution is:\n"${gpeUserSolution.trim()}"\n\nAnalyze their solution — what they did well, what they missed, specific improvements, and score out of 10.`,
+                          gpeImage || undefined
+                        );
+                        setGpeUserAnalysis(result);
+                      } catch (err: any) {
+                        toast.error(err.message || 'Failed to analyze your solution');
+                      } finally {
+                        setGpeUserLoading(false);
+                      }
+                    }}
+                    disabled={gpeUserLoading}
+                    className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {gpeUserLoading ? 'Analyzing Your Solution...' : 'Analyze My Solution'}
+                  </button>
+                )}
               </div>
             </div>
           )}
