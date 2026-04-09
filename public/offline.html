@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SSB GPT — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a1628;
+      color: #e8edf5;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .emblem {
+      width: 80px;
+      height: 80px;
+      border: 2px solid #c8a96e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      font-size: 2rem;
+      color: #c8a96e;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(200, 169, 110, 0.3); }
+      50%       { box-shadow: 0 0 0 16px rgba(200, 169, 110, 0); }
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #c8a96e;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      color: #8899aa;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      max-width: 300px;
+      margin-bottom: 2rem;
+    }
+
+    .retry-btn {
+      background: linear-gradient(135deg, #c8a96e, #a8873e);
+      color: #0a1628;
+      border: none;
+      padding: 0.875rem 2rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .retry-btn:active { opacity: 0.8; transform: scale(0.98); }
+
+    .status {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #556677;
+    }
+  </style>
+</head>
+<body>
+  <div class="emblem">⚔</div>
+  <h1>No Connection</h1>
+  <p>You're offline right now. Check your connection and try again — the mission continues.</p>
+  <button class="retry-btn" onclick="location.reload()">RETRY</button>
+  <p class="status">SSB GPT · Offline Mode</p>
+</body>
+</html>
