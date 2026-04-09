@@ -5,7 +5,34 @@ export interface FilePart {
   mimeType: string;
 }
 
+// Simple hash for cache keys
+function hashKey(input: string): string {
+  let hash = 0;
+  for (let i = 0; i < Math.min(input.length, 500); i++) {
+    hash = ((hash << 5) - hash + input.charCodeAt(i)) | 0;
+  }
+  return 'ai_cache_' + Math.abs(hash).toString(36);
+}
+
+function cacheResult(key: string, result: string) {
+  try { localStorage.setItem(key, JSON.stringify({ result, ts: Date.now() })); } catch {}
+}
+
+function getCachedResult(key: string): string | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    return JSON.parse(raw).result || null;
+  } catch { return null; }
+}
+
 async function callEdgeFunction(prompt: string, files?: FilePart[]): Promise<string> {
+  if (!navigator.onLine) {
+    const cached = getCachedResult(hashKey(prompt));
+    if (cached) return cached + '\n\n---\n*⚠️ Showing cached result (offline)*';
+    throw new Error('You are offline. AI analysis requires an internet connection.');
+  }
+
   const cleanFiles = files?.map(f => ({
     base64: f.base64.replace(/^data:[^;]+;base64,/, ''),
     mimeType: f.mimeType,
@@ -17,7 +44,9 @@ async function callEdgeFunction(prompt: string, files?: FilePart[]): Promise<str
 
   if (error) throw new Error(error.message || 'Analysis failed');
   if (data?.error) throw new Error(data.error);
-  return data?.result || '';
+  const result = data?.result || '';
+  cacheResult(hashKey(prompt), result);
+  return result;
 }
 
 export async function callGemini(prompt: string, imageBase64?: string): Promise<string> {

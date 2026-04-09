@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
 import { Download } from 'lucide-react';
+import OfflineBanner from '@/components/OfflineBanner';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
@@ -52,7 +53,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row topo-bg">
+    <div className="min-h-screen flex flex-col topo-bg">
+      <OfflineBanner />
+      <div className="flex flex-col lg:flex-row flex-1">
       {/* Mobile Header */}
       <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border/30" style={{
         background: 'linear-gradient(180deg, hsl(var(--card) / 0.8) 0%, hsl(var(--card) / 0.5) 100%)',
@@ -138,6 +141,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="p-4 md:p-8 max-w-6xl mx-auto">{children}</div>
       </main>
+      </div>
     </div>
   );
 }
