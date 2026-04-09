@@ -12,8 +12,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ['"Crimson Text"', 'serif'],
-        body: ['"Crimson Pro"', 'serif'],
+        heading: ['"Playfair Display"', 'Georgia', 'serif'],
+        body: ['-apple-system', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
