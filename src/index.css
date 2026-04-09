@@ -417,6 +417,13 @@
   .stagger-children > *:nth-child(7) { animation-delay: 480ms; }
   .stagger-children > *:nth-child(8) { animation-delay: 560ms; }
 
+  /* Stagger shine sweep on cards */
+  .stagger-children > *:nth-child(1)::after { animation-delay: 0s; }
+  .stagger-children > *:nth-child(2)::after { animation-delay: 0.8s; }
+  .stagger-children > *:nth-child(3)::after { animation-delay: 1.6s; }
+  .stagger-children > *:nth-child(4)::after { animation-delay: 2.4s; }
+  .stagger-children > *:nth-child(5)::after { animation-delay: 3.2s; }
+
   /* ── Floating particle effect ── */
   @keyframes float {
     0%, 100% { transform: translateY(0) rotate(0deg); }
