@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit, BookOpen, GraduationCap, FileText, Users, ExternalLink } from 'lucide-react';
+import { ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit, BookOpen, GraduationCap, FileText, Users, ExternalLink, Swords } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import slide1 from '@/assets/slideshow/slide1.jpg';
@@ -15,6 +15,7 @@ import logoWat from '@/assets/logos/logo-wat.png';
 import logoSrt from '@/assets/logos/logo-srt.png';
 import logoSd from '@/assets/logos/logo-sd.png';
 import logoPiq from '@/assets/logos/logo-piq.png';
+import logoGto from '@/assets/logos/logo-gto.png';
 
 
 
@@ -187,6 +188,24 @@ export default function DashboardPage() {
             </div>
           </button>
         ))}
+      </div>
+
+      {/* GTO Tasks CTA */}
+      <div className="glass-card glow-gold text-center liquid-card">
+        <div className="flex justify-center mb-3">
+          <img src={logoGto} alt="GTO" loading="lazy" width={48} height={48} className="h-12 w-12 object-contain" />
+        </div>
+        <h3 className="font-heading font-bold text-lg text-foreground mb-2">GTO Tasks Practice</h3>
+        <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
+          Practice Group Discussion with current talking points, solve GPE scenarios, prepare 3-minute Lecturettes, and get Snake Race tips — all AI-powered.
+        </p>
+        <div className="flex justify-center mt-5">
+          <button onClick={() => navigate('/gto')} className="glass-button-gold flex items-center gap-2 text-sm">
+            <Swords className="h-4 w-4" />
+            Go to GTO Tasks
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* AI Practice CTA */}
