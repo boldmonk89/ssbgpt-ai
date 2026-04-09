@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit, Swords } from 'lucide-react';
 import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
+import { InstallAppButton } from '@/components/InstallAppButton';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
