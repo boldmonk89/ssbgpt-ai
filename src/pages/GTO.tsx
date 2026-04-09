@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
-import { callGemini, fileToBase64 } from '@/lib/gemini';
-import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight } from 'lucide-react';
+import { callGemini, callGeminiMultiPart, fileToBase64, getFileMimeType } from '@/lib/gemini';
+import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 import gtoTask1 from '@/assets/gto/gto-task-1.jpg';
