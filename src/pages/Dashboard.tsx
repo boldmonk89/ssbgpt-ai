@@ -244,13 +244,13 @@ export default function DashboardPage() {
         {/* Preview Video */}
         <div className="mb-6 rounded-xl overflow-hidden border border-border/30">
           <video
-            src={ssbMentorPreview.url}
+            src="/ssbmentor-preview.mp4"
             autoPlay
             loop
             muted
             playsInline
             className="w-full"
-            style={{ aspectRatio: '16/9', objectFit: 'cover' }}
+            style={{ aspectRatio: '480/900', objectFit: 'cover' }}
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
