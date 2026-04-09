@@ -59,13 +59,13 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
     font-weight: 400;
     overflow-wrap: break-word;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Playfair Display', Georgia, serif;
     font-style: normal;
     letter-spacing: -0.01em;
     font-weight: 700;
@@ -152,7 +152,7 @@
   /* ── Liquid Glass Button System (Apple-style) ── */
   .glass-button {
     @apply relative px-5 py-2.5 rounded-2xl font-bold text-sm tracking-wider uppercase;
-    font-family: -apple-system, 'SF Pro Display', sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
     font-style: normal;
     backdrop-filter: blur(20px) saturate(1.8);
     border: 1px solid hsl(var(--foreground) / 0.1);
@@ -213,23 +213,68 @@
     transition-duration: 0.1s;
   }
 
+  /* ── Gold Button with Live Shimmer + Glow Pulse ── */
+  @keyframes btn-shimmer {
+    0% { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(200%) skewX(-15deg); }
+  }
+
+  @keyframes btn-glow-pulse {
+    0%, 100% { box-shadow: 0 4px 24px hsl(var(--gold) / 0.3), 0 0 0 0 hsl(var(--gold) / 0.15); }
+    50% { box-shadow: 0 8px 40px hsl(var(--gold) / 0.5), 0 0 20px 4px hsl(var(--gold) / 0.2); }
+  }
+
+  @keyframes btn-border-glow {
+    0%, 100% { border-color: hsl(43 60% 55% / 0.4); }
+    50% { border-color: hsl(43 70% 70% / 0.7); }
+  }
+
   .glass-button-gold {
     @apply glass-button text-gold-foreground;
-    background: linear-gradient(135deg, hsl(43 60% 62%) 0%, hsl(var(--gold)) 50%, hsl(43 55% 45%) 100%);
-    border: 1px solid hsl(43 60% 70% / 0.4);
+    background: linear-gradient(135deg, hsl(43 55% 50%) 0%, hsl(var(--gold)) 40%, hsl(43 60% 62%) 70%, hsl(43 55% 48%) 100%);
+    border: 1.5px solid hsl(43 60% 60% / 0.5);
+    animation: btn-glow-pulse 3s ease-in-out infinite, btn-border-glow 3s ease-in-out infinite;
     box-shadow:
       0 4px 24px hsl(var(--gold) / 0.35),
       0 1px 0 hsl(43 60% 80% / 0.3) inset,
       0 -1px 0 hsl(var(--gold) / 0.3) inset;
   }
 
+  /* Traveling shimmer highlight */
+  .glass-button-gold::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(43 80% 85% / 0.4) 40%,
+      hsl(43 90% 95% / 0.6) 50%,
+      hsl(43 80% 85% / 0.4) 60%,
+      transparent 100%
+    );
+    animation: btn-shimmer 3s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
   .glass-button-gold:hover {
-    background: linear-gradient(135deg, hsl(43 65% 68%) 0%, hsl(43 60% 62%) 50%, hsl(var(--gold)) 100%);
+    background: linear-gradient(135deg, hsl(43 65% 58%) 0%, hsl(43 60% 65%) 40%, hsl(43 65% 70%) 70%, hsl(43 60% 55%) 100%);
+    transform: translateY(-3px) scale(1.04);
     box-shadow:
-      0 16px 56px hsl(var(--gold) / 0.45),
+      0 16px 56px hsl(var(--gold) / 0.5),
+      0 0 30px 6px hsl(var(--gold) / 0.25),
       0 2px 0 hsl(43 60% 85% / 0.5) inset,
       0 -1px 0 hsl(var(--gold) / 0.2) inset;
-    border-color: hsl(43 60% 75% / 0.5);
+    border-color: hsl(43 70% 75% / 0.7);
+  }
+
+  .glass-button-gold:active {
+    transform: translateY(0) scale(0.97);
+    animation: none;
   }
 
   .glass-button-accent {
