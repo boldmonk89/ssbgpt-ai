@@ -26,12 +26,11 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
   <meta charset="utf-8">
   <title>${title}</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
-    
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Times New Roman', Times, serif;
+      font-weight: bold;
       color: #1a1a2e;
       background: #fff;
       padding: 48px;
@@ -45,12 +44,19 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
       margin-bottom: 32px;
       border-bottom: 2px solid #c9a84c;
     }
+
+    .header .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+    }
     
     .header h1 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-style: italic;
+      font-family: 'Times New Roman', Times, serif;
       font-size: 28px;
-      font-weight: 700;
+      font-weight: bold;
       color: #1a1a2e;
       letter-spacing: 0.03em;
       margin-bottom: 6px;
@@ -61,7 +67,8 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
       color: #888;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      font-family: -apple-system, 'SF Pro Display', sans-serif;
+      font-family: 'Times New Roman', Times, serif;
+      font-weight: bold;
     }
     
     .header .date {
@@ -70,14 +77,14 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
       margin-top: 8px;
     }
     
-    h1 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 22px; font-weight: 700; color: #c9a84c; margin: 28px 0 12px; }
-    h2 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 18px; font-weight: 700; color: #2e6db4; margin: 24px 0 10px; border-left: 3px solid #c9a84c; padding-left: 12px; }
-    h3 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; font-weight: 700; color: #1a1a2e; margin: 18px 0 8px; }
-    h4 { font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px; font-weight: 600; color: #444; margin: 14px 0 6px; }
+    h1 { font-family: 'Times New Roman', Times, serif; font-size: 22px; font-weight: bold; color: #c9a84c; margin: 28px 0 12px; }
+    h2 { font-family: 'Times New Roman', Times, serif; font-size: 18px; font-weight: bold; color: #2e6db4; margin: 24px 0 10px; border-left: 3px solid #c9a84c; padding-left: 12px; }
+    h3 { font-family: 'Times New Roman', Times, serif; font-size: 15px; font-weight: bold; color: #1a1a2e; margin: 18px 0 8px; }
+    h4 { font-family: 'Times New Roman', Times, serif; font-size: 14px; font-weight: bold; color: #444; margin: 14px 0 6px; }
     
     p { margin: 6px 0; }
     
-    strong { color: #1a1a2e; font-weight: 600; }
+    strong { color: #1a1a2e; font-weight: bold; }
     
     ul, ol { margin: 8px 0 8px 24px; }
     li { margin: 4px 0; }
@@ -106,6 +113,7 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
 </head>
 <body>
   <div class="header">
+    <img src="/ssbgpt-logo.png" alt="SSBGPT" class="logo" />
     <h1>SSBGPT</h1>
     <div class="subtitle">SSB Psychological Assessment Report</div>
     <div class="date">Generated: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
