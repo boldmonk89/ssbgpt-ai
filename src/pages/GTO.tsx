@@ -237,6 +237,8 @@ export default function GTOPage() {
   const [gpeUserSolution, setGpeUserSolution] = useState('');
   const [gpeUserAnalysis, setGpeUserAnalysis] = useState('');
   const [gpeUserLoading, setGpeUserLoading] = useState(false);
+  const [gpePdfFile, setGpePdfFile] = useState<string | null>(null);
+  const [gpePdfName, setGpePdfName] = useState('');
 
   // Lecturette state
   const [lecTopic, setLecTopic] = useState('');
@@ -245,6 +247,18 @@ export default function GTOPage() {
   const [lecUserText, setLecUserText] = useState('');
   const [lecUserAnalysis, setLecUserAnalysis] = useState('');
   const [lecUserLoading, setLecUserLoading] = useState(false);
+  
+  // Video recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoAnalyzing, setVideoAnalyzing] = useState(false);
+  const [videoAnalysis, setVideoAnalysis] = useState('');
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Image slideshow
   useEffect(() => {
