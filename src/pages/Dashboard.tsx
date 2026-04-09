@@ -16,7 +16,7 @@ import logoSrt from '@/assets/logos/logo-srt.png';
 import logoSd from '@/assets/logos/logo-sd.png';
 import logoPiq from '@/assets/logos/logo-piq.png';
 
-import ssbMentorPreview from '@/assets/ssbmentor-preview.mp4.asset.json';
+
 
 const SLIDES = [slide1, slide2, slide3, slide4, slide5, slide6];
 
