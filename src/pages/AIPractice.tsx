@@ -69,6 +69,7 @@ HERO RULES:
 - Do NOT add characters not visible in the picture
 - Hero's profession MUST match what is visible — clothing, setting, context. Do NOT contradict the picture.
 - BACKGROUND MATTERS: If background shows a train, story must involve travel/journey. If background shows hospital, story involves health. Never ignore background.
+- CRITICAL: ALL actions, decisions, and problem-solving MUST be done BY THE HERO. The hero drives the entire story. Other characters can be present but they do NOT take initiative, solve problems, or do the main work. If a female character is visible and you make the male character the hero, then the male must do everything — not the female. And vice versa. NEVER split the work between two characters. The hero is the doer, the leader, the one who acts. Everyone else is passive or supporting.
 
 MANDATORY STORY STRUCTURE:
 Past: Hero's background + what led to this moment (2-3 lines)
@@ -102,6 +103,7 @@ COMMON MISTAKES TO AVOID:
 - NEVER show hero as weak, under pressure, or seeking help — hero must be PROACTIVE
 - Do NOT ignore background or clothing — they define the story context
 - Do not write short 3-4 line stories — each story must be 120-150 words with 4-5 actions
+- NEVER split work between hero and another character. If hero is Amit, then Amit does EVERYTHING. Do NOT make another character (named or unnamed) do the problem-solving, initiative-taking, or key actions. The hero is the SOLE driver of the story.
 
 FORMATTING RULES:
 - Do NOT use emojis, stars, or special unicode characters anywhere
@@ -361,6 +363,7 @@ CRITICAL RULES:
 - NEVER show hero as weak or needing help
 - Realistic, logical, grounded
 - Each theme must be genuinely different
+- ALL actions and problem-solving MUST be done BY THE HERO. Never split work between hero and another character. The hero is the SOLE driver — everyone else is passive or supporting.
 
 REFERENCE PPDT EXAMPLES (follow this style):
 Example: "Sumit, a 23-year-old postgraduate student, noticed a crowd of villagers gathered around the Panchayat notice board in his hometown. Upon approaching, he realised that many were struggling to understand the complex eligibility criteria for a newly launched government skill-development scheme. Sensing their confusion, Sumit took the initiative to simplify the information. He spent the afternoon researching the scheme's details on his laptop and then returned to the board. He pinned up a handwritten, easy-to-read chart in the local language, outlining the necessary documents and the application deadline. He also organised a small briefing in the community hall to explain how the vocational training could lead to local employment. Sumit assisted ten youngsters in filling out their digital applications using his own data connection."
