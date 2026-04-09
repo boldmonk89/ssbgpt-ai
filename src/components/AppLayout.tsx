@@ -1,11 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit } from 'lucide-react';
+import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit, Swords } from 'lucide-react';
 import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
   { to: '/ai-practice', label: 'AI Practice', icon: BrainCircuit },
+  { to: '/gto', label: 'GTO Tasks', icon: Swords },
   { to: '/full-analysis', label: 'Full Analysis', icon: ClipboardList },
   { to: '/piq', label: 'PIQ', icon: UserCircle },
   { to: '/tat', label: 'TAT', icon: FileText },
