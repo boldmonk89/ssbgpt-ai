@@ -675,11 +675,85 @@ export default function GTOPage() {
 
           {lecResult && <AnalysisOutput content={lecResult} title="AI-Generated Model Lecturette" />}
 
-          {/* User lecturette analysis */}
+          {/* User lecturette analysis — text or audio */}
           {lecResult && (
             <div className="glass-card">
               <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Submit Your Lecturette for Review</h3>
               <div className="space-y-4">
+                {/* Audio Recording */}
+                <div className="glass-card-subtle p-4 rounded-xl space-y-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Video className="h-4 w-4 text-gold" />
+                    <span className="font-heading font-semibold text-sm text-foreground">Record Your Lecturette (3 min max)</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    {!isRecording ? (
+                      <button
+                        onClick={startRecording}
+                        disabled={videoAnalyzing}
+                        className="glass-button-gold flex items-center gap-2 text-sm"
+                      >
+                        <Mic className="h-4 w-4" />
+                        Start Recording
+                      </button>
+                    ) : (
+                      <button
+                        onClick={stopRecording}
+                        className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl font-heading font-semibold bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-all"
+                      >
+                        <Square className="h-3 w-3 fill-current" />
+                        Stop Recording
+                      </button>
+                    )}
+
+                    {(isRecording || recordingTime > 0) && (
+                      <div className="flex items-center gap-2">
+                        {isRecording && <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />}
+                        <span className="font-mono text-sm text-foreground">
+                          {Math.floor(recordingTime / 60)}:{String(recordingTime % 60).padStart(2, '0')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">/ 3:00</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Progress bar */}
+                  {(isRecording || recordingTime > 0) && (
+                    <div className="w-full h-1.5 rounded-full bg-muted/30 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-1000"
+                        style={{
+                          width: `${Math.min((recordingTime / 180) * 100, 100)}%`,
+                          background: recordingTime > 160 ? 'hsl(0 70% 50%)' : 'hsl(var(--gold))',
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {videoUrl && !isRecording && (
+                    <div className="space-y-3">
+                      <audio src={videoUrl} controls className="w-full h-10" />
+                      <button
+                        onClick={analyzeRecordedLecturette}
+                        disabled={videoAnalyzing}
+                        className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {videoAnalyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {videoAnalyzing ? 'Analyzing Your Lecturette...' : 'Analyze My Recorded Lecturette'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {videoAnalysis && <AnalysisOutput content={videoAnalysis} title="Your Recorded Lecturette — AI Review" />}
+
+                <div className="flex items-center gap-3 my-2">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-xs text-muted-foreground font-body">OR paste text</span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+
                 <Textarea
                   placeholder="Paste your own lecturette text here — AI will analyze structure, facts, and flow..."
                   value={lecUserText}
