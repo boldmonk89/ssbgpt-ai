@@ -2,7 +2,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit, Swords } from 'lucide-react';
 import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
-import { InstallAppButton } from '@/components/InstallAppButton';
+import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
+import { Download } from 'lucide-react';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
@@ -15,6 +16,36 @@ const navItems = [
   { to: '/srt', label: 'SRT', icon: Zap },
   { to: '/sd', label: 'SD', icon: Shield },
 ];
+
+function InstallHeaderButton() {
+  const { canInstall, isInstalled, isIOS, install } = useInstallPrompt();
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
+
+  if (isInstalled) return null;
+  if (!canInstall && !isIOS) return null;
+
+  return (
+    <>
+      <button
+        onClick={isIOS ? () => setShowIOSGuide(true) : install}
+        className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-heading font-semibold rounded-xl text-gold transition-all active:scale-95"
+        style={{
+          background: 'linear-gradient(135deg, hsl(var(--gold) / 0.15) 0%, hsl(var(--gold) / 0.05) 100%)',
+          border: '1px solid hsl(var(--gold) / 0.3)',
+        }}
+      >
+        <Download className="h-3.5 w-3.5" />
+        <span className="hidden xs:inline">Install App</span>
+      </button>
+      {showIOSGuide && (
+        <div className="fixed inset-0 z-[9999] flex items-end justify-center" onClick={() => setShowIOSGuide(false)}>
+          <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
+          {/* Reuse iOS guide from InstallAppButton */}
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -36,6 +67,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
           <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
         </div>
+        <InstallHeaderButton />
       </header>
 
       {/* Sidebar */}
