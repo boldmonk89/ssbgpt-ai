@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit } from 'lucide-react';
+import { ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import slide1 from '@/assets/slideshow/slide1.jpg';
@@ -9,6 +9,7 @@ import slide4 from '@/assets/slideshow/slide4.jpg';
 import slide5 from '@/assets/slideshow/slide5.jpg';
 import slide6 from '@/assets/slideshow/slide6.jpg';
 
+import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import logoTat from '@/assets/logos/logo-tat.png';
 import logoWat from '@/assets/logos/logo-wat.png';
 import logoSrt from '@/assets/logos/logo-srt.png';
@@ -67,19 +68,19 @@ export default function DashboardPage() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 1000);
+    }, 3500);
     return () => clearInterval(timer);
   }, []);
 
   return (
     <div className="space-y-10 scroll-reveal">
-      {/* Hero — Liquid Glass with Slideshow */}
-      <div className="relative text-center py-10 md:py-14 overflow-hidden min-h-[320px] rounded-2xl">
-        {/* Slideshow Background — full bleed, no card border */}
+      {/* Hero — SSB Mentor inspired */}
+      <div className="relative text-center overflow-hidden min-h-[420px] md:min-h-[480px] rounded-2xl flex items-center justify-center">
+        {/* Slideshow Background — slow crossfade */}
         {SLIDES.map((src, i) => (
           <div
             key={i}
-            className="absolute inset-0 transition-opacity duration-700 ease-in-out"
+            className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
             style={{
               opacity: currentSlide === i ? 1 : 0,
               backgroundImage: `url(${src})`,
@@ -88,37 +89,55 @@ export default function DashboardPage() {
             }}
           />
         ))}
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-background/60" />
+        {/* Dark gradient overlay */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(180deg, hsl(var(--background) / 0.75) 0%, hsl(var(--background) / 0.85) 50%, hsl(var(--background) / 0.95) 100%)',
+        }} />
 
-
-        <div className="relative z-10">
-          <div className="flex justify-center mb-5">
-            <div className="h-16 w-16 border-2 border-gold/50 flex items-center justify-center rounded-2xl glow-gold liquid-card" style={{
-              background: 'linear-gradient(135deg, hsl(var(--gold) / 0.2) 0%, hsl(var(--gold) / 0.05) 100%)',
-            }}>
-              <Shield className="h-8 w-8 text-gold" />
-            </div>
+        <div className="relative z-10 px-4 py-12 md:py-16">
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <img
+              src={ssbgptLogo}
+              alt="SSBGPT"
+              width={80}
+              height={80}
+              className="h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-2xl"
+            />
           </div>
-          <h1 className="text-3xl md:text-5xl font-heading font-bold text-foreground mb-3">
-            <span className="shimmer-text">AI Psych Analysis</span>
+
+          {/* Small label tag */}
+          <div className="flex justify-center mb-5">
+            <span className="px-4 py-1.5 rounded-full text-[11px] font-body font-medium tracking-[0.2em] uppercase text-gold border border-gold/30" style={{
+              background: 'hsl(var(--gold) / 0.08)',
+            }}>
+              AI-Powered SSB Preparation
+            </span>
+          </div>
+
+          {/* Main headline — Playfair Display with gold italic highlights */}
+          <h1 className="font-heading font-bold text-3xl md:text-5xl lg:text-6xl text-foreground mb-4 leading-tight">
+            Most SSB Candidates<br />
+            Fail For{' '}
+            <span className="font-highlight italic text-gold">Predictable</span>
+            <br />
+            <span className="font-highlight italic text-gold">Reasons.</span>
           </h1>
-          <p className="text-muted-foreground font-body text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-            Your SSB psychological tests evaluated on <strong className="text-gold">15 Officer Like Qualities</strong> — the core traits the Services Selection Board uses to determine your officer potential.
+
+          {/* Subtitle */}
+          <p className="font-body text-muted-foreground text-sm md:text-base max-w-xl mx-auto leading-relaxed mb-8">
+            Analyze your TAT, WAT, SRT, SD & PIQ on all <strong className="text-gold">15 Officer Like Qualities</strong> — powered by AI trained on SSB psychology.
           </p>
 
-          {/* Slide indicators removed */}
-
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={() => navigate('/full-analysis')}
-              className="glass-button-gold flex items-center gap-2 text-sm"
-            >
-              <Sparkles className="h-4 w-4" />
-              Start Full Analysis
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
+          {/* CTA Button */}
+          <button
+            onClick={() => navigate('/full-analysis')}
+            className="glass-button-gold inline-flex items-center gap-2 text-sm px-8 py-3"
+          >
+            <Sparkles className="h-4 w-4" />
+            Start Full Analysis
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
@@ -130,44 +149,42 @@ export default function DashboardPage() {
           <Menu className="h-4 w-4 text-gold" />
         </div>
         <p className="font-body text-xs text-muted-foreground leading-snug">
-          Tap the <strong className="text-gold">☰ menu button</strong> (top-left) to navigate between tests — PIQ, TAT, WAT, SRT, SD & Full Analysis.
+          Tap the <strong className="text-gold">menu button</strong> (top-left) to navigate between tests — PIQ, TAT, WAT, SRT, SD & Full Analysis.
         </p>
       </div>
 
       {/* Section Title */}
       <div className="gold-border-left">
-        <h2 className="text-xl md:text-2xl">Analyse Your Tests</h2>
+        <h2 className="text-xl md:text-2xl font-heading font-bold">Analyse Your Tests</h2>
       </div>
 
       {/* Test Cards */}
       <div className="space-y-4 stagger-children">
-        {TEST_CARDS.map((test) => {
-          return (
-            <button
-              key={test.path}
-              onClick={() => navigate(test.path)}
-              className="glass-card liquid-card w-full text-left group cursor-pointer"
-            >
-              <div className="flex items-start gap-4">
-                <img src={test.logo} alt={test.label} loading="lazy" width={56} height={56} className="h-14 w-14 flex-shrink-0 float-slow object-contain" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="font-heading font-bold text-xl" style={{ color: test.color }}>
-                      {test.label}
-                    </span>
-                    <span className="text-muted-foreground font-body text-xs hidden sm:inline" style={{ fontStyle: 'normal' }}>
-                      {test.title}
-                    </span>
-                  </div>
-                  <p className="font-body text-sm text-muted-foreground leading-relaxed" style={{ fontStyle: 'normal' }}>
-                    {test.desc}
-                  </p>
+        {TEST_CARDS.map((test) => (
+          <button
+            key={test.path}
+            onClick={() => navigate(test.path)}
+            className="glass-card liquid-card w-full text-left group cursor-pointer"
+          >
+            <div className="flex items-start gap-4">
+              <img src={test.logo} alt={test.label} loading="lazy" width={56} height={56} className="h-14 w-14 flex-shrink-0 float-slow object-contain" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="font-heading font-bold text-xl" style={{ color: test.color }}>
+                    {test.label}
+                  </span>
+                  <span className="text-muted-foreground font-body text-xs hidden sm:inline">
+                    {test.title}
+                  </span>
                 </div>
-                <ArrowRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-gold group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+                <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                  {test.desc}
+                </p>
               </div>
-            </button>
-          );
-        })}
+              <ArrowRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-gold group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+            </div>
+          </button>
+        ))}
       </div>
 
       {/* AI Practice CTA */}
@@ -176,7 +193,7 @@ export default function DashboardPage() {
           <BrainCircuit className="h-6 w-6 text-gold" />
         </div>
         <h3 className="font-heading font-bold text-lg text-foreground mb-2">AI Practice Mode</h3>
-        <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto" style={{ fontStyle: 'normal' }}>
+        <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
           Upload a TAT image to get AI-generated stories, enter a word for WAT responses, or type a situation for SRT reactions — all with embedded OLQs.
         </p>
         <div className="flex justify-center mt-5">
@@ -194,7 +211,7 @@ export default function DashboardPage() {
           <ClipboardList className="h-6 w-6 text-gold" />
         </div>
         <h3 className="font-heading font-bold text-lg text-foreground mb-2">Full Psych Analysis</h3>
-        <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto" style={{ fontStyle: 'normal' }}>
+        <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
           Upload a single PDF with all your tests, or combine individual test analyses into one comprehensive SSB assessment report with cross-test consistency check and 15 OLQ ratings.
         </p>
         <div className="flex justify-center mt-5">

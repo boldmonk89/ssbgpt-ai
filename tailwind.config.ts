@@ -12,8 +12,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ['-apple-system', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-        body: ['-apple-system', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+        heading: ['"Playfair Display"', 'Georgia', 'serif'],
+        highlight: ['"DM Serif Display"', 'Georgia', 'serif'],
+        body: ['Inter', '-apple-system', '"Helvetica Neue"', 'Arial', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
