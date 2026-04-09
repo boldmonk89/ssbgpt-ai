@@ -69,6 +69,7 @@ HERO RULES:
 - Do NOT add characters not visible in the picture
 - Hero's profession MUST match what is visible — clothing, setting, context. Do NOT contradict the picture.
 - BACKGROUND MATTERS: If background shows a train, story must involve travel/journey. If background shows hospital, story involves health. Never ignore background.
+- CRITICAL: ALL actions, decisions, and problem-solving MUST be done BY THE HERO. The hero drives the entire story. Other characters can be present but they do NOT take initiative, solve problems, or do the main work. If a female character is visible and you make the male character the hero, then the male must do everything — not the female. And vice versa. NEVER split the work between two characters. The hero is the doer, the leader, the one who acts. Everyone else is passive or supporting.
 
 MANDATORY STORY STRUCTURE:
 Past: Hero's background + what led to this moment (2-3 lines)
