@@ -315,6 +315,113 @@ export default function GTOPage() {
     }
   };
 
+  // GPE PDF upload handler
+  const handleGpePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf' && !file.type.startsWith('image/')) {
+      toast.error('Please upload a PDF or image file'); return;
+    }
+    if (file.size > 15 * 1024 * 1024) { toast.error('File must be under 15MB'); return; }
+    const base64 = await fileToBase64(file);
+    setGpePdfFile(base64);
+    setGpePdfName(file.name);
+  };
+
+  const analyzeGpePdf = async () => {
+    if (!gpePdfFile) { toast.error('Please upload your GPE solution PDF'); return; }
+    setGpeUserLoading(true);
+    setGpeUserAnalysis('');
+    try {
+      const mimeType = gpePdfFile.startsWith('data:application/pdf') ? 'application/pdf' : 'image/jpeg';
+      const result = await callGeminiMultiPart(
+        SYSTEM_PROMPT_GPE + `\n\nThe candidate has uploaded their GPE solution as a PDF/image. Analyze their solution:\n- What they did well\n- What they missed\n- Specific improvements with suggestions\n- Prioritization accuracy\n- Resource utilization\n- Time management\n- OLQs demonstrated\n- Score out of 10\n\n${gpeParagraph ? `The original GPE problem was: "${gpeParagraph.trim()}"` : ''}`,
+        [{ base64: gpePdfFile, mimeType }]
+      );
+      setGpeUserAnalysis(result);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to analyze your GPE solution');
+    } finally {
+      setGpeUserLoading(false);
+    }
+  };
+
+  // Video recording functions
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      streamRef.current = stream;
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        setVideoBlob(blob);
+        setVideoUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach(t => t.stop());
+      };
+
+      mediaRecorder.start(1000);
+      setIsRecording(true);
+      setRecordingTime(0);
+      setVideoBlob(null);
+      setVideoUrl(null);
+      setVideoAnalysis('');
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 179) { // 3 minutes = 180 seconds
+            stopRecording();
+            return 180;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      toast.error('Microphone access denied. Please allow mic access.');
+    }
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsRecording(false);
+  }, []);
+
+  const analyzeRecordedLecturette = async () => {
+    if (!videoBlob) { toast.error('No recording found'); return; }
+    setVideoAnalyzing(true);
+    setVideoAnalysis('');
+    try {
+      // Convert blob to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(videoBlob);
+      });
+      const base64 = await base64Promise;
+
+      const result = await callGeminiMultiPart(
+        SYSTEM_PROMPT_LECTURETTE + `\n\nThe candidate has recorded a ${Math.round(recordingTime / 60)}:${String(recordingTime % 60).padStart(2, '0')} minute audio lecturette on the topic: "${lecTopic.trim() || 'Unknown topic'}"\n\nTranscribe the audio and then analyze:\n- Structure (Opening quote + Jay Hind / Body parts / Personal opinion / Closing)\n- Time management (was it close to 3 minutes?)\n- Content quality and current facts used\n- Fluency, filler words, pauses\n- What to rephrase and what NOT to say\n- How to better structure the lecturette\n- Score out of 10\n- Provide specific improvements`,
+        [{ base64, mimeType: 'audio/webm' }]
+      );
+      setVideoAnalysis(result);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to analyze your lecturette');
+    } finally {
+      setVideoAnalyzing(false);
+    }
+
   const analyzeGpeUserSolution = async () => {
     if (!gpeUserSolution.trim()) { toast.error('Please enter your solution'); return; }
     setGpeUserLoading(true);
