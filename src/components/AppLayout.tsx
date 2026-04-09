@@ -17,7 +17,37 @@ const navItems = [
   { to: '/sd', label: 'SD', icon: Shield },
 ];
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+function InstallHeaderButton() {
+  const { canInstall, isInstalled, isIOS, install } = useInstallPrompt();
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
+
+  if (isInstalled) return null;
+  if (!canInstall && !isIOS) return null;
+
+  return (
+    <>
+      <button
+        onClick={isIOS ? () => setShowIOSGuide(true) : install}
+        className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-heading font-semibold rounded-xl text-gold transition-all active:scale-95"
+        style={{
+          background: 'linear-gradient(135deg, hsl(var(--gold) / 0.15) 0%, hsl(var(--gold) / 0.05) 100%)',
+          border: '1px solid hsl(var(--gold) / 0.3)',
+        }}
+      >
+        <Download className="h-3.5 w-3.5" />
+        <span className="hidden xs:inline">Install App</span>
+      </button>
+      {showIOSGuide && (
+        <div className="fixed inset-0 z-[9999] flex items-end justify-center" onClick={() => setShowIOSGuide(false)}>
+          <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
+          {/* Reuse iOS guide from InstallAppButton */}
+        </div>
+      )}
+    </>
+  );
+}
+
+
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
