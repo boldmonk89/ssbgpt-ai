@@ -421,22 +421,6 @@ export default function GTOPage() {
     } finally {
       setVideoAnalyzing(false);
     }
-
-  const analyzeGpeUserSolution = async () => {
-    if (!gpeUserSolution.trim()) { toast.error('Please enter your solution'); return; }
-    setGpeUserLoading(true);
-    setGpeUserAnalysis('');
-    try {
-      const result = await callGemini(
-        SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nThe candidate's own solution is:\n"${gpeUserSolution.trim()}"\n\nAnalyze their solution — what they did well, what they missed, specific improvements, and score out of 10.`,
-        gpeImage || undefined
-      );
-      setGpeUserAnalysis(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to analyze your solution');
-    } finally {
-      setGpeUserLoading(false);
-    }
   };
 
   // Lecturette handlers
