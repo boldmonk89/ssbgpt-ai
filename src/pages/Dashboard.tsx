@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit } from 'lucide-react';
+import { ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit, BookOpen, GraduationCap, FileText, Users, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import slide1 from '@/assets/slideshow/slide1.jpg';
