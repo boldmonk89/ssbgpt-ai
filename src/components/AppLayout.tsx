@@ -2,7 +2,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit, Swords } from 'lucide-react';
 import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
-import { InstallAppButton } from '@/components/InstallAppButton';
+import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
+import { Download } from 'lucide-react';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
@@ -36,6 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
           <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
         </div>
+        <InstallHeaderButton />
       </header>
 
       {/* Sidebar */}

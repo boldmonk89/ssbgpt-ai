@@ -10,6 +10,7 @@ import slide5 from '@/assets/slideshow/slide5.jpg';
 import slide6 from '@/assets/slideshow/slide6.jpg';
 
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
+import Footer from '@/components/Footer';
 import logoTat from '@/assets/logos/logo-tat.png';
 import logoWat from '@/assets/logos/logo-wat.png';
 import logoSrt from '@/assets/logos/logo-srt.png';
@@ -311,6 +312,8 @@ export default function DashboardPage() {
           </a>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
