@@ -85,10 +85,6 @@ export default function DashboardPage() {
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-background/60" />
 
-        <div className="absolute top-6 left-8 h-16 w-16 rounded-full opacity-20 float-slow"
-          style={{ background: 'radial-gradient(circle, hsl(var(--gold) / 0.4), transparent)' }} />
-        <div className="absolute bottom-8 right-12 h-12 w-12 rounded-full opacity-15 float-medium"
-          style={{ background: 'radial-gradient(circle, hsl(var(--accent) / 0.4), transparent)' }} />
 
         <div className="relative z-10">
           <div className="flex justify-center mb-5">
