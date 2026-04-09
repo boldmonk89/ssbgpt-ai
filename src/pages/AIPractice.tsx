@@ -103,6 +103,7 @@ COMMON MISTAKES TO AVOID:
 - NEVER show hero as weak, under pressure, or seeking help — hero must be PROACTIVE
 - Do NOT ignore background or clothing — they define the story context
 - Do not write short 3-4 line stories — each story must be 120-150 words with 4-5 actions
+- NEVER split work between hero and another character. If hero is Amit, then Amit does EVERYTHING. Do NOT make another character (named or unnamed) do the problem-solving, initiative-taking, or key actions. The hero is the SOLE driver of the story.
 
 FORMATTING RULES:
 - Do NOT use emojis, stars, or special unicode characters anywhere
@@ -362,6 +363,7 @@ CRITICAL RULES:
 - NEVER show hero as weak or needing help
 - Realistic, logical, grounded
 - Each theme must be genuinely different
+- ALL actions and problem-solving MUST be done BY THE HERO. Never split work between hero and another character. The hero is the SOLE driver — everyone else is passive or supporting.
 
 REFERENCE PPDT EXAMPLES (follow this style):
 Example: "Sumit, a 23-year-old postgraduate student, noticed a crowd of villagers gathered around the Panchayat notice board in his hometown. Upon approaching, he realised that many were struggling to understand the complex eligibility criteria for a newly launched government skill-development scheme. Sensing their confusion, Sumit took the initiative to simplify the information. He spent the afternoon researching the scheme's details on his laptop and then returned to the board. He pinned up a handwritten, easy-to-read chart in the local language, outlining the necessary documents and the application deadline. He also organised a small briefing in the community hall to explain how the vocational training could lead to local employment. Sumit assisted ten youngsters in filling out their digital applications using his own data connection."
