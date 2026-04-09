@@ -136,7 +136,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }}>
           <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
         </div>
-        <div className="p-4 md:p-8 max-w-6xl">{children}</div>
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">{children}</div>
       </main>
     </div>
   );
