@@ -1,50 +1,44 @@
 /**
- * SSB GPT — Service Worker
- * Cache-first for static assets, Network-first for API/Supabase calls
+ * SSB GPT — Service Worker v3
+ * Runtime caching for Vite hashed assets + offline fallback
  */
 
-const CACHE_VERSION = 'v2.0.0';
-const STATIC_CACHE  = `ssbgpt-static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `ssbgpt-dynamic-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v3.0.0';
+const APP_CACHE    = `ssbgpt-app-${CACHE_VERSION}`;
+const OFFLINE_PAGE = '/offline.html';
 
-// Install — cache the app shell
+// Install — cache only the offline fallback (Vite assets have hashed names, cache at runtime)
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
-      return cache.addAll([
-        '/',
-        '/index.html',
-        '/offline.html',
-        '/manifest.json',
-        '/favicon.png',
-      ]);
-    }).then(() => self.skipWaiting())
+    caches.open(APP_CACHE)
+      .then((cache) => cache.addAll([OFFLINE_PAGE]))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate — clean old caches
+// Activate — purge old caches, claim clients, notify about update
 self.addEventListener('activate', (event) => {
-  const allowed = [STATIC_CACHE, DYNAMIC_CACHE];
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => !allowed.includes(k)).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(
+        keys.filter((k) => k !== APP_CACHE).map((k) => caches.delete(k))
+      ))
       .then(() => self.clients.claim())
       .then(() => self.clients.matchAll({ type: 'window' }))
       .then((clients) => clients.forEach((c) => c.postMessage({ type: 'SW_UPDATED' })))
   );
 });
 
-// Fetch
+// Fetch handler
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET, non-HTTP, OAuth redirects
   if (request.method !== 'GET') return;
   if (!url.protocol.startsWith('http')) return;
   if (url.pathname.startsWith('/~oauth')) return;
 
-  // API / Supabase — network only, never cache
+  // API / Supabase — network only, graceful error
   if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase')) {
     event.respondWith(
       fetch(request).catch(() =>
@@ -57,60 +51,40 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests (HTML pages) — network first, fallback to cache, then offline page
+  // Navigation (HTML pages) — network first, cache fallback, then offline page
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(async () => {
-          const cached = await caches.match(request);
-          if (cached) return cached;
-          const root = await caches.match('/');
-          if (root) return root;
-          return caches.match('/offline.html');
-        })
-    );
-    return;
-  }
-
-  // Static assets (JS, CSS, images, fonts) — cache first
-  if (isStaticAsset(url.pathname)) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        }).catch(() => new Response('', { status: 503 }));
-      })
-    );
-    return;
-  }
-
-  // Everything else — stale-while-revalidate
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      const networkFetch = fetch(request).then((response) => {
-        if (response.ok) {
           const clone = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
-        }
-        return response;
-      }).catch(() => null);
-      return cached || networkFetch || new Response('', { status: 503 });
-    })
+          caches.open(APP_CACHE).then((c) => c.put(request, clone));
+          return response;
+        })
+        .catch(() =>
+          caches.match(request)
+            .then((r) => r || caches.match('/'))
+            .then((r) => r || caches.match(OFFLINE_PAGE))
+            .then((r) => r || new Response('<h1>Offline</h1>', { headers: { 'Content-Type': 'text/html' } }))
+        )
+    );
+    return;
+  }
+
+  // All other assets (JS, CSS, images, fonts) — stale-while-revalidate
+  // This ensures Vite's hashed bundles get cached on first load
+  event.respondWith(
+    caches.open(APP_CACHE).then((cache) =>
+      cache.match(request).then((cached) => {
+        const fetchPromise = fetch(request)
+          .then((response) => {
+            if (response.ok) cache.put(request, response.clone());
+            return response;
+          })
+          .catch(() => null);
+        
+        // Return cached immediately if available, otherwise wait for network
+        return cached || fetchPromise || new Response('', { status: 503 });
+      })
+    )
   );
 });
-
-function isStaticAsset(p) {
-  return /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webp|avif|mp4)(\?.*)?$/.test(p);
-}
