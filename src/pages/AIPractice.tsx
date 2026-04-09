@@ -61,11 +61,17 @@ Do NOT use emojis, stars, or special unicode characters anywhere in the output.
 STEP 2 — GENERATE 4-5 TAT STORIES:
 
 HERO RULES:
+- HERO AGE SELECTION (CRITICAL — follow this priority):
+  1. Look at ALL characters in the picture
+  2. If ANY character appears to be 18-26 years old, MALE, and has a positive/neutral mood → HE is the hero. Always.
+  3. If no male 18-26 is visible, check for a female 18-26 with positive/neutral mood → SHE is the hero.
+  4. ONLY if NO character aged 18-26 exists in the picture, you may pick an older character as hero.
+  5. NEVER make a 40+ year old uncle/senior the hero when a young 18-26 character is visible — this causes negative impact and story rejection.
+  6. Hero age should be 18-26 in the story text, matching the young character visible.
 - Give hero a simple Indian name matching the setting
 - Mention age and profession naturally in the very first line
 - ONLY the hero gets a name — NO other character gets a name or detailed introduction
 - Other characters are referred to as: "his colleague", "a fellow passenger", "her friend", "the shopkeeper", "an elderly man", etc.
-- Hero does NOT need to match the user's gender or age
 - Do NOT add characters not visible in the picture
 - Hero's profession MUST match what is visible — clothing, setting, context. Do NOT contradict the picture.
 - BACKGROUND MATTERS: If background shows a train, story must involve travel/journey. If background shows hospital, story involves health. Never ignore background.
@@ -341,10 +347,15 @@ Tell user: "Based on this picture, I can generate [N] different themes."
 STEP 3 — GENERATE PPDT STORIES (one per theme):
 
 HERO RULES:
-- ALWAYS make hero MALE unless told otherwise
+- HERO AGE SELECTION (CRITICAL — follow this priority):
+  1. Look at ALL characters in the picture
+  2. If ANY character appears to be 18-26 years old, MALE, and has a positive/neutral mood → HE is the hero. Always.
+  3. If no male 18-26 is visible, check for a female 18-26 with positive/neutral mood → SHE is the hero.
+  4. ONLY if NO character aged 18-26 exists in the picture, you may pick an older character as hero.
+  5. NEVER make a 40+ year old uncle/senior the hero when a young 18-26 character is visible — this causes negative impact and story rejection.
+  6. Hero age should be 18-26 in the story text.
 - SET NAME BASED ON PICTURE appearance (Sikh/Christian/South Indian/Hindu/Muslim)
-- If NO human visible: IMAGINE a character based on the scene
-- Prefer the character with POSITIVE MOOD as the hero
+- If NO human visible: IMAGINE a young 18-26 year old character based on the scene
 - ONLY the hero gets a name — NO other character gets a name
 - Other characters: "his colleague", "a fellow passenger", "her friend", "the elderly man", etc.
 - Hero must be PROACTIVE — taking initiative, helping others
