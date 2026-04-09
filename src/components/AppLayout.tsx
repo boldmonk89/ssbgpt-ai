@@ -47,7 +47,7 @@ function InstallHeaderButton() {
   );
 }
 
-
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
