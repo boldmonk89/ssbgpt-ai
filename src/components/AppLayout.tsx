@@ -87,7 +87,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <div className="gold-stripe mx-4" />
 
-        <div className="p-4">
+        <div className="p-4 space-y-3">
+          <InstallAppButton />
           <p className="text-[10px] font-body text-muted-foreground/40 px-3">15 OLQ Analysis Framework</p>
         </div>
       </aside>
