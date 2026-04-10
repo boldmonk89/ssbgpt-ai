@@ -372,3 +372,68 @@ Recommended / Needs Work / Not Ready with rationale.
 
 Keep analysis structured and actionable. Focus on what matters for selection.`;
 }
+
+export function buildPiqPsychMatchPrompt(
+  piqContext: any,
+  tatSummary: string,
+  watSummary: string,
+  srtSummary: string,
+  sdSummary: string
+): string {
+  return `You are a board-level SSB psychologist performing the MOST CRITICAL assessment — matching a candidate's PIQ (Personal Information Questionnaire) profile against their actual psychological test performance.
+
+This is the "Mansa-Vacha-Karma" alignment check — does what the candidate CLAIMS about themselves (PIQ) match what their SUBCONSCIOUS reveals (TAT, WAT, SRT, SD)?
+
+PIQ Profile: ${JSON.stringify(piqContext || 'Not available')}
+TAT Analysis: ${tatSummary || 'Not available'}
+WAT Analysis: ${watSummary || 'Not available'}
+SRT Analysis: ${srtSummary || 'Not available'}
+SD Analysis: ${sdSummary || 'Not available'}
+
+Generate a DEEP cross-match assessment:
+
+## 🎯 PIQ vs Psych Test — Alignment Report
+
+### 1. Identity Match Score
+Give an overall alignment percentage (0-100%) between PIQ claims and psych test evidence. Show your calculation.
+
+### 2. What PIQ Claims vs What Tests Reveal
+Create a comparison table for each major personality trait/quality claimed in PIQ:
+| PIQ Claim | Test Evidence | Match? | Details |
+
+### 3. Hidden Personality Traits
+Qualities that showed up STRONGLY in tests but were NOT mentioned in PIQ — these reveal subconscious strengths the candidate may not be aware of.
+
+### 4. Overclaimed Qualities
+Qualities emphasized in PIQ but NOT evidenced in tests — these are potential exaggeration flags that the interviewing officer WILL probe.
+
+### 5. Consistency Zones (Green Flags 🟢)
+Where PIQ and tests perfectly align — these are the candidate's GENUINE strengths. The SSB board will trust these.
+
+### 6. Contradiction Zones (Red Flags 🔴)
+Where PIQ claims directly contradict test evidence. These WILL be caught by the psychologist and IO. Specific examples with quotes.
+
+### 7. 15 OLQ Potential Rating
+For each OLQ, rate 1-10 based on COMBINED PIQ + test evidence:
+- Show PIQ indication vs Test evidence
+- Final combined score with confidence level (High/Medium/Low)
+
+### 8. SSB Potential Meter
+Based on everything:
+- **Overall Potential**: Give a percentage (0-100%)
+- **Readiness Level**: 🟢 RECOMMENDED MATERIAL / 🟡 NEEDS FOCUSED WORK / 🔴 SIGNIFICANT GAPS
+- **Strongest Asset**: The ONE quality that will carry the candidate
+- **Biggest Risk**: The ONE thing that could sink them
+- **Timeline**: Realistic estimate of preparation time needed
+
+### 9. Interviewing Officer (IO) Risk Areas
+Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For each:
+- The question
+- Why they'll ask it (what contradiction triggered it)
+- How to answer it honestly
+
+### 10. Action Plan
+Ranked list of 5 specific things to do in the next 30 days to close the gap between PIQ claims and actual personality.
+
+Be brutally honest but constructive. The candidate needs TRUTH, not comfort.`;
+}
