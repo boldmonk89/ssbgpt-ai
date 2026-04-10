@@ -1,10 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit, Swords } from 'lucide-react';
+import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit, Swords, History } from 'lucide-react';
 import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
 import { Download } from 'lucide-react';
 import OfflineBanner from '@/components/OfflineBanner';
+import UserMenu from '@/components/UserMenu';
+import LanguageToggle from '@/components/LanguageToggle';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
@@ -16,6 +18,7 @@ const navItems = [
   { to: '/wat', label: 'WAT', icon: MessageSquare },
   { to: '/srt', label: 'SRT', icon: Zap },
   { to: '/sd', label: 'SD', icon: Shield },
+  { to: '/history', label: 'History', icon: History },
 ];
 
 function InstallHeaderButton() {
@@ -41,7 +44,6 @@ function InstallHeaderButton() {
       {showIOSGuide && (
         <div className="fixed inset-0 z-[9999] flex items-end justify-center" onClick={() => setShowIOSGuide(false)}>
           <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
-          {/* Reuse iOS guide from InstallAppButton */}
         </div>
       )}
     </>
@@ -70,7 +72,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </button>
           <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
         </div>
-        <InstallHeaderButton />
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <InstallHeaderButton />
+          <UserMenu />
+        </div>
       </header>
 
       {/* Sidebar */}
@@ -138,6 +144,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           backdropFilter: 'blur(16px)',
         }}>
           <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <UserMenu />
+          </div>
         </div>
         <div className="p-4 md:p-8 max-w-6xl mx-auto">{children}</div>
       </main>
