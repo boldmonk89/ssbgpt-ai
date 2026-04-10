@@ -6,8 +6,8 @@ import { toast } from 'sonner';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { useLanguage } from '@/hooks/useLanguage';
 
-// Using slide2 as the single background image per user request
-import loginBg from '@/assets/slideshow/slide2.jpg';
+// Using slide6 as the single background image per user request
+import loginBg from '@/assets/slideshow/slide6.jpg';
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
