@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useAppStore, WatResponse } from '@/store/appStore';
 import { callGemini, callGeminiMultiPart, buildWatPrompt, buildWatPdfPrompt, buildExtractWatFromImagePrompt, fileToBase64 } from '@/lib/gemini';
+import { detectGibberish } from '@/lib/gibberishDetector';
 import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
+import { useHistorySave } from '@/hooks/useHistorySave';
 import { Trash2, ImageIcon, FileText, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -11,14 +13,13 @@ export default function WATPage() {
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const { saveToHistory } = useHistorySave();
 
-  // Ensure at least one empty row for typing
   const rows = watResponses.length > 0 ? watResponses : [{ word: '', sentence: '' }];
 
   const updateRow = (i: number, field: 'word' | 'sentence', value: string) => {
     const updated = [...rows];
     updated[i] = { ...updated[i], [field]: value };
-    // Auto-add new row if typing in last row
     if (i === updated.length - 1 && (updated[i].word.trim() || updated[i].sentence.trim())) {
       updated.push({ word: '', sentence: '' });
     }
@@ -60,6 +61,7 @@ export default function WATPage() {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildWatPdfPrompt(), [{ base64, mimeType: file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg' }]);
       setWatSummary(result);
+      saveToHistory('WAT-PDF', { fileName: file.name }, result);
       toast.success('Full WAT analyzed');
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed');
@@ -72,10 +74,18 @@ export default function WATPage() {
 
   const analyzeAll = async () => {
     if (filledRows.length === 0) { toast.error('Type some WAT responses first.'); return; }
+    // Check for gibberish in sentences
+    const allSentences = filledRows.map(r => r.sentence).join(' ');
+    const gibberishMsg = detectGibberish(allSentences);
+    if (gibberishMsg) {
+      setWatSummary(gibberishMsg);
+      return;
+    }
     setLoading(true);
     try {
       const result = await callGemini(buildWatPrompt(filledRows));
       setWatSummary(result);
+      saveToHistory('WAT', { responses: filledRows }, result);
       toast.success('WAT analysis complete');
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed');

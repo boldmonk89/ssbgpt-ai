@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { callGemini, callGeminiMultiPart, buildTatPrompt, buildTatPdfPrompt, buildExtractTextFromImagePrompt, fileToBase64 } from '@/lib/gemini';
 import { validateStory } from '@/lib/validation';
+import { detectGibberish } from '@/lib/gibberishDetector';
 import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
+import { useHistorySave } from '@/hooks/useHistorySave';
 import { Upload, ImageIcon, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -14,6 +16,7 @@ export default function TATPage() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
   const [pictureBase64, setPictureBase64] = useState<string | null>(null);
+  const { saveToHistory } = useHistorySave();
 
   const story = tatStories[0];
 
@@ -39,6 +42,12 @@ export default function TATPage() {
   };
 
   const analyzeStory = async () => {
+    // Client-side gibberish check
+    const gibberishMsg = detectGibberish(story.story);
+    if (gibberishMsg) {
+      updateTatStory(0, { analysis: gibberishMsg });
+      return;
+    }
     const v = validateStory(story.story);
     if (!v.valid) { toast.error(v.message!); return; }
     setLoading(true);
@@ -52,6 +61,7 @@ export default function TATPage() {
         result = await callGemini(prompt);
       }
       updateTatStory(0, { analysis: result });
+      saveToHistory('TAT', { storyNumber: story.storyNumber, story: story.story }, result);
       toast.success('Story analyzed');
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed');
@@ -66,6 +76,7 @@ export default function TATPage() {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildTatPdfPrompt(), [{ base64, mimeType: 'application/pdf' }]);
       setTatSummary(result);
+      saveToHistory('TAT-PDF', { fileName: file.name }, result);
       toast.success('Full TAT PDF analyzed');
     } catch (err: any) {
       toast.error(err.message || 'PDF analysis failed');
