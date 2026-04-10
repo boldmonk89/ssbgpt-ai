@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { lovable } from '@/integrations/lovable/index';
@@ -6,36 +6,22 @@ import { toast } from 'sonner';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { useLanguage } from '@/hooks/useLanguage';
 
-import slide1 from '@/assets/slideshow/slide1.jpg';
-import slide2 from '@/assets/slideshow/slide2.jpg';
-import slide3 from '@/assets/slideshow/slide3.jpg';
-import slide4 from '@/assets/slideshow/slide4.jpg';
-import slide5 from '@/assets/slideshow/slide5.jpg';
-import slide6 from '@/assets/slideshow/slide6.jpg';
-
-const SLIDES = [slide1, slide2, slide3, slide4, slide5, slide6];
+// Using slide2 as the single background image per user request
+import loginBg from '@/assets/slideshow/slide2.jpg';
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     if (!loading && user) navigate('/', { replace: true });
   }, [user, loading, navigate]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, []);
-
   const handleGoogleLogin = async () => {
     try {
       const result = await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: window.location.origin,
       });
       if (result.error) {
         toast.error(t('loginFailed'));
@@ -58,48 +44,46 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Slideshow Background */}
-      {SLIDES.map((src, i) => (
-        <div
-          key={i}
-          className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
-          style={{
-            opacity: currentSlide === i ? 1 : 0,
-            backgroundImage: `url(${src})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-      ))}
-      {/* Dark gradient overlay matching the Dashboard */}
+      {/* Single Background Image */}
+      <div
+        className="absolute inset-0 transition-opacity duration-1000"
+        style={{
+          backgroundImage: `url(${loginBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+      {/* Dark gradient overlay to make text readable */}
       <div className="absolute inset-0" style={{
-        background: 'linear-gradient(180deg, hsl(var(--background) / 0.55) 0%, hsl(var(--background) / 0.70) 50%, hsl(var(--background) / 0.90) 100%)',
+        background: 'linear-gradient(180deg, hsl(var(--background) / 0.6) 0%, hsl(var(--background) / 0.8) 50%, hsl(var(--background) / 0.95) 100%)',
       }} />
 
-      <div className="relative z-10 w-full max-w-sm px-4">
-        {/* Main headline text before login box */}
-        <div className="text-center mb-8">
-          <h1 className="font-heading font-bold text-3xl md:text-4xl text-foreground leading-tight drop-shadow-md">
-            Master Your<br />
-            <span className="font-highlight italic text-gold">Psychology.</span>
+      <div className="relative z-10 w-full max-w-md px-6 py-12">
+        {/* Main headline text */}
+        <div className="text-center mb-10">
+          <h1 className="font-heading font-bold text-3xl md:text-5xl text-foreground leading-tight drop-shadow-lg mb-4">
+            Your AI Backed<br />
+            <span className="font-highlight italic text-gold">SSB Mate.</span>
           </h1>
-          <p className="font-body text-sm text-foreground/90 mt-3 drop-shadow">
-            AI-powered assessment for TAT, WAT, SRT & PIQ.
+          <p className="font-body text-sm md:text-base text-foreground/90 drop-shadow-md max-w-xs mx-auto leading-relaxed">
+            Comprehensive assessment for Psych & GTO tasks.
           </p>
         </div>
 
-        <div className="glass-card text-center space-y-6" style={{
-          background: 'linear-gradient(180deg, hsl(var(--card) / 0.8) 0%, hsl(var(--card) / 0.4) 100%)',
-          backdropFilter: 'blur(24px) saturate(1.8)',
+        <div className="glass-card text-center space-y-6 px-8 py-10" style={{
+          background: 'linear-gradient(180deg, hsl(var(--card) / 0.7) 0%, hsl(var(--card) / 0.3) 100%)',
+          backdropFilter: 'blur(32px) saturate(2)',
+          boxShadow: '0 8px 32px 0 hsl(var(--background) / 0.5)',
+          border: '1px solid hsl(var(--border) / 0.4)',
         }}>
-          <div className="flex justify-center">
-            <img src={ssbgptLogo} alt="SSBGPT" className="h-20 w-20 object-contain drop-shadow-lg" />
+          <div className="flex justify-center mb-6">
+            <img src={ssbgptLogo} alt="SSBGPT" className="h-24 w-24 object-contain drop-shadow-xl" />
           </div>
-          <div>
-            <h2 className="font-heading text-xl font-bold text-foreground">{t('welcomeBack')}</h2>
-            <p className="font-body text-sm text-muted-foreground mt-1">{t('signInToContinue')}</p>
+          <div className="space-y-2">
+            <h2 className="font-heading text-2xl font-bold text-foreground">{t('welcomeBack')}</h2>
+            <p className="font-body text-sm text-muted-foreground">{t('signInToContinue')}</p>
           </div>
-          <button onClick={handleGoogleLogin} className="glass-button-gold w-full flex items-center justify-center gap-3 text-sm py-3 transition-transform active:scale-95">
+          <button onClick={handleGoogleLogin} className="glass-button-gold w-full flex items-center justify-center gap-3 text-sm py-3.5 mt-8 transition-all hover:scale-[1.02] active:scale-95">
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -108,7 +92,7 @@ export default function LoginPage() {
             </svg>
             {t('signInWithGoogle')}
           </button>
-          <p className="text-[10px] text-muted-foreground/50">{t('bySigningIn')}</p>
+          <p className="text-[10px] text-muted-foreground/50 mt-4">{t('bySigningIn')}</p>
         </div>
       </div>
     </div>
