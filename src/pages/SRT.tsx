@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { callGemini, callGeminiMultiPart, buildSrtPrompt, buildSrtPdfPrompt, buildExtractSrtFromImagePrompt, fileToBase64 } from '@/lib/gemini';
+import { detectGibberish } from '@/lib/gibberishDetector';
 import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
+import { useHistorySave } from '@/hooks/useHistorySave';
 import { Trash2, ImageIcon, FileText, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -11,14 +13,13 @@ export default function SRTPage() {
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const { saveToHistory } = useHistorySave();
 
-  // Ensure at least one empty row
   const rows = srtResponses.length > 0 ? srtResponses : [{ situationNumber: 1, situation: '', response: '' }];
 
   const updateRow = (i: number, field: 'situation' | 'response', value: string) => {
     const updated = [...rows];
     updated[i] = { ...updated[i], [field]: value };
-    // Auto-add new row if typing in last row
     if (i === updated.length - 1 && (updated[i].situation.trim() || updated[i].response.trim())) {
       updated.push({ situationNumber: updated.length + 1, situation: '', response: '' });
     }
@@ -62,6 +63,7 @@ export default function SRTPage() {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildSrtPdfPrompt(), [{ base64, mimeType: file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg' }]);
       setSrtSummary(result);
+      saveToHistory('SRT-PDF', { fileName: file.name }, result);
       toast.success('Full SRT analyzed');
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed');
@@ -74,10 +76,17 @@ export default function SRTPage() {
 
   const analyzeAll = async () => {
     if (filledRows.length === 0) { toast.error('Type some SRT responses first.'); return; }
+    const allResponses = filledRows.map(r => r.response).join(' ');
+    const gibberishMsg = detectGibberish(allResponses);
+    if (gibberishMsg) {
+      setSrtSummary(gibberishMsg);
+      return;
+    }
     setLoading(true);
     try {
       const result = await callGemini(buildSrtPrompt(filledRows));
       setSrtSummary(result);
+      saveToHistory('SRT', { responses: filledRows }, result);
       toast.success('SRT analysis complete');
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed');

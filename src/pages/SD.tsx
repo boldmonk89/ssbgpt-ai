@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { callGemini, callGeminiMultiPart, buildSdPrompt, buildSdFromPdfPrompt, fileToBase64 } from '@/lib/gemini';
 import { validateParagraph } from '@/lib/validation';
+import { detectGibberish } from '@/lib/gibberishDetector';
 import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
+import { useHistorySave } from '@/hooks/useHistorySave';
 import { FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -14,16 +16,23 @@ export default function SDPage() {
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const { saveToHistory } = useHistorySave();
 
   const para = sdParagraphs[activeTab];
 
   const analyzeParagraph = async () => {
+    const gibberishMsg = detectGibberish(para.content);
+    if (gibberishMsg) {
+      updateSdParagraph(activeTab, { analysis: gibberishMsg });
+      return;
+    }
     const v = validateParagraph(para.content);
     if (!v.valid) { toast.error(v.message!); return; }
     setLoading(true);
     try {
       const result = await callGemini(buildSdPrompt(para.type, para.content));
       updateSdParagraph(activeTab, { analysis: result });
+      saveToHistory('SD', { type: para.type, content: para.content }, result);
       toast.success('SD paragraph analyzed');
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed');
@@ -38,6 +47,7 @@ export default function SDPage() {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildSdFromPdfPrompt(), [{ base64, mimeType: 'application/pdf' }]);
       setSdSummary(result);
+      saveToHistory('SD-PDF', { fileName: file.name }, result);
       toast.success('Full SD PDF analyzed');
     } catch (err: any) {
       toast.error(err.message || 'PDF analysis failed');
