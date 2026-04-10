@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { lovable } from '@/integrations/lovable/index';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -20,14 +20,17 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
-      const result = await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        }
       });
-      if (result.error) {
-        toast.error(t('loginFailed'));
+      if (error) {
+        toast.error(error.message || t('loginFailed'));
         return;
       }
-      if (result.redirected) return;
+      // Supabase OAuth instantly redirects the browser, so we don't need further logic here.
     } catch (error) {
       const err = error as Error;
       toast.error(err.message || t('loginFailed'));
