@@ -1,23 +1,26 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, ClipboardList, BrainCircuit, Swords, History } from 'lucide-react';
-import { useState } from 'react';
+import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, BrainCircuit, Swords, History, Trash2, GitCompare } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
 import { Download } from 'lucide-react';
 import OfflineBanner from '@/components/OfflineBanner';
 import UserMenu from '@/components/UserMenu';
 import LanguageToggle from '@/components/LanguageToggle';
+import { useAuth } from '@/hooks/useAuth';
+import { useAppStore } from '@/store/appStore';
+import { toast } from 'sonner';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
   { to: '/ai-practice', label: 'AI Practice', icon: BrainCircuit },
   { to: '/gto', label: 'GTO Tasks', icon: Swords },
-  { to: '/full-analysis', label: 'Full Analysis', icon: ClipboardList },
   { to: '/piq', label: 'PIQ', icon: UserCircle },
   { to: '/tat', label: 'TAT', icon: FileText },
   { to: '/wat', label: 'WAT', icon: MessageSquare },
   { to: '/srt', label: 'SRT', icon: Zap },
   { to: '/sd', label: 'SD', icon: Shield },
+  { to: '/cross-match', label: 'Cross-Match', icon: GitCompare },
   { to: '/history', label: 'History', icon: History },
 ];
 
@@ -53,6 +56,16 @@ function InstallHeaderButton() {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
+  const clearSession = useAppStore((s) => s.clearSession);
+  const lastUserId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (user && lastUserId.current && lastUserId.current !== user.id) {
+      clearSession();
+    }
+    if (user) lastUserId.current = user.id;
+  }, [user, clearSession]);
 
   return (
     <div className="min-h-screen flex flex-col topo-bg">
@@ -131,6 +144,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="p-4 space-y-3">
           <InstallAppButton />
           <p className="text-[10px] font-body text-muted-foreground/40 px-3">15 OLQ Analysis Framework</p>
+          <button
+            onClick={() => { clearSession(); toast.success('Session cleared'); }}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-heading font-semibold rounded-xl text-destructive/70 hover:text-destructive transition-all"
+            style={{
+              background: 'linear-gradient(135deg, hsl(var(--destructive) / 0.08) 0%, transparent 100%)',
+              border: '1px solid hsl(var(--destructive) / 0.2)',
+            }}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear Session
+          </button>
         </div>
       </aside>
 

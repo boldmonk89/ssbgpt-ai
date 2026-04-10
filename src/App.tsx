@@ -5,7 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import DashboardPage from "./pages/Dashboard";
-import FullAnalysisPage from "./pages/FullAnalysis";
+import AuthCallbackPage from "./pages/AuthCallback";
+import CrossMatchPage from "./pages/CrossMatch";
 import PIQPage from "./pages/PIQ";
 import TATPage from "./pages/TAT";
 import WATPage from "./pages/WAT";
@@ -27,11 +28,12 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="*" element={
               <AppLayout>
                 <Routes>
                   <Route path="/" element={<DashboardPage />} />
-                  <Route path="/full-analysis" element={<FullAnalysisPage />} />
+                  <Route path="/cross-match" element={<CrossMatchPage />} />
                   <Route path="/piq" element={<PIQPage />} />
                   <Route path="/tat" element={<TATPage />} />
                   <Route path="/wat" element={<WATPage />} />
