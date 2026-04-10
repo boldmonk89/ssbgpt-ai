@@ -1,21 +1,28 @@
 import { useState } from 'react';
 import { useAppStore } from '@/store/appStore';
-import { callGemini, callGeminiMultiPart, buildFullReportPrompt, buildFullPdfAnalysisPrompt, fileToBase64 } from '@/lib/gemini';
+import { callGemini, callGeminiMultiPart, buildFullReportPrompt, buildFullPdfAnalysisPrompt, buildPiqPsychMatchPrompt, fileToBase64 } from '@/lib/gemini';
 import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
-import { Upload, BarChart3 } from 'lucide-react';
+import { useHistorySave } from '@/hooks/useHistorySave';
+import { Upload, BarChart3, Target, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function FullAnalysisPage() {
   const store = useAppStore();
   const [loading, setLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [potentialLoading, setPotentialLoading] = useState(false);
+  const [potentialReport, setPotentialReport] = useState('');
+  const { saveToHistory } = useHistorySave();
 
   const hasIndividualData = !!(
     store.tatSummary || store.tatStories.some(s => s.analysis) ||
     store.watSummary || store.srtSummary ||
     store.sdSummary || store.sdParagraphs.some(p => p.analysis)
   );
+
+  const hasPiq = !!store.piqContext;
+  const canGeneratePotential = hasPiq && hasIndividualData;
 
   const generateFullReport = async () => {
     setLoading(true);
@@ -29,6 +36,7 @@ export default function FullAnalysisPage() {
       );
       const result = await callGemini(prompt);
       store.setFullReport(result);
+      saveToHistory('Full-Report', {}, result);
       toast.success('Full psychological report generated');
     } catch (err: any) {
       toast.error(err.message || 'Report generation failed');
@@ -43,11 +51,33 @@ export default function FullAnalysisPage() {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildFullPdfAnalysisPrompt(), [{ base64, mimeType: 'application/pdf' }]);
       store.setFullReport(result);
+      saveToHistory('Full-PDF', { fileName: file.name }, result);
       toast.success('Full psych analysis from PDF complete');
     } catch (err: any) {
       toast.error(err.message || 'PDF analysis failed');
     } finally {
       setPdfLoading(false);
+    }
+  };
+
+  const generatePotentialAssessment = async () => {
+    setPotentialLoading(true);
+    try {
+      const prompt = buildPiqPsychMatchPrompt(
+        store.piqContext,
+        store.tatSummary || store.tatStories.filter(s => s.analysis).map(s => s.analysis).join('\n\n'),
+        store.watSummary,
+        store.srtSummary,
+        store.sdSummary || store.sdParagraphs.filter(p => p.analysis).map(p => p.analysis).join('\n\n')
+      );
+      const result = await callGemini(prompt);
+      setPotentialReport(result);
+      saveToHistory('PIQ-Psych-Match', {}, result);
+      toast.success('Potential assessment generated');
+    } catch (err: any) {
+      toast.error(err.message || 'Assessment failed');
+    } finally {
+      setPotentialLoading(false);
     }
   };
 
@@ -109,6 +139,70 @@ export default function FullAnalysisPage() {
 
       {store.fullReport && !loading && !pdfLoading && (
         <AnalysisOutput content={store.fullReport} title="Comprehensive SSB Psychological Assessment" />
+      )}
+
+      {/* PIQ + Psych Cross-Match — Potential Assessment */}
+      <div className="gold-stripe" />
+      
+      <div className="glass-card border-2 border-gold/30" style={{
+        background: 'linear-gradient(135deg, hsl(var(--gold) / 0.05), hsl(var(--card) / 0.8))',
+      }}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-10 w-10 rounded-xl flex items-center justify-center" style={{
+            background: 'linear-gradient(135deg, hsl(var(--gold) / 0.25), hsl(var(--gold) / 0.1))',
+          }}>
+            <Target className="h-5 w-5 text-gold" />
+          </div>
+          <div>
+            <h3 className="text-base font-heading font-bold text-gold">PIQ + Psych Test — Potential Assessment</h3>
+            <p className="text-xs text-muted-foreground font-body">The ultimate SSB readiness check</p>
+          </div>
+        </div>
+        
+        <p className="text-sm text-muted-foreground font-body leading-relaxed mb-3">
+          This is the <strong className="text-foreground">Mansa-Vacha-Karma alignment check</strong> — does what you <em>claim</em> about yourself (PIQ) match what your <em>subconscious</em> reveals in tests (TAT, WAT, SRT, SD)? The SSB psychologist does exactly this cross-match.
+        </p>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          <span className={`olq-badge text-[10px] ${hasPiq ? 'border-success/50 text-success' : 'border-destructive/50 text-destructive'}`}>
+            {hasPiq ? '✓' : '✗'} PIQ Analyzed
+          </span>
+          <span className={`olq-badge text-[10px] ${hasIndividualData ? 'border-success/50 text-success' : 'border-destructive/50 text-destructive'}`}>
+            {hasIndividualData ? '✓' : '✗'} Psych Tests Done
+          </span>
+        </div>
+
+        {!canGeneratePotential && (
+          <div className="glass-card-subtle border-gold/10 mb-4">
+            <p className="text-xs text-muted-foreground font-body">
+              <strong className="text-gold">Required:</strong> Analyze your PIQ first, then complete at least one psych test (TAT/WAT/SRT/SD). The more tests you complete, the more accurate the potential assessment.
+            </p>
+          </div>
+        )}
+
+        {potentialReport && !potentialLoading ? (
+          <>
+            <div className="glass-card-subtle border-gold/20 text-center py-3 mb-4">
+              <p className="font-heading text-xs text-gold mb-2">✓ Potential assessment generated</p>
+              <button onClick={generatePotentialAssessment} disabled={potentialLoading || !canGeneratePotential}
+                className="glass-button-accent text-xs py-2">
+                Regenerate Assessment
+              </button>
+            </div>
+          </>
+        ) : (
+          <button onClick={generatePotentialAssessment} disabled={potentialLoading || !canGeneratePotential}
+            className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold flex items-center justify-center gap-2">
+            <ShieldCheck className="h-4 w-4" />
+            {potentialLoading ? 'ASSESSING POTENTIAL...' : 'ASSESS MY SSB POTENTIAL'}
+          </button>
+        )}
+      </div>
+
+      {potentialLoading && <LoadingCard message="Cross-matching PIQ with psych tests... calculating SSB potential..." />}
+      
+      {potentialReport && !potentialLoading && (
+        <AnalysisOutput content={potentialReport} title="PIQ + Psych Test — SSB Potential Assessment" />
       )}
     </div>
   );
