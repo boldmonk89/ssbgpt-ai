@@ -130,6 +130,9 @@ Output ONLY as JSON:
 export function buildTatPrompt(storyNumber: number, story: string, hasPicture?: boolean): string {
   return `You are an SSB psychologist evaluating a TAT story.
 
+CRITICAL — GIBBERISH & IRRELEVANT INPUT DETECTION:
+Before analyzing, check if the story is random keyboard mashing, completely irrelevant text, repeated words, lorem ipsum, or trolling content. If so, DO NOT analyze — instead respond with a witty, sarcastic 3-4 line message pointing out this isn't a real story, referencing what would happen if they submitted this at actual SSB, and telling them to write a proper story. Be funny but constructive.
+
 Story Number: ${storyNumber}
 ${hasPicture ? 'TAT picture is attached.' : ''}
 Story: "${story}"
@@ -172,6 +175,9 @@ Keep each story analysis concise and actionable.`;
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
   return `You are an SSB psychologist evaluating WAT responses.
 
+CRITICAL — GIBBERISH & IRRELEVANT INPUT DETECTION:
+Before analyzing, check if any sentences are random keyboard mashing, gibberish, completely irrelevant, or trolling. If the majority of responses are gibberish/irrelevant, DO NOT analyze — respond with a witty sarcastic 3-4 line message about what the SSB psychologist would think, and ask for real responses. If only a few are gibberish, flag those specifically with sarcasm and analyze the rest.
+
 WAT Responses: ${JSON.stringify(responses)}
 
 For each response, check:
@@ -203,6 +209,9 @@ Provide a summary table and batch analysis with OLQ coverage map, top improvemen
 export function buildSrtPrompt(responses: { situationNumber: number; situation: string; response: string }[]): string {
   return `You are an SSB psychologist evaluating SRT responses.
 
+CRITICAL — GIBBERISH & IRRELEVANT INPUT DETECTION:
+Before analyzing, check if responses are random keyboard mashing, gibberish, irrelevant, or trolling. If so, DO NOT analyze — respond with a witty sarcastic 3-4 line message about what would happen at actual SSB, and ask for real responses.
+
 SRT Responses: ${JSON.stringify(responses)}
 
 For each situation-response:
@@ -232,24 +241,50 @@ Provide batch summary with OLQ patterns, weaknesses, top improvements, overall r
 }
 
 export function buildSdPrompt(paragraphType: string, content: string): string {
-  return `You are an SSB psychologist evaluating a Self Description paragraph.
+  return `You are a senior SSB psychologist evaluating a Self Description paragraph with deep expertise in officer-level personality assessment.
+
+CRITICAL — GIBBERISH & IRRELEVANT INPUT DETECTION:
+Before analyzing, check if the content is gibberish, random text, or completely irrelevant to self-description. If so, respond with a witty sarcastic 3-4 line message and ask for a real paragraph.
 
 Paragraph Type: ${paragraphType}
 Content: "${content}"
 
-Analyze concisely:
+Provide a THOROUGH analysis:
 
-**A. Authenticity** — Genuine or templated? Are specific examples cited?
+**A. Authenticity Check (Deep Dive)**
+- Is this genuine or template/coaching-copied?
+- Are there SPECIFIC examples, incidents, or details that prove it's real?
+- Does the language match a genuine self-reflection or does it read like a textbook?
+- Flag any contradictions within the paragraph
 
-**B. OLQ Coverage** — Which of the 15 OLQs are evidenced? Which are missing?
+**B. OLQ Evidence Map**
+For EACH of the 15 OLQs, mark: ✅ Evidenced (with quote) | ⚠️ Weak/Vague | ❌ Missing
+The 15 OLQs: Effective Intelligence, Reasoning Ability, Organizing Ability, Power of Expression, Social Adaptability, Cooperation, Sense of Responsibility, Initiative, Self Confidence, Speed of Decision, Ability to Influence the Group, Liveliness, Determination, Courage, Stamina
 
-**C. Key Improvements** — Weak/vague lines with specific replacements.
+**C. Line-by-Line Improvement**
+For each weak or vague line, provide:
+- Original line (quoted)
+- What's wrong with it
+- Specific replacement line with concrete example/incident
 
-**D. Score** — Out of 10 with justification.
+**D. Consistency with SD Context**
+- Does this paragraph align with what ${paragraphType.includes('Parents') ? 'parents' : paragraphType.includes('Teachers') ? 'teachers' : paragraphType.includes('Friends') ? 'friends' : 'the candidate'} would realistically say?
+- Are the qualities mentioned appropriate for this perspective?
 
-**E. Rewritten Paragraph** — Improved version with better OLQ coverage and authenticity.
+**E. Score** — Out of 10 with detailed justification (not just a number — explain WHY)
 
-Keep focused and actionable.`;
+**F. Rewritten Paragraph**
+- Complete rewritten version that:
+  - Keeps the same person's voice and perspective
+  - Adds specific incidents/examples
+  - Naturally covers 5-6 OLQs through actions, not adjectives
+  - Sounds authentic, not rehearsed
+  - 80-120 words
+
+**G. Quick Tips**
+- 3 actionable tips to make THIS specific paragraph stand out at SSB
+
+Be direct, constructive, and specific. No generic advice.`;
 }
 
 export function buildSdFromPdfPrompt(): string {
