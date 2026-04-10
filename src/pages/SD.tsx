@@ -20,6 +20,12 @@ export default function SDPage() {
 
   const para = sdParagraphs[activeTab];
 
+  const handleClear = () => {
+    updateSdParagraph(activeTab, { content: '', analysis: null });
+    setSdSummary(null);
+    if (document.getElementById('sd-pdf')) (document.getElementById('sd-pdf') as HTMLInputElement).value = '';
+  };
+
   const analyzeParagraph = async () => {
     const gibberishMsg = detectGibberish(para.content);
     if (gibberishMsg) {
@@ -84,7 +90,16 @@ export default function SDPage() {
       </div>
 
       {pdfLoading && <LoadingCard message="Analyzing full SD PDF..." />}
-      {sdSummary && !pdfLoading && <AnalysisOutput content={sdSummary} title="Full SD Analysis" />}
+      {sdSummary && !pdfLoading && (
+        <div className="relative">
+          <div className="absolute top-4 right-4 z-10">
+            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+              CLEAR PDF RESPONSE
+            </button>
+          </div>
+          <AnalysisOutput content={sdSummary} title="Full SD Analysis" />
+        </div>
+      )}
 
       <div className="gold-stripe" />
       <p className="font-heading font-semibold text-xs text-gold uppercase tracking-wider">Or Analyze Paragraph by Paragraph</p>
@@ -119,11 +134,7 @@ export default function SDPage() {
           </div>
           {para.analysis && !loading ? (
             <div className="glass-card-subtle border-gold/20 text-center py-3">
-              <p className="font-heading text-xs text-gold mb-2">✓ This paragraph has already been analyzed</p>
-              <button onClick={analyzeParagraph} disabled={!para.content.trim() || loading}
-                className="glass-button-accent text-xs py-2">
-                Request Fresh Analysis
-              </button>
+              <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
             </div>
           ) : (
             <button onClick={analyzeParagraph} disabled={!para.content.trim() || loading}
@@ -137,7 +148,14 @@ export default function SDPage() {
           {loading ? (
             <LoadingCard message="Evaluating authenticity... checking OLQ coverage..." />
           ) : para.analysis ? (
-            <AnalysisOutput content={para.analysis} title={`${para.type} — Analysis`} />
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR RESPONSE
+                </button>
+              </div>
+              <AnalysisOutput content={para.analysis} title={`${para.type} — Analysis`} />
+            </div>
           ) : (
             <div className="glass-card flex items-center justify-center min-h-[200px] text-muted-foreground font-heading text-sm">
               Analysis will appear here

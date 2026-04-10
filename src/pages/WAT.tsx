@@ -13,9 +13,18 @@ export default function WATPage() {
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [genCount, setGenCount] = useState(0);
   const { saveToHistory } = useHistorySave();
 
   const rows = watResponses.length > 0 ? watResponses : [{ word: '', sentence: '' }];
+
+  const handleClear = () => {
+    setWatSummary(null);
+    setWatResponses([{ word: '', sentence: '' }]);
+    setGenCount(0);
+    if (document.getElementById('wat-images')) (document.getElementById('wat-images') as HTMLInputElement).value = '';
+    if (document.getElementById('wat-pdf')) (document.getElementById('wat-pdf') as HTMLInputElement).value = '';
+  };
 
   const updateRow = (i: number, field: 'word' | 'sentence', value: string) => {
     const updated = [...rows];
@@ -82,6 +91,7 @@ export default function WATPage() {
       return;
     }
     setLoading(true);
+    setGenCount(prev => prev + 1);
     try {
       const result = await callGemini(buildWatPrompt(filledRows));
       setWatSummary(result);
@@ -122,7 +132,16 @@ export default function WATPage() {
       </div>
 
       {pdfLoading && <LoadingCard message="Analyzing full WAT..." />}
-      {watSummary && !pdfLoading && !loading && <AnalysisOutput content={watSummary} title="WAT Analysis" />}
+      {watSummary && !pdfLoading && !loading && (
+        <div className="relative">
+          <div className="absolute top-4 right-4 z-10">
+            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+              CLEAR RESPONSE
+            </button>
+          </div>
+          <AnalysisOutput content={watSummary} title="WAT Analysis" />
+        </div>
+      )}
 
       <div className="gold-stripe" />
 
@@ -191,18 +210,14 @@ export default function WATPage() {
       </div>
 
       {filledRows.length > 0 && (
-        watSummary && !loading ? (
-          <div className="glass-card-subtle border-gold/20 text-center py-3">
-            <p className="font-heading text-xs text-gold mb-2">✓ WAT responses have already been analyzed</p>
-            <button onClick={analyzeAll} disabled={loading}
-              className="glass-button-accent text-xs py-2">
-              Request Fresh Analysis
-            </button>
+        genCount >= 5 ? (
+          <div className="glass-card-subtle border-destructive/20 text-center py-3">
+            <p className="font-heading text-xs text-destructive mb-2">Generation limit reached (5/5). Please clear to start over.</p>
           </div>
         ) : (
           <button onClick={analyzeAll} disabled={loading}
             className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold">
-            {loading ? 'ANALYZING WAT...' : 'ANALYZE ALL WAT RESPONSES'}
+            {loading ? 'ANALYZING WAT...' : `ANALYZE ALL WAT RESPONSES (${5 - genCount} clicks left)`}
           </button>
         )
       )}

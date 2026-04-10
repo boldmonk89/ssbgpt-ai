@@ -434,6 +434,11 @@ export default function AIPracticePage() {
   // OLQ tag toggle
   const [showOlqTags, setShowOlqTags] = useState(true);
 
+  const handleClearTat = () => { setTatResult(''); setTatImage(null); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
+  const handleClearWat = () => { setWatResult(''); setWatWord(''); };
+  const handleClearSrt = () => { setSrtResult(''); setSrtSituation(''); };
+  const handleClearPpdt = () => { setPpdtResult(''); setPpdtImage(null); if (document.getElementById('ppdt-upload')) (document.getElementById('ppdt-upload') as HTMLInputElement).value = ''; };
+
   const handleTatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -621,18 +626,33 @@ export default function AIPracticePage() {
                 )}
               </label>
 
-              <button
-                onClick={analyzeTat}
-                disabled={tatLoading || !tatImage}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
-                {tatLoading ? 'Analyzing Image & Generating Stories...' : 'Generate TAT Stories'}
-              </button>
+              {tatResult && !tatLoading ? (
+                <div className="glass-card-subtle border-gold/20 text-center py-3">
+                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                </div>
+              ) : (
+                <button
+                  onClick={analyzeTat}
+                  disabled={tatLoading || !tatImage}
+                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                  {tatLoading ? 'Analyzing Image & Generating Stories...' : 'Generate TAT Stories'}
+                </button>
+              )}
             </div>
           </div>
 
-          {tatResult && <AnalysisOutput content={filterOlqTags(tatResult)} title="AI-Generated TAT Stories" />}
+          {tatResult && (
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={handleClearTat} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR RESPONSE
+                </button>
+              </div>
+              <AnalysisOutput content={filterOlqTags(tatResult)} title="AI-Generated TAT Stories" />
+            </div>
+          )}
         </TabsContent>
 
         {/* WAT Tab */}
@@ -647,18 +667,33 @@ export default function AIPracticePage() {
                 className="h-12 text-base font-body bg-background/50 border-border/40 focus:border-gold/50"
                 onKeyDown={(e) => e.key === 'Enter' && analyzeWat()}
               />
-              <button
-                onClick={analyzeWat}
-                disabled={watLoading || !watWord.trim()}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {watLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Type className="h-4 w-4" />}
-                {watLoading ? 'Generating Responses...' : 'Generate WAT Responses'}
-              </button>
+              {watResult && !watLoading ? (
+                <div className="glass-card-subtle border-gold/20 text-center py-3">
+                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                </div>
+              ) : (
+                <button
+                  onClick={analyzeWat}
+                  disabled={watLoading || !watWord.trim()}
+                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {watLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Type className="h-4 w-4" />}
+                  {watLoading ? 'Generating Responses...' : 'Generate WAT Responses'}
+                </button>
+              )}
             </div>
           </div>
 
-          {watResult && <AnalysisOutput content={filterOlqTags(watResult)} title="AI-Generated WAT Responses" />}
+          {watResult && (
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={handleClearWat} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR RESPONSE
+                </button>
+              </div>
+              <AnalysisOutput content={filterOlqTags(watResult)} title="AI-Generated WAT Responses" />
+            </div>
+          )}
         </TabsContent>
 
         {/* SRT Tab */}
@@ -672,18 +707,33 @@ export default function AIPracticePage() {
                 onChange={(e) => setSrtSituation(e.target.value)}
                 className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
               />
-              <button
-                onClick={analyzeSrt}
-                disabled={srtLoading || !srtSituation.trim()}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {srtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <AlertTriangle className="h-4 w-4" />}
-                {srtLoading ? 'Generating Reactions...' : 'Generate SRT Reactions'}
-              </button>
+              {srtResult && !srtLoading ? (
+                <div className="glass-card-subtle border-gold/20 text-center py-3">
+                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                </div>
+              ) : (
+                <button
+                  onClick={analyzeSrt}
+                  disabled={srtLoading || !srtSituation.trim()}
+                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {srtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <AlertTriangle className="h-4 w-4" />}
+                  {srtLoading ? 'Generating Reactions...' : 'Generate SRT Reactions'}
+                </button>
+              )}
             </div>
           </div>
 
-          {srtResult && <AnalysisOutput content={filterOlqTags(srtResult)} title="AI-Generated SRT Reactions" />}
+          {srtResult && (
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={handleClearSrt} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR RESPONSE
+                </button>
+              </div>
+              <AnalysisOutput content={filterOlqTags(srtResult)} title="AI-Generated SRT Reactions" />
+            </div>
+          )}
         </TabsContent>
 
         {/* PPDT Tab */}
@@ -708,18 +758,33 @@ export default function AIPracticePage() {
                 )}
               </label>
 
-              <button
-                onClick={analyzePpdt}
-                disabled={ppdtLoading || !ppdtImage}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
-                {ppdtLoading ? 'Generating PPDT Story & Narration...' : 'Generate PPDT Story'}
-              </button>
+              {ppdtResult && !ppdtLoading ? (
+                <div className="glass-card-subtle border-gold/20 text-center py-3">
+                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                </div>
+              ) : (
+                <button
+                  onClick={analyzePpdt}
+                  disabled={ppdtLoading || !ppdtImage}
+                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+                  {ppdtLoading ? 'Generating PPDT Story & Narration...' : 'Generate PPDT Story'}
+                </button>
+              )}
             </div>
           </div>
 
-          {ppdtResult && <AnalysisOutput content={ppdtResult} title="AI-Generated PPDT Story & Narration" />}
+          {ppdtResult && (
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={handleClearPpdt} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR RESPONSE
+                </button>
+              </div>
+              <AnalysisOutput content={ppdtResult} title="AI-Generated PPDT Story & Narration" />
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

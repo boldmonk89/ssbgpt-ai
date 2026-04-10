@@ -1,25 +1,30 @@
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { useLanguage } from '@/hooks/useLanguage';
 import { toast } from 'sonner';
 
 export function useHistorySave() {
-  const { user } = useAuth();
-  const { t, lang } = useLanguage();
-
   const saveToHistory = async (testType: string, inputData: any, result: string) => {
-    if (!user) return;
     try {
-      await supabase.from('analysis_history').insert({
-        user_id: user.id,
+      const existing = localStorage.getItem('ssbgpt_local_history');
+      const history = existing ? JSON.parse(existing) : [];
+      
+      const newRecord = {
+        id: Date.now().toString(),
         test_type: testType,
         input_data: inputData,
         result,
-        language: lang,
-      });
-      toast.success(t('saved'));
-    } catch {}
+        created_at: new Date().toISOString(),
+      };
+      
+      history.unshift(newRecord);
+      
+      // Keep only last 50 local records to prevent filling up storage too much
+      const trimmedHistory = history.slice(0, 50);
+      
+      localStorage.setItem('ssbgpt_local_history', JSON.stringify(trimmedHistory));
+      toast.success('Result saved locally!');
+    } catch (e) {
+      console.error('Failed to save to history', e);
+    }
   };
 
-  return { saveToHistory, canSave: !!user };
+  return { saveToHistory, canSave: true };
 }

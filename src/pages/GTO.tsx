@@ -247,7 +247,6 @@ export default function GTOPage() {
   const [lecUserText, setLecUserText] = useState('');
   const [lecUserAnalysis, setLecUserAnalysis] = useState('');
   const [lecUserLoading, setLecUserLoading] = useState(false);
-  
   // Video recording state
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -259,6 +258,10 @@ export default function GTOPage() {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  const clearGd = () => { setGdResult(''); setGdTopic(''); };
+  const clearGpe = () => { setGpeResult(''); setGpeUserAnalysis(''); setGpeImage(null); setGpeParagraph(''); setGpeUserSolution(''); setGpePdfFile(null); };
+  const clearLec = () => { setLecResult(''); setLecUserAnalysis(''); setLecTopic(''); setLecUserText(''); setVideoAnalysis(''); setVideoUrl(null); setVideoBlob(null); };
 
   // Image slideshow
   useEffect(() => {
@@ -517,17 +520,32 @@ export default function GTOPage() {
                 className="h-12 text-base font-body bg-background/50 border-border/40 focus:border-gold/50"
                 onKeyDown={(e) => e.key === 'Enter' && analyzeGd()}
               />
-              <button
-                onClick={analyzeGd}
-                disabled={gdLoading || !gdTopic.trim()}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {gdLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
-                {gdLoading ? 'Generating Current Points...' : 'Generate GD Points'}
-              </button>
+              {gdResult && !gdLoading ? (
+                <div className="glass-card-subtle border-gold/20 text-center py-3">
+                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                </div>
+              ) : (
+                <button
+                  onClick={analyzeGd}
+                  disabled={gdLoading || !gdTopic.trim()}
+                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {gdLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+                  {gdLoading ? 'Generating Current Points...' : 'Generate GD Points'}
+                </button>
+              )}
             </div>
           </div>
-          {gdResult && <AnalysisOutput content={gdResult} title="AI-Generated GD Points" />}
+          {gdResult && (
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={clearGd} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR RESPONSE
+                </button>
+              </div>
+              <AnalysisOutput content={gdResult} title="AI-Generated GD Points" />
+            </div>
+          )}
         </TabsContent>
 
         {/* GPE Tab */}
@@ -559,18 +577,33 @@ export default function GTOPage() {
                 className="min-h-[100px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
               />
 
-              <button
-                onClick={analyzeGpe}
-                disabled={gpeLoading || !gpeImage || !gpeParagraph.trim()}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {gpeLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
-                {gpeLoading ? 'Generating GPE Solution...' : 'Get AI GPE Solution'}
-              </button>
+              {gpeResult && !gpeLoading ? (
+                <div className="glass-card-subtle border-gold/20 text-center py-3">
+                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                </div>
+              ) : (
+                <button
+                  onClick={analyzeGpe}
+                  disabled={gpeLoading || !gpeImage || !gpeParagraph.trim()}
+                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {gpeLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+                  {gpeLoading ? 'Generating GPE Solution...' : 'Get AI GPE Solution'}
+                </button>
+              )}
             </div>
           </div>
 
-          {gpeResult && <AnalysisOutput content={gpeResult} title="AI-Generated GPE Solution" />}
+          {gpeResult && (
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={clearGpe} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR GPE RESPONSES
+                </button>
+              </div>
+              <AnalysisOutput content={gpeResult} title="AI-Generated GPE Solution" />
+            </div>
+          )}
 
           {/* User's own solution analysis */}
           {gpeResult && (
@@ -662,18 +695,33 @@ export default function GTOPage() {
                 className="h-12 text-base font-body bg-background/50 border-border/40 focus:border-gold/50"
                 onKeyDown={(e) => e.key === 'Enter' && analyzeLec()}
               />
-              <button
-                onClick={analyzeLec}
-                disabled={lecLoading || !lecTopic.trim()}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {lecLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
-                {lecLoading ? 'Generating Lecturette...' : 'Generate Model Lecturette'}
-              </button>
+              {lecResult && !lecLoading ? (
+                <div className="glass-card-subtle border-gold/20 text-center py-3">
+                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                </div>
+              ) : (
+                <button
+                  onClick={analyzeLec}
+                  disabled={lecLoading || !lecTopic.trim()}
+                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {lecLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
+                  {lecLoading ? 'Generating Lecturette...' : 'Generate Model Lecturette'}
+                </button>
+              )}
             </div>
           </div>
 
-          {lecResult && <AnalysisOutput content={lecResult} title="AI-Generated Model Lecturette" />}
+          {lecResult && (
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={clearLec} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR LECTURETTE RESPONSES
+                </button>
+              </div>
+              <AnalysisOutput content={lecResult} title="AI-Generated Model Lecturette" />
+            </div>
+          )}
 
           {/* User lecturette analysis — text or audio */}
           {lecResult && (

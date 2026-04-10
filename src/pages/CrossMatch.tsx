@@ -35,6 +35,14 @@ export default function CrossMatchPage() {
   const [result, setResult] = useState('');
   const { saveToHistory } = useHistorySave();
 
+  const handleClear = () => {
+    setResult('');
+    setPiqFile(null);
+    setPsychFile(null);
+    if (document.getElementById('piq-upload')) (document.getElementById('piq-upload') as HTMLInputElement).value = '';
+    if (document.getElementById('psych-upload')) (document.getElementById('psych-upload') as HTMLInputElement).value = '';
+  };
+
   const handleAnalyse = async () => {
     if (!piqFile || !psychFile) { toast.error('Upload both PDFs first'); return; }
     setLoading(true);
@@ -87,13 +95,30 @@ export default function CrossMatchPage() {
       </div>
       <FileCard label="PDF 1 — PIQ Form (filled)" file={piqFile} inputId="piq-upload" onFile={setPiqFile} />
       <FileCard label="PDF 2 — Complete Psych Test (TAT + WAT + SRT + SD)" file={psychFile} inputId="psych-upload" onFile={setPsychFile} />
-      <button onClick={handleAnalyse} disabled={loading || !piqFile || !psychFile}
-        className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold flex items-center justify-center gap-2">
-        <ShieldCheck className="h-4 w-4" />
-        {loading ? 'CROSS-MATCHING...' : 'RUN CROSS-MATCH ANALYSIS'}
-      </button>
+      
+      {result && !loading ? (
+        <div className="glass-card-subtle border-gold/20 text-center py-3">
+          <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+        </div>
+      ) : (
+        <button onClick={handleAnalyse} disabled={loading || !piqFile || !psychFile}
+          className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold flex items-center justify-center gap-2">
+          <ShieldCheck className="h-4 w-4" />
+          {loading ? 'CROSS-MATCHING...' : 'RUN CROSS-MATCH ANALYSIS'}
+        </button>
+      )}
+
       {loading && <LoadingCard message="Cross-matching PIQ with Psych tests..." />}
-      {result && !loading && <AnalysisOutput content={result} title="PIQ × Psych Cross-Match Report" />}
+      {result && !loading && (
+        <div className="relative">
+          <div className="absolute top-4 right-4 z-10">
+            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+              CLEAR RESPONSE
+            </button>
+          </div>
+          <AnalysisOutput content={result} title="PIQ × Psych Cross-Match Report" />
+        </div>
+      )}
     </div>
   );
 }

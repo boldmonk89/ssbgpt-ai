@@ -1,13 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, BrainCircuit, Swords, History, Trash2, GitCompare } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
 import { Download } from 'lucide-react';
 import OfflineBanner from '@/components/OfflineBanner';
-import UserMenu from '@/components/UserMenu';
-import LanguageToggle from '@/components/LanguageToggle';
-import { useAuth } from '@/hooks/useAuth';
 import { useAppStore } from '@/store/appStore';
 import { toast } from 'sonner';
 
@@ -56,16 +53,7 @@ function InstallHeaderButton() {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuth();
   const clearSession = useAppStore((s) => s.clearSession);
-  const lastUserId = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (user && lastUserId.current && lastUserId.current !== user.id) {
-      clearSession();
-    }
-    if (user) lastUserId.current = user.id;
-  }, [user, clearSession]);
 
   return (
     <div className="min-h-screen flex flex-col topo-bg">
@@ -86,9 +74,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
         </div>
         <div className="flex items-center gap-2">
-          <LanguageToggle />
           <InstallHeaderButton />
-          <UserMenu />
         </div>
       </header>
 
@@ -169,8 +155,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }}>
           <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
           <div className="flex items-center gap-3">
-            <LanguageToggle />
-            <UserMenu />
+            <InstallHeaderButton />
           </div>
         </div>
         <div className="p-4 md:p-8 max-w-6xl mx-auto">{children}</div>

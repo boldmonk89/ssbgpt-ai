@@ -45,6 +45,15 @@ export default function PIQPage() {
     }
   };
 
+  const handleClear = () => {
+    setPiqContext(null);
+    setFileData(null);
+    setPiqImageUrl(null);
+    if (document.getElementById('piq-upload')) {
+      (document.getElementById('piq-upload') as HTMLInputElement).value = '';
+    }
+  };
+
   return (
     <div className="space-y-6 scroll-reveal">
       <div className="gold-border-left">
@@ -58,14 +67,14 @@ export default function PIQPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}
           className="glass-card flex flex-col items-center justify-center min-h-[300px] border-2 border-dashed border-border/40 hover:border-gold/40 transition-all duration-300 cursor-pointer"
-          onClick={() => document.getElementById('piq-upload')?.click()}>
+          onClick={() => { if (!piqContext) document.getElementById('piq-upload')?.click(); }}>
           {fileData ? (
             <div className="relative w-full">
               {fileType === 'pdf' ? (
                 <div className="flex flex-col items-center gap-3 py-8">
                   <FileText className="h-16 w-16 text-gold" />
                   <p className="font-heading font-semibold text-sm text-foreground">PIQ PDF Uploaded</p>
-                  <p className="text-xs text-muted-foreground font-body">Click to change</p>
+                  {!piqContext && <p className="text-xs text-muted-foreground font-body">Click to change</p>}
                 </div>
               ) : (
                 <img src={fileData} alt="PIQ" className="max-h-[400px] mx-auto object-contain rounded-xl" />
@@ -87,8 +96,13 @@ export default function PIQPage() {
           {loading ? (
             <LoadingCard message="Analyzing PIQ... extracting personality indicators..." />
           ) : piqContext ? (
-            <div className="glass-card space-y-4">
-              <h3 className="text-base font-heading font-bold text-gold gold-border-left">Psychological Profile</h3>
+            <div className="glass-card space-y-4 relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR RESPONSE
+                </button>
+              </div>
+              <h3 className="text-base font-heading font-bold text-gold gold-border-left pr-24">Psychological Profile</h3>
               <div className="gold-stripe" />
               {piqContext.overallProfile && (
                 <p className="font-body text-sm leading-relaxed text-foreground/85">{piqContext.overallProfile}</p>
@@ -144,15 +158,11 @@ export default function PIQPage() {
 
       {piqContext && !loading ? (
         <div className="glass-card-subtle border-gold/20 text-center py-3">
-          <p className="font-heading text-xs text-gold mb-2">✓ PIQ has already been analyzed</p>
-          <button onClick={analyze} disabled={!fileData || loading}
-            className="glass-button-accent text-xs py-2">
-            Request Fresh Analysis
-          </button>
+          <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
         </div>
       ) : (
         <button onClick={analyze} disabled={!fileData || loading}
-          className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold">
+          className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold mt-6">
           {loading ? 'ANALYZING...' : 'ANALYZE PIQ'}
         </button>
       )}

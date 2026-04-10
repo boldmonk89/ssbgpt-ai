@@ -13,9 +13,18 @@ export default function SRTPage() {
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [genCount, setGenCount] = useState(0);
   const { saveToHistory } = useHistorySave();
 
   const rows = srtResponses.length > 0 ? srtResponses : [{ situationNumber: 1, situation: '', response: '' }];
+
+  const handleClear = () => {
+    setSrtSummary(null);
+    setSrtResponses([{ situationNumber: 1, situation: '', response: '' }]);
+    setGenCount(0);
+    if (document.getElementById('srt-images')) (document.getElementById('srt-images') as HTMLInputElement).value = '';
+    if (document.getElementById('srt-pdf')) (document.getElementById('srt-pdf') as HTMLInputElement).value = '';
+  };
 
   const updateRow = (i: number, field: 'situation' | 'response', value: string) => {
     const updated = [...rows];
@@ -83,6 +92,7 @@ export default function SRTPage() {
       return;
     }
     setLoading(true);
+    setGenCount(prev => prev + 1);
     try {
       const result = await callGemini(buildSrtPrompt(filledRows));
       setSrtSummary(result);
@@ -123,7 +133,16 @@ export default function SRTPage() {
       </div>
 
       {pdfLoading && <LoadingCard message="Analyzing full SRT..." />}
-      {srtSummary && !pdfLoading && !loading && <AnalysisOutput content={srtSummary} title="SRT Analysis" />}
+      {srtSummary && !pdfLoading && !loading && (
+        <div className="relative">
+          <div className="absolute top-4 right-4 z-10">
+            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+              CLEAR RESPONSE
+            </button>
+          </div>
+          <AnalysisOutput content={srtSummary} title="SRT Analysis" />
+        </div>
+      )}
 
       <div className="gold-stripe" />
 
@@ -178,18 +197,14 @@ export default function SRTPage() {
       </div>
 
       {filledRows.length > 0 && (
-        srtSummary && !loading ? (
-          <div className="glass-card-subtle border-gold/20 text-center py-3">
-            <p className="font-heading text-xs text-gold mb-2">✓ SRT responses have already been analyzed</p>
-            <button onClick={analyzeAll} disabled={loading}
-              className="glass-button-accent text-xs py-2">
-              Request Fresh Analysis
-            </button>
+        genCount >= 5 ? (
+          <div className="glass-card-subtle border-destructive/20 text-center py-3">
+            <p className="font-heading text-xs text-destructive mb-2">Generation limit reached (5/5). Please clear to start over.</p>
           </div>
         ) : (
           <button onClick={analyzeAll} disabled={loading}
             className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold">
-            {loading ? 'ANALYZING SRT...' : 'ANALYZE ALL SRT RESPONSES'}
+            {loading ? 'ANALYZING SRT...' : `ANALYZE ALL SRT RESPONSES (${5 - genCount} clicks left)`}
           </button>
         )
       )}

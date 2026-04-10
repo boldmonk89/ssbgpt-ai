@@ -20,6 +20,16 @@ export default function TATPage() {
 
   const story = tatStories[0];
 
+  const handleClear = () => {
+    updateTatStory(0, { story: '', analysis: null });
+    setPicturePreview(null);
+    setPictureBase64(null);
+    setTatSummary(null);
+    if (document.getElementById('tat-pic')) (document.getElementById('tat-pic') as HTMLInputElement).value = '';
+    if (document.getElementById('tat-pdf')) (document.getElementById('tat-pdf') as HTMLInputElement).value = '';
+    if (document.getElementById('tat-story-img')) (document.getElementById('tat-story-img') as HTMLInputElement).value = '';
+  };
+
   const handlePictureUpload = async (file: File) => {
     const base64 = await fileToBase64(file);
     setPicturePreview(base64);
@@ -114,7 +124,16 @@ export default function TATPage() {
       </div>
 
       {pdfLoading && <LoadingCard message="Analyzing full TAT PDF..." />}
-      {tatSummary && !pdfLoading && <AnalysisOutput content={tatSummary} title="Full TAT Analysis" />}
+      {tatSummary && !pdfLoading && (
+        <div className="relative">
+          <div className="absolute top-4 right-4 z-10">
+            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+              CLEAR PDF RESPONSE
+            </button>
+          </div>
+          <AnalysisOutput content={tatSummary} title="Full TAT Analysis" />
+        </div>
+      )}
 
       <div className="gold-stripe" />
       <p className="font-heading font-semibold text-xs text-gold uppercase tracking-wider">Or Analyze Single Story</p>
@@ -165,11 +184,7 @@ export default function TATPage() {
 
           {story.analysis && !loading ? (
             <div className="glass-card-subtle border-gold/20 text-center py-3">
-              <p className="font-heading text-xs text-gold mb-2">✓ This story has already been analyzed</p>
-              <button onClick={analyzeStory} disabled={!story.story.trim() || loading}
-                className="glass-button-accent text-xs py-2">
-                Request Fresh Analysis
-              </button>
+              <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
             </div>
           ) : (
             <button onClick={analyzeStory} disabled={!story.story.trim() || loading}
@@ -183,7 +198,14 @@ export default function TATPage() {
           {loading ? (
             <LoadingCard message="Analyzing story structure... mapping OLQs..." />
           ) : story.analysis ? (
-            <AnalysisOutput content={story.analysis} title="Story Analysis" />
+            <div className="relative">
+              <div className="absolute top-4 right-4 z-10">
+                <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
+                  CLEAR RESPONSE
+                </button>
+              </div>
+              <AnalysisOutput content={story.analysis} title="Story Analysis" />
+            </div>
           ) : (
             <div className="glass-card flex items-center justify-center min-h-[200px] text-muted-foreground font-heading text-sm">
               Analysis will appear here
