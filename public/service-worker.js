@@ -38,6 +38,12 @@ self.addEventListener('fetch', (event) => {
   if (!url.protocol.startsWith('http')) return;
   if (url.pathname.startsWith('/~oauth')) return;
 
+  // OAuth routes — always network, never cache
+  if (url.pathname.startsWith('/~oauth')) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   // API / Supabase — network only, graceful error
   if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase')) {
     event.respondWith(
