@@ -627,8 +627,12 @@ export default function AIPracticePage() {
               </label>
 
               {tatResult && !tatLoading ? (
-                <div className="glass-card-subtle border-gold/20 text-center py-3">
-                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                <div className="glass-card-subtle border-gold/20 text-center py-4 px-6 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gold/5 blur-xl"></div>
+                  <p className="font-heading font-semibold text-sm text-gold mb-1 relative z-10">Analysis Complete (1/1)</p>
+                  <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+                    The core of TAT is evaluating your first, instinctive thought. Generating multiple responses for the exact same image dilutes the psychological authenticity. To practice a new story, clear your session from the sidebar.
+                  </p>
                 </div>
               ) : (
                 <button
@@ -643,16 +647,7 @@ export default function AIPracticePage() {
             </div>
           </div>
 
-          {tatResult && (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={handleClearTat} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR RESPONSE
-                </button>
-              </div>
-              <AnalysisOutput content={filterOlqTags(tatResult)} title="AI-Generated TAT Stories" />
-            </div>
-          )}
+          {tatResult && <AnalysisOutput content={filterOlqTags(tatResult)} title="AI-Generated TAT Stories" />}
         </TabsContent>
 
         {/* WAT Tab */}
@@ -668,8 +663,12 @@ export default function AIPracticePage() {
                 onKeyDown={(e) => e.key === 'Enter' && analyzeWat()}
               />
               {watResult && !watLoading ? (
-                <div className="glass-card-subtle border-gold/20 text-center py-3">
-                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
+                  <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (4/4)</p>
+                  <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+                    You have analyzed responses for this specific word the maximum allowed times. The SSB focuses on your rapid, subconscious associations rather than over-practiced perfection. To practice a new word, please clear your session from the sidebar to ensure a fresh psychological evaluation state.
+                  </p>
                 </div>
               ) : (
                 <button
@@ -684,16 +683,7 @@ export default function AIPracticePage() {
             </div>
           </div>
 
-          {watResult && (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={handleClearWat} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR RESPONSE
-                </button>
-              </div>
-              <AnalysisOutput content={filterOlqTags(watResult)} title="AI-Generated WAT Responses" />
-            </div>
-          )}
+          {watResult && <AnalysisOutput content={filterOlqTags(watResult)} title="AI-Generated WAT Responses" />}
         </TabsContent>
 
         {/* SRT Tab */}
@@ -708,8 +698,12 @@ export default function AIPracticePage() {
                 className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
               />
               {srtResult && !srtLoading ? (
-                <div className="glass-card-subtle border-gold/20 text-center py-3">
-                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
+                  <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (2/2)</p>
+                  <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+                    You have analyzed reactions for this specific situation the maximum allowed times. SRT evaluates your immediate reaction to crisis/scenarios. Practicing beyond this limit removes the true reaction validity. Clear your session from the sidebar to test new situations.
+                  </p>
                 </div>
               ) : (
                 <button
@@ -724,16 +718,7 @@ export default function AIPracticePage() {
             </div>
           </div>
 
-          {srtResult && (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={handleClearSrt} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR RESPONSE
-                </button>
-              </div>
-              <AnalysisOutput content={filterOlqTags(srtResult)} title="AI-Generated SRT Reactions" />
-            </div>
-          )}
+          {srtResult && <AnalysisOutput content={filterOlqTags(srtResult)} title="AI-Generated SRT Reactions" />}
         </TabsContent>
 
         {/* PPDT Tab */}
@@ -775,16 +760,7 @@ export default function AIPracticePage() {
             </div>
           </div>
 
-          {ppdtResult && (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={handleClearPpdt} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR RESPONSE
-                </button>
-              </div>
-              <AnalysisOutput content={ppdtResult} title="AI-Generated PPDT Story & Narration" />
-            </div>
-          )}
+          {ppdtResult && <AnalysisOutput content={ppdtResult} title="AI-Generated PPDT Story & Narration" />}
         </TabsContent>
       </Tabs>
     </div>

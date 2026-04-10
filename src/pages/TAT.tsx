@@ -124,16 +124,7 @@ export default function TATPage() {
       </div>
 
       {pdfLoading && <LoadingCard message="Analyzing full TAT PDF..." />}
-      {tatSummary && !pdfLoading && (
-        <div className="relative">
-          <div className="absolute top-4 right-4 z-10">
-            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-              CLEAR PDF RESPONSE
-            </button>
-          </div>
-          <AnalysisOutput content={tatSummary} title="Full TAT Analysis" />
-        </div>
-      )}
+      {tatSummary && !pdfLoading && <AnalysisOutput content={tatSummary} title="Full TAT Analysis" />}
 
       <div className="gold-stripe" />
       <p className="font-heading font-semibold text-xs text-gold uppercase tracking-wider">Or Analyze Single Story</p>
@@ -183,8 +174,12 @@ export default function TATPage() {
           </div>
 
           {story.analysis && !loading ? (
-            <div className="glass-card-subtle border-gold/20 text-center py-3">
-              <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+            <div className="glass-card-subtle border-gold/20 text-center py-4 px-6 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gold/5 blur-xl"></div>
+              <p className="font-heading font-semibold text-sm text-gold mb-1 relative z-10">Analysis Complete (1/1)</p>
+              <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+                The core of TAT is evaluating your first, instinctive thought. Generating multiple responses for the exact same image dilutes the psychological authenticity. To practice a new story, clear your session from the sidebar.
+              </p>
             </div>
           ) : (
             <button onClick={analyzeStory} disabled={!story.story.trim() || loading}
@@ -198,14 +193,7 @@ export default function TATPage() {
           {loading ? (
             <LoadingCard message="Analyzing story structure... mapping OLQs..." />
           ) : story.analysis ? (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR RESPONSE
-                </button>
-              </div>
-              <AnalysisOutput content={story.analysis} title="Story Analysis" />
-            </div>
+            <AnalysisOutput content={story.analysis} title="Story Analysis" />
           ) : (
             <div className="glass-card flex items-center justify-center min-h-[200px] text-muted-foreground font-heading text-sm">
               Analysis will appear here

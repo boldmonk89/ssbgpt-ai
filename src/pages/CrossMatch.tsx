@@ -109,16 +109,7 @@ export default function CrossMatchPage() {
       )}
 
       {loading && <LoadingCard message="Cross-matching PIQ with Psych tests..." />}
-      {result && !loading && (
-        <div className="relative">
-          <div className="absolute top-4 right-4 z-10">
-            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-              CLEAR RESPONSE
-            </button>
-          </div>
-          <AnalysisOutput content={result} title="PIQ × Psych Cross-Match Report" />
-        </div>
-      )}
+      {result && !loading && <AnalysisOutput content={result} title="PIQ × Psych Cross-Match Report" />}
     </div>
   );
 }

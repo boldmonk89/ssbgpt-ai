@@ -90,16 +90,7 @@ export default function SDPage() {
       </div>
 
       {pdfLoading && <LoadingCard message="Analyzing full SD PDF..." />}
-      {sdSummary && !pdfLoading && (
-        <div className="relative">
-          <div className="absolute top-4 right-4 z-10">
-            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-              CLEAR PDF RESPONSE
-            </button>
-          </div>
-          <AnalysisOutput content={sdSummary} title="Full SD Analysis" />
-        </div>
-      )}
+      {sdSummary && !pdfLoading && <AnalysisOutput content={sdSummary} title="Full SD Analysis" />}
 
       <div className="gold-stripe" />
       <p className="font-heading font-semibold text-xs text-gold uppercase tracking-wider">Or Analyze Paragraph by Paragraph</p>
@@ -148,14 +139,7 @@ export default function SDPage() {
           {loading ? (
             <LoadingCard message="Evaluating authenticity... checking OLQ coverage..." />
           ) : para.analysis ? (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR RESPONSE
-                </button>
-              </div>
-              <AnalysisOutput content={para.analysis} title={`${para.type} — Analysis`} />
-            </div>
+            <AnalysisOutput content={para.analysis} title={`${para.type} — Analysis`} />
           ) : (
             <div className="glass-card flex items-center justify-center min-h-[200px] text-muted-foreground font-heading text-sm">
               Analysis will appear here

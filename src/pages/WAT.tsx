@@ -132,16 +132,7 @@ export default function WATPage() {
       </div>
 
       {pdfLoading && <LoadingCard message="Analyzing full WAT..." />}
-      {watSummary && !pdfLoading && !loading && (
-        <div className="relative">
-          <div className="absolute top-4 right-4 z-10">
-            <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-              CLEAR RESPONSE
-            </button>
-          </div>
-          <AnalysisOutput content={watSummary} title="WAT Analysis" />
-        </div>
-      )}
+      {watSummary && !pdfLoading && !loading && <AnalysisOutput content={watSummary} title="WAT Analysis" />}
 
       <div className="gold-stripe" />
 
@@ -210,9 +201,13 @@ export default function WATPage() {
       </div>
 
       {filledRows.length > 0 && (
-        genCount >= 5 ? (
-          <div className="glass-card-subtle border-destructive/20 text-center py-3">
-            <p className="font-heading text-xs text-destructive mb-2">Generation limit reached (5/5). Please clear to start over.</p>
+        genCount >= 4 ? (
+          <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden">
+            <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
+            <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (4/4)</p>
+            <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+              You have analyzed responses for this specific word the maximum allowed times. The SSB focuses on your rapid, subconscious associations rather than over-practiced perfection. To practice a new word, please clear your session from the sidebar to ensure a fresh psychological evaluation state.
+            </p>
           </div>
         ) : (
           <button onClick={analyzeAll} disabled={loading}

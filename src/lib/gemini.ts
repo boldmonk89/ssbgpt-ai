@@ -186,7 +186,13 @@ For each response, check:
 3. Positivity (negative words must be reframed positively)
 4. OLQ signal
 
-Then provide a **Summary Table** showing: Word | Original | Pass/Fail | Issues | Corrected Sentence | OLQs Signaled
+Then provide a **Summary List** (DO NOT output markdown tables). Ensure everything is in clean plain text with bolded headers:
+**Word:** [word]
+**Original Response:** [sentence]
+**Pass/Fail:** [pass/fail]
+**Issues:** [issues found]
+**Corrected Sentence:** [re-written sentence]
+**OLQs Signaled:** [list OLQs]
 
 Followed by **Batch Summary**:
 - OLQ Coverage: which OLQs are well-covered, which are missing
@@ -227,7 +233,7 @@ Then **Batch Summary**:
 - Top 5 improvements
 - Overall SRT Rating
 
-Keep concise and actionable. No repetitive preamble.`;
+Always output in a clear list format. DO NOT utilize markdown tables under any circumstances. Keep concise and actionable. No repetitive preamble.`;
 }
 
 export function buildSrtPdfPrompt(): string {
@@ -390,43 +396,46 @@ WAT Analysis: ${watSummary || 'Not available'}
 SRT Analysis: ${srtSummary || 'Not available'}
 SD Analysis: ${sdSummary || 'Not available'}
 
-Generate a DEEP cross-match assessment:
+Generate a DEEP cross-match assessment without explicitly numbering "Step 1", "Step 2" or using heading indexes:
 
-## 🎯 PIQ vs Psych Test — Alignment Report
+## PIQ vs Psych Test — Alignment Report
 
-### 1. Identity Match Score
+### Identity Match Score
 Give an overall alignment percentage (0-100%) between PIQ claims and psych test evidence. Show your calculation.
 
-### 2. What PIQ Claims vs What Tests Reveal
-Create a comparison table for each major personality trait/quality claimed in PIQ:
-| PIQ Claim | Test Evidence | Match? | Details |
+### What PIQ Claims vs What Tests Reveal
+For each major personality trait/quality claimed in PIQ, use a clear text/bullet format (DO NOT USE TABLES):
+**Claim:** ...
+**Test Evidence:** ...
+**Match Status:** ...
+**Details:** ...
 
-### 3. Hidden Personality Traits
+### Hidden Personality Traits
 Qualities that showed up STRONGLY in tests but were NOT mentioned in PIQ — these reveal subconscious strengths the candidate may not be aware of.
 
-### 4. Overclaimed Qualities
+### Overclaimed Qualities
 Qualities emphasized in PIQ but NOT evidenced in tests — these are potential exaggeration flags that the interviewing officer WILL probe.
 
-### 5. Consistency Zones (Green Flags 🟢)
+### Consistency Zones (Green Flags)
 Where PIQ and tests perfectly align — these are the candidate's GENUINE strengths. The SSB board will trust these.
 
-### 6. Contradiction Zones (Red Flags 🔴)
+### Contradiction Zones (Red Flags)
 Where PIQ claims directly contradict test evidence. These WILL be caught by the psychologist and IO. Specific examples with quotes.
 
-### 7. 15 OLQ Potential Rating
+### 15 OLQ Potential Rating
 For each OLQ, rate 1-10 based on COMBINED PIQ + test evidence:
 - Show PIQ indication vs Test evidence
 - Final combined score with confidence level (High/Medium/Low)
 
-### 8. SSB Potential Meter
+### SSB Potential Meter
 Based on everything:
 - **Overall Potential**: Give a percentage (0-100%)
-- **Readiness Level**: 🟢 RECOMMENDED MATERIAL / 🟡 NEEDS FOCUSED WORK / 🔴 SIGNIFICANT GAPS
+- **Readiness Level**: RECOMMENDED MATERIAL / NEEDS FOCUSED WORK / SIGNIFICANT GAPS
 - **Strongest Asset**: The ONE quality that will carry the candidate
 - **Biggest Risk**: The ONE thing that could sink them
 - **Timeline**: Realistic estimate of preparation time needed
 
-### 9. Interviewing Officer (IO) Risk Areas
+### Interviewing Officer (IO) Risk Areas
 Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For each:
 - The question
 - Why they'll ask it (what contradiction triggered it)

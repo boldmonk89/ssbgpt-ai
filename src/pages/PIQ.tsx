@@ -97,11 +97,6 @@ export default function PIQPage() {
             <LoadingCard message="Analyzing PIQ... extracting personality indicators..." />
           ) : piqContext ? (
             <div className="glass-card space-y-4 relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={handleClear} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR RESPONSE
-                </button>
-              </div>
               <h3 className="text-base font-heading font-bold text-gold gold-border-left pr-24">Psychological Profile</h3>
               <div className="gold-stripe" />
               {piqContext.overallProfile && (

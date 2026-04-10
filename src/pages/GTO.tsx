@@ -536,16 +536,7 @@ export default function GTOPage() {
               )}
             </div>
           </div>
-          {gdResult && (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={clearGd} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR RESPONSE
-                </button>
-              </div>
-              <AnalysisOutput content={gdResult} title="AI-Generated GD Points" />
-            </div>
-          )}
+          {gdResult && <AnalysisOutput content={gdResult} title="AI-Generated GD Points" />}
         </TabsContent>
 
         {/* GPE Tab */}
@@ -594,16 +585,7 @@ export default function GTOPage() {
             </div>
           </div>
 
-          {gpeResult && (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={clearGpe} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR GPE RESPONSES
-                </button>
-              </div>
-              <AnalysisOutput content={gpeResult} title="AI-Generated GPE Solution" />
-            </div>
-          )}
+          {gpeResult && <AnalysisOutput content={gpeResult} title="AI-Generated GPE Solution" />}
 
           {/* User's own solution analysis */}
           {gpeResult && (
@@ -712,16 +694,7 @@ export default function GTOPage() {
             </div>
           </div>
 
-          {lecResult && (
-            <div className="relative">
-              <div className="absolute top-4 right-4 z-10">
-                <button onClick={clearLec} className="px-3 py-1.5 text-[10px] font-heading font-bold rounded bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition-all">
-                  CLEAR LECTURETTE RESPONSES
-                </button>
-              </div>
-              <AnalysisOutput content={lecResult} title="AI-Generated Model Lecturette" />
-            </div>
-          )}
+          {lecResult && <AnalysisOutput content={lecResult} title="AI-Generated Model Lecturette" />}
 
           {/* User lecturette analysis — text or audio */}
           {lecResult && (
