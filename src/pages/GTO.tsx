@@ -350,6 +350,17 @@ export default function GTOPage() {
   };
 
   // Video recording functions
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsRecording(false);
+  }, []);
+
   const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -388,18 +399,7 @@ export default function GTOPage() {
     } catch (err) {
       toast.error('Microphone access denied. Please allow mic access.');
     }
-  }, []);
-
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.stop();
-    }
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    setIsRecording(false);
-  }, []);
+  }, [stopRecording]);
 
   const analyzeRecordedLecturette = async () => {
     if (!videoBlob) { toast.error('No recording found'); return; }

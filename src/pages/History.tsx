@@ -24,7 +24,9 @@ export default function HistoryPage() {
     try {
       const existing = localStorage.getItem('ssbgpt_local_history');
       if (existing) setItems(JSON.parse(existing));
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   };
 
