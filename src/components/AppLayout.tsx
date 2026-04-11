@@ -5,6 +5,7 @@ import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
 import { Download } from 'lucide-react';
 import OfflineBanner from '@/components/OfflineBanner';
+import PageTransition from '@/components/PageTransition';
 import { useAppStore } from '@/store/appStore';
 import { toast } from 'sonner';
 
@@ -17,6 +18,7 @@ const navItems = [
   { to: '/wat', label: 'WAT', icon: MessageSquare },
   { to: '/srt', label: 'SRT', icon: Zap },
   { to: '/sd', label: 'SD', icon: Shield },
+  { to: '/interview', label: 'Interview Practice', icon: Users },
   { to: '/cross-match', label: 'Cross-Match', icon: GitCompare },
   { to: '/history', label: 'History', icon: History },
 ];
@@ -109,10 +111,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             const isActive = location.pathname === item.to;
             return (
               <NavLink key={item.to} to={item.to} onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 text-sm font-heading font-semibold rounded-xl transition-all duration-300 ${
+                className={`flex items-center gap-3 px-3 py-2.5 text-sm font-heading font-semibold rounded-xl transition-all duration-300 transform hover:scale-[1.02] ${
                   isActive
-                    ? 'text-foreground border-l-[3px] border-gold'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-foreground border-l-[3px] border-gold glow-gold shadow-lg bg-gold/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-gold/5'
                 }`}
                 style={isActive ? {
                   background: 'linear-gradient(90deg, hsl(var(--gold) / 0.1) 0%, transparent 100%)',
@@ -158,7 +160,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <InstallHeaderButton />
           </div>
         </div>
-        <div className="p-4 md:p-8 max-w-6xl mx-auto">{children}</div>
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">
+          <PageTransition>
+            {children}
+          </PageTransition>
+        </div>
       </main>
       </div>
     </div>

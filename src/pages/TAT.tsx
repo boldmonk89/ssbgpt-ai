@@ -174,12 +174,19 @@ export default function TATPage() {
           </div>
 
           {story.analysis && !loading ? (
-            <div className="glass-card-subtle border-gold/20 text-center py-4 px-6 relative overflow-hidden">
+            <div className="glass-card-subtle border-gold/20 text-center py-4 px-6 relative overflow-hidden flex flex-col gap-4">
               <div className="absolute inset-0 bg-gold/5 blur-xl"></div>
-              <p className="font-heading font-semibold text-sm text-gold mb-1 relative z-10">Analysis Complete (1/1)</p>
-              <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-                The core of TAT is evaluating your first, instinctive thought. Generating multiple responses for the exact same image dilutes the psychological authenticity. To practice a new story, clear your session from the sidebar.
-              </p>
+              <div>
+                <p className="font-heading font-semibold text-sm text-gold mb-1 relative z-10">Analysis Complete (1/1)</p>
+                <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+                  The core of TAT is evaluating your first, instinctive thought. To practice a new story and re-enable generation, properly discard your current response below.
+                </p>
+              </div>
+              <div className="flex gap-3 justify-center relative z-10 mt-2">
+                <button onClick={() => updateTatStory(0, { story: '', picture: undefined, analysis: '' })} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" /> Delete & Upload New Image
+                </button>
+              </div>
             </div>
           ) : (
             <button onClick={analyzeStory} disabled={!story.story.trim() || loading}

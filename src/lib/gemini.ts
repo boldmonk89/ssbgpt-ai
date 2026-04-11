@@ -128,30 +128,59 @@ Output ONLY as JSON:
 }
 
 export function buildTatPrompt(storyNumber: number, story: string, hasPicture?: boolean): string {
-  return `You are an SSB psychologist evaluating a TAT story.
+  return `You are an SSB (Services Selection Board) Psychology Test assistant specializing in TAT (Thematic Apperception Test) analysis.
 
-CRITICAL — GIBBERISH & IRRELEVANT INPUT DETECTION:
-Before analyzing, check if the story is random keyboard mashing, completely irrelevant text, repeated words, lorem ipsum, or trolling content. If so, DO NOT analyze — instead respond with a witty, sarcastic 3-4 line message pointing out this isn't a real story, referencing what would happen if they submitted this at actual SSB, and telling them to write a proper story. Be funny but constructive.
+${hasPicture ? `STEP 1 — IMAGE VALIDATION (Run this FIRST before any analysis):
+Examine the uploaded image and classify it.
+REJECT if the image is:
+- A photo of a phone/tablet/laptop screen (screen glare, bezels, status bar visible)
+- A photograph of real people or real scenes
+- A colorful/RGB image (not a sketch)
+- A blurry screenshot
+- Any image that is NOT a hand-drawn or printed black-and-white pencil/charcoal sketch in SSB TAT style
 
-Story Number: ${storyNumber}
-${hasPicture ? 'TAT picture is attached.' : ''}
+If REJECTED, respond ONLY with:
+"⚠️ Invalid Image Detected!
+Please upload a proper TAT image.
+A valid TAT image should be:
+✅ A black & white pencil/charcoal sketch
+✅ Showing human figures in ambiguous situations
+✅ Clear and directly photographed (not a screen capture)
+✅ Similar to official SSB TAT test cards
+
+You are only wasting your time by uploading irrelevant images.
+Please upload a relevant SSB TAT picture for analysis."
+
+STEP 2 — VALID IMAGE ANALYSIS (Only if image passes validation):
+If the image IS a valid SSB TAT-style sketch, perform full analysis:` : ''}
+
+You are analyzing this image/story for SSB TAT preparation. Story Number: ${storyNumber}.
 Story: "${story}"
 
-Give a CONCISE analysis covering:
+CRITICAL: Before analyzing, check if the story is gibberish or random input. If so, DO NOT analyze and respond with a witty, sarcastic warning about submitting this at actual SSB.
 
-**A. Story Structure** — Does it have Past → Present → Future? Is there a clear hero with name/age/role?
+If valid, provide a structured analysis:
 
-**B. Theme & Stimulus Match** — Is the theme positive? Does it match the picture? Any negativity flags?
+1. 📸 SCENE DESCRIPTION (If image was provided)
+   - What is happening in the image?
+   - Who are the characters? (age, relationship, setting)
+   - What is the mood/atmosphere?
 
-**C. OLQ Signals** — Which of the 15 OLQs are demonstrated? (Effective Intelligence, Reasoning Ability, Organizing Ability, Power of Expression, Social Adaptability, Cooperation, Sense of Responsibility, Initiative, Self Confidence, Speed of Decision, Ability to Influence the Group, Liveliness, Determination, Courage, Stamina)
+2. 📝 IDEAL STORY STRUCTURE (vs Candidate's Story)
+   Review the candidate's story structure (Past, Present, Future). Then draft an improved Model Story keeping their essence but optimized for SSB.
 
-**D. Key Improvements** — List 3-5 specific weak points with suggested fixes.
+3. 💡 THEMES & OLQ SIGNALS
+   - Which of the 15 OLQs are demonstrated by the candidate?
+   - Leadership, problem-solving, courage, empathy, etc.
 
-**E. Score** — Rate out of 10 with brief justification.
+4. ⚠️ COMMON MISTAKES TO AVOID
+   - What negative themes candidates often wrongly write for this image or stimulus.
 
-**F. Rewritten Story** — Improved version keeping the same essence.
+5. ⭐ OLQ SCORE POTENTIAL & RATING
+   - Rate the candidate's story (out of 10)
+   - Which specific OLQs need improvement?
 
-Keep the analysis focused and actionable. No unnecessary repetition.`;
+Always respond in a structured, helpful, encouraging tone suitable for SSB aspirants. No unnecessary repetition.`;
 }
 
 export function buildTatPdfPrompt(): string {
@@ -441,8 +470,58 @@ Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For
 - Why they'll ask it (what contradiction triggered it)
 - How to answer it honestly
 
-### 10. Action Plan
+### Action Plan
 Ranked list of 5 specific things to do in the next 30 days to close the gap between PIQ claims and actual personality.
 
 Be brutally honest but constructive. The candidate needs TRUTH, not comfort.`;
+}
+
+// ── Interview Practice Prompts ──
+
+export function buildInterviewModeAPrompt(question: string, answer: string): string {
+  return `You are an SSB Interview Coach AI.
+  
+Candidate's Question: "${question}"
+Candidate's Answer: "${answer}"
+
+Provide feedback:
+1. ✅ WHAT YOU DID WELL: Specific strengths in their answer.
+2. 🔧 IMPROVEMENTS NEEDED: What was missing, weak, or could be stronger. Specific language/content suggestions.
+3. 📝 IMPROVED ANSWER (Model Version): Rewrite their answer in an ideal SSB PI format. Keep it natural, not over-polished.
+4. 💯 SCORE: Give a score out of 10 with a brief reason.
+
+Be encouraging, structured, and exam-focused.`;
+}
+
+export function buildInterviewModeBPrompt(statement: string): string {
+  return `You are an SSB Interview Coach AI.
+  
+Candidate's Statement: "${statement}"
+
+You need to act like an Interviewing Officer (IO) probing this statement. Generate 8-9 logical follow-up/counter questions.
+
+Format your response as:
+"Based on your statement, here are 8 counter-questions an IO might ask you:"
+1. [Question]
+2. [Question]
+...
+"Tip: Prepare specific, honest, story-based answers for each of these."
+
+Be encouraging, structured, and exam-focused.`;
+}
+
+export function buildInterviewModeCPrompt(transcript: string): string {
+  return `You are an SSB Interview Coach AI evaluating a full mock interview transcript.
+  
+Transcript:
+${transcript}
+
+Analyze ALL answers together and give:
+- **Overall Impression**: Summary of the candidate's performance.
+- **Consistency Check**: Do answers contradict each other? Point out red flags.
+- **Top 3 Strengths**: What qualities shone through.
+- **Top 3 Areas to Improve**: Where they need urgent work before the actual SSB.
+- **Final Readiness Score**: X/10 with brief justification.
+
+Be encouraging, structured, and exam-focused.`;
 }
