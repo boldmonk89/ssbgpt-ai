@@ -10,7 +10,7 @@ import { useAppStore } from '@/store/appStore';
 import { toast } from 'sonner';
 
 import { useEffect } from 'react';
-import splashImg from '@/assets/splash.jpg';
+import splashImg from '@/assets/splash.png';
 
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
