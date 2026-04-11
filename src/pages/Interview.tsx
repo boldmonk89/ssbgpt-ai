@@ -7,6 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import PageTransition from '@/components/PageTransition';
 
+import intImg1 from '@/assets/interview/int-1.jpg';
+import intImg2 from '@/assets/interview/int-2.jpg';
+import intImg3 from '@/assets/interview/int-3.png';
+
+const INT_IMAGES = [intImg1, intImg2, intImg3];
+
 export default function Interview() {
   const [activeTab, setActiveTab] = useState<'A' | 'B' | 'C'>('A');
 
@@ -29,6 +35,17 @@ export default function Interview() {
   // Speech Recognition
   const [activeMic, setActiveMic] = useState<'answerA' | 'statementB' | 'transcriptC' | null>(null);
   const recognitionRef = useRef<any>(null);
+
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    // Setup slideshow timer
+    const slideTimer = setInterval(() => {
+      setCurrentImage(prev => (prev + 1) % INT_IMAGES.length);
+    }, 5000);
+
+    return () => clearInterval(slideTimer);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -105,11 +122,27 @@ export default function Interview() {
 
   return (
     <PageTransition>
-      <div className="space-y-6 max-w-5xl mx-auto pb-12">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-heading font-bold text-foreground mb-2">Interview Practice</h1>
-            <p className="text-muted-foreground font-body max-w-2xl">
+      <div className="space-y-6 scroll-reveal pb-12">
+        {/* Header Banner */}
+        <div className="glass-card glow-gold relative overflow-hidden">
+          {INT_IMAGES.map((src, i) => (
+            <div
+              key={i}
+              className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
+              style={{
+                opacity: currentImage === i ? 0.25 : 0,
+                backgroundImage: `url(${src})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center 30%',
+              }}
+            />
+          ))}
+          <div className="absolute inset-0 bg-background/50 blur-[2px]" />
+          <div className="relative z-10">
+            <h1 className="text-2xl md:text-3xl font-heading font-bold mb-2">
+              <span className="shimmer-text">Interview Practice</span>
+            </h1>
+            <p className="text-muted-foreground font-body text-sm max-w-2xl leading-relaxed">
               Sharpen your Personal Interview (PI) skills using the IO (Interviewing Officer) specialized AI. 
               Improve your answers, anticipate cross-questions, or run a full mock evaluation.
             </p>
