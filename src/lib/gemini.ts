@@ -368,21 +368,26 @@ Compare personality across all tests. Highlight:
 - **Contradiction Zones (Red Flags)**: Where PIQ claims directly contradict test evidence. Specific examples with quotes.
 - **Overclaimed Qualities**: Qualities emphasized in PIQ but NOT evidenced in tests.
 
-## 3. 15 OLQ Assessment Matrix
-For EACH of the 15 OLQs, rate 1-10 based on COMBINED evidence. Show PIQ indication vs subconscious test evidence.
+## 4. Stress Index & Emotional Markers
+- **Anxiety/Pressure Detection**: Detect signs of forced positive thinking or over-preparation.
+- **Stress-Reaction Patterns**: How the candidate handles time-sensitive transitions.
 
-## 4. SSB Readiness & Potential
+## 5. 15 OLQ Assessment Matrix (with Drill-Down Evidence)
+For EACH of the 15 OLQs, rate 1-10 based on COMBINED evidence. 
+- **Evidence Snippets**: Provide direct quotes or specific story themes that triggered this rating.
+
+## 6. SSB Readiness & Potential
 - **Readiness Level**: RECOMMENDED MATERIAL / NEEDS FOCUSED WORK / SIGNIFICANT GAPS
 - **Strongest Asset**: The ONE quality that will carry the candidate
 - **Biggest Risk**: The ONE thing that could sink them
 
-## 5. Interviewing Officer (IO) Risk Areas
+## 7. Interviewing Officer (IO) Risk Areas
 Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For each:
 - The question
 - Why they'll ask it (the specific contradiction)
 - How to answer it honestly
 
-## 6. 30-Day Action Plan
+## 8. 30-Day Action Plan
 Ranked list of 5 specific things to do to close the gap between claims and actual personality.
 
 Be brutally honest, constructive, and direct. The candidate needs TRUTH, not comfort.`;

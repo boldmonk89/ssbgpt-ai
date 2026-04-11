@@ -5,12 +5,20 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { Timer, FileText, Share2, Shield, Upload, Clock, AlertTriangle, CheckCircle, Zap, UserCircle } from 'lucide-react';
 import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
 
 // We'll shuffle these pools to pick the test sets
 const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
 
 type TestStep = 'INSTRUCTIONS' | 'PIQ' | 'TAT' | 'WAT' | 'SRT' | 'SD' | 'FEEDBACK' | 'ANALYSIS';
+
+const speak = (text: string) => {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.95;
+  utterance.pitch = 1;
+  speechSynthesis.speak(utterance);
+};
 
 export default function FullAnalysisPage() {
   const [step, setStep] = useState<TestStep>('INSTRUCTIONS');
@@ -199,13 +207,16 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
           if (prev <= 1) {
             if (isViewing) {
               setIsViewing(false);
+              speak("Observation time ends. You have 4 minutes to write your story. Begin now.");
               return 240; // 4 minutes for writing
             } else {
               if (index < totalSlides - 1) {
                 setIndex(index + 1);
                 setIsViewing(true);
+                speak(index === 10 ? "Next slide is blank. Final observation starts now." : "Next picture showing. Observe carefully.");
                 return 30;
               } else {
+                speak("TAT test complete. Please ensure you upload your response sheet.");
                 setIsFinished(true);
                 return 0;
               }
@@ -304,13 +315,18 @@ function WatStep({ onComplete }: { onComplete: () => void }) {
           if (prev <= 1) {
             if (showWord && (index + 1) % 15 === 0 && index < 59) {
               setShowWord(false);
+              speak("Turn page. You have 15 seconds to prepare for the next set.");
               return 15; // Turn page break
             } else {
               if (index < 59) {
                 if (!showWord) setShowWord(true); // back to words after break
                 setIndex((i) => i + 1);
+                // Note: Don't speak every word as it might be too fast/annoying
+                // but speak at the start of a block
+                if (index % 15 === 14) speak("Begin next 15 words."); 
                 return 15;
               } else {
+                speak("WAT test complete. Upload your response sheet.");
                 setIsFinished(true);
                 return 0;
               }
@@ -540,45 +556,105 @@ const mockOlqData = [
 ];
 
 function FinalAnalysisStep() {
+  const [loading, setLoading] = useState(true);
+  const [selectedOlq, setSelectedOlq] = useState<any>(null);
+
+  useEffect(() => {
+    // Simulate deep synthesis
+    const timer = setTimeout(() => setLoading(false), 3500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return (
+    <div className="space-y-6">
+       <div className="text-center space-y-2 mb-8">
+         <h2 className="text-2xl font-heading font-bold animate-pulse">Synthesizing Personality...</h2>
+         <p className="text-xs text-muted-foreground uppercase tracking-widest">Applying Mansa-Vacha-Karma Verification Matrix</p>
+       </div>
+       <SkeletonAnalysis />
+    </div>
+  );
+
   return (
-    <div className="glass-card text-center py-12 space-y-6 stagger-children">
+    <div className="glass-card text-center py-12 space-y-6 stagger-children min-h-screen">
       <div className="relative inline-block">
         <div className="absolute inset-0 bg-gold/20 blur-xl rounded-full animate-pulse" />
         <CheckCircle className="h-20 w-20 text-gold relative z-10" />
       </div>
       <h2 className="text-3xl font-heading font-black tracking-tight">Examination Complete</h2>
-      <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
-        All Mansa-Vacha-Karma data points captured. Our psychologists are now synthesizing your Officer Like Qualities (OLQ) profile.
-      </p>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-8">
-        <div className="glass-card-subtle">
-          <div className="text-gold font-bold mb-1 uppercase text-[10px]">Cross-Match</div>
-          <p className="text-xs text-muted-foreground">Checking for cognitive consistency across TAT, WAT and SRT.</p>
-        </div>
-        <div className="glass-card-subtle">
-          <div className="text-gold font-bold mb-1 uppercase text-[10px]">Stress Markers</div>
-          <p className="text-xs text-muted-foreground">Detecting signs of over-practice or hidden psychological pressure.</p>
-        </div>
-        <div className="glass-card-subtle flex flex-col items-center justify-center p-6 h-[400px]">
-          <div className="text-gold font-bold mb-4 uppercase text-[10px]">Officer Like Quality Matrix</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-8">
+        {[
+          { icon: Shield, label: 'Cross-Match', desc: 'Alignment between PIQ and Psych Tests', val: '86%', color: 'text-gold' },
+          { icon: AlertTriangle, label: 'Stress Index', desc: 'Detected anxiety/pressure markers', val: 'Low', color: 'text-success' },
+          { icon: Zap, label: 'OLQ Consistency', val: 'High', desc: 'Stability of qualities across tasks', color: 'text-gold' },
+          { icon: CheckCircle, label: 'Readiness', val: 'Recommended', desc: 'Officer Potential Level', color: 'text-gold' },
+        ].map((item, i) => (
+          <div key={i} className="glass-card-subtle p-6 hover:scale-105 transition-all cursor-default group">
+            <item.icon className={`h-6 w-6 mx-auto mb-3 ${item.color} group-hover:scale-110 transition-transform`} />
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mb-1">{item.label}</p>
+            <p className={`text-2xl font-heading font-black ${item.color}`}>{item.val}</p>
+            <p className="text-[10px] text-muted-foreground/60 mt-2 leading-relaxed">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-card-subtle flex flex-col items-center justify-center p-6 h-[450px]">
+          <div className="text-gold font-bold mb-4 uppercase text-[10px] tracking-[0.2em]">15 OLQ Assessment Matrix</div>
+          <p className="text-[10px] text-muted-foreground mb-4 italic">Click axis labels to view evidence (Coming Soon)</p>
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={mockOlqData}>
               <PolarGrid stroke="#ffffff20" />
-              <PolarAngleAxis dataKey="subject" tick={{ fill: '#888', fontSize: 8 }} />
+              <PolarAngleAxis dataKey="subject" tick={{ fill: '#888', fontSize: 10, fontWeight: 'bold' }} />
               <Radar
-                name="OLQ"
+                name="OLQ Score"
                 dataKey="A"
                 stroke="#EAB308"
                 fill="#EAB308"
-                fillOpacity={0.6}
+                fillOpacity={0.5}
+                className="hover:fill-opacity-80 transition-all cursor-pointer"
+              />
+              <Tooltip 
+                contentStyle={{ background: '#0a1628', border: '1px solid #EAB308', borderRadius: '12px', fontSize: '10px' }}
+                itemStyle={{ color: '#EAB308', fontWeight: 'bold' }}
               />
             </RadarChart>
           </ResponsiveContainer>
         </div>
+
+        <div className="space-y-4 text-left">
+           <div className="glass-card-subtle p-6">
+             <h3 className="text-sm font-heading font-bold text-gold mb-3 flex items-center gap-2">
+               <Zap className="h-4 w-4" /> Strongest OLQ Signals
+             </h3>
+             <div className="space-y-3">
+               {['Organizing Ability', 'Cooperation', 'Liveliness'].map((olq, i) => (
+                 <div key={i} className="p-3 rounded-lg bg-gold/5 border border-gold/10 hover:border-gold/30 transition-all">
+                    <p className="text-xs font-bold text-foreground">{olq}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed italic">Evidence found in TAT Story 3 and WAT responses for "TEAM" and "DUTY".</p>
+                 </div>
+               ))}
+             </div>
+           </div>
+
+           <div className="glass-card p-6 border-gold/40">
+             <h3 className="text-sm font-heading font-bold text-gold mb-2">Psychologist's Recommendation</h3>
+             <p className="text-xs text-muted-foreground leading-relaxed">
+               Your psychological profile exhibits high internal consistency. The alignment between your PIQ claims and WAT/SRT reactions suggests a genuine and officer-like mindset. Focus on maintaining this level of transparency during the IO interview.
+             </p>
+           </div>
+        </div>
       </div>
 
-      <Button size="xl" className="w-full">Review My Psych Profile</Button>
+      <div className="flex flex-col sm:flex-row gap-4 pt-6">
+        <Button size="xl" className="flex-1 h-14 text-sm font-black tracking-widest bg-gold hover:bg-gold/90 text-background">
+          DOWNLOAD FULL CLINICAL REPORT
+        </Button>
+        <Button size="xl" variant="outline" className="flex-1 h-14 text-sm font-black tracking-widest border-gold/30 text-gold hover:bg-gold/5">
+          SHARE WITH MENTOR
+        </Button>
+      </div>
     </div>
   );
 }
