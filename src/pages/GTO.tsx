@@ -530,7 +530,7 @@ export default function GTOPage() {
                   disabled={gdLoading || !gdTopic.trim()}
                   className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {gdLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+                  {gdLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {gdLoading ? 'Generating Current Points...' : 'Generate GD Points'}
                 </button>
               )}
@@ -578,7 +578,7 @@ export default function GTOPage() {
                   disabled={gpeLoading || !gpeImage || !gpeParagraph.trim()}
                   className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {gpeLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+                  {gpeLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {gpeLoading ? 'Generating GPE Solution...' : 'Get AI GPE Solution'}
                 </button>
               )}
@@ -634,29 +634,29 @@ export default function GTOPage() {
                   className="min-h-[100px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
                 />
                 {gpeUserSolution.trim() && (
-                  <button
-                    onClick={async () => {
-                      if (!gpeUserSolution.trim()) return;
-                      setGpeUserLoading(true);
-                      setGpeUserAnalysis('');
-                      try {
-                        const result = await callGemini(
-                          SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nThe candidate's own solution is:\n"${gpeUserSolution.trim()}"\n\nAnalyze their solution — what they did well, what they missed, specific improvements, and score out of 10.`,
-                          gpeImage || undefined
-                        );
-                        setGpeUserAnalysis(result);
-                      } catch (err: any) {
-                        toast.error(err.message || 'Failed to analyze your solution');
-                      } finally {
-                        setGpeUserLoading(false);
-                      }
-                    }}
-                    disabled={gpeUserLoading}
-                    className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
-                    {gpeUserLoading ? 'Analyzing Your Solution...' : 'Analyze My Solution'}
-                  </button>
+                    <button
+                      onClick={async () => {
+                        if (!gpeUserSolution.trim()) return;
+                        setGpeUserLoading(true);
+                        setGpeUserAnalysis('');
+                        try {
+                          const result = await callGemini(
+                            SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nThe candidate's own solution is:\n"${gpeUserSolution.trim()}"\n\nAnalyze their solution — what they did well, what they missed, specific improvements, and score out of 10.`,
+                            gpeImage || undefined
+                          );
+                          setGpeUserAnalysis(result);
+                        } catch (err: any) {
+                          toast.error(err.message || 'Failed to analyze your solution');
+                        } finally {
+                          setGpeUserLoading(false);
+                        }
+                      }}
+                      disabled={gpeUserLoading}
+                      className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                      {gpeUserLoading ? 'Analyzing Your Solution...' : 'Analyze My Solution'}
+                    </button>
                 )}
               </div>
             </div>
@@ -687,7 +687,7 @@ export default function GTOPage() {
                   disabled={lecLoading || !lecTopic.trim()}
                   className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {lecLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
+                  {lecLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {lecLoading ? 'Generating Lecturette...' : 'Generate Model Lecturette'}
                 </button>
               )}
@@ -715,7 +715,6 @@ export default function GTOPage() {
                         disabled={videoAnalyzing}
                         className="glass-button-gold flex items-center gap-2 text-sm"
                       >
-                        <Mic className="h-4 w-4" />
                         Start Recording
                       </button>
                     ) : (
@@ -760,7 +759,7 @@ export default function GTOPage() {
                         disabled={videoAnalyzing}
                         className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {videoAnalyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {videoAnalyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                         {videoAnalyzing ? 'Analyzing Your Lecturette...' : 'Analyze My Recorded Lecturette'}
                       </button>
                     </div>
@@ -786,7 +785,7 @@ export default function GTOPage() {
                   disabled={lecUserLoading || !lecUserText.trim()}
                   className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {lecUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                  {lecUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {lecUserLoading ? 'Analyzing Your Lecturette...' : 'Analyze My Lecturette'}
                 </button>
               </div>

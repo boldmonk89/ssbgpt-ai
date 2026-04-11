@@ -71,7 +71,6 @@ function InstallHeaderButton() {
           border: '1px solid hsl(var(--gold) / 0.3)',
         }}
       >
-        <Download className="h-3.5 w-3.5" />
         <span className="hidden xs:inline">Install App</span>
       </button>
       {showIOSGuide && (
@@ -172,7 +171,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               border: '1px solid hsl(var(--destructive) / 0.2)',
             }}
           >
-            <Trash2 className="h-3.5 w-3.5" />
             Clear Session
           </button>
         </div>

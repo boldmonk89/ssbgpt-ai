@@ -83,7 +83,6 @@ export default function PIQPage() {
             </div>
           ) : (
             <div className="text-center">
-              <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="font-heading font-semibold text-muted-foreground">Drop your PIQ here</p>
               <p className="text-xs text-muted-foreground/50 font-body mt-1">PDF (2 pages) or photograph</p>
             </div>

@@ -289,7 +289,7 @@ export default function Interview() {
                   <label className="text-sm font-heading font-semibold text-muted-foreground block">Voice Record Your Answer</label>
                   {!isRecording && !videoUrlA && (
                     <button onClick={() => startRecording('A')} className="glass-button-gold flex items-center justify-center gap-2 py-3 border-dashed">
-                      <Mic className="h-4 w-4" /> Start Audio Recording
+                       Start Audio Recording
                     </button>
                   )}
                   {isRecording && recordingMode === 'A' && (
@@ -307,11 +307,11 @@ export default function Interview() {
                     <div className="space-y-3">
                       <audio src={videoUrlA} controls className="w-full h-10 border border-gold/20 rounded-md" />
                       <button onClick={analyzeRecordedA} disabled={loadingA} className="glass-button-gold w-full flex items-center justify-center gap-2 py-3">
-                        {loadingA ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {loadingA ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                         {loadingA ? 'Analyzing...' : 'Analyze My Recorded Answer'}
                       </button>
                       <button onClick={() => { setVideoBlobA(null); setVideoUrlA(null); }} className="text-xs text-muted-foreground hover:text-destructive flex items-center justify-center gap-2 w-full mt-2">
-                        <Trash2 className="h-3 w-3" /> Discard Recording
+                         Discard Recording
                       </button>
                     </div>
                   )}
@@ -338,7 +338,7 @@ export default function Interview() {
                     disabled={loadingA || !questionA.trim()}
                     className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
                   >
-                    {loadingA ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {loadingA ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     {loadingA ? 'Analyzing Response...' : 'Improve Typed Answer'}
                   </button>
                 )}
@@ -348,7 +348,7 @@ export default function Interview() {
                 <div className="space-y-4">
                   <AnalysisOutput content={resultA} title="Feedback & Improved Answer" />
                   <button onClick={() => { setResultA(''); setQuestionA(''); setAnswerA(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center justify-center gap-2 w-full mx-auto max-w-sm mt-4">
-                    <Trash2 className="h-4 w-4" /> Delete & Reset This Question
+                     Delete & Reset This Question
                   </button>
                 </div>
               ) : null}
@@ -365,7 +365,7 @@ export default function Interview() {
                   <label className="text-sm font-heading font-semibold text-muted-foreground block">Voice Record Your Statement</label>
                   {!isRecording && !videoUrlB && (
                     <button onClick={() => startRecording('B')} className="glass-button-gold flex items-center justify-center gap-2 py-3 border-dashed">
-                      <Mic className="h-4 w-4" /> Start Audio Recording
+                       Start Audio Recording
                     </button>
                   )}
                   {isRecording && recordingMode === 'B' && (
@@ -383,11 +383,11 @@ export default function Interview() {
                     <div className="space-y-3">
                       <audio src={videoUrlB} controls className="w-full h-10 border border-gold/20 rounded-md" />
                       <button onClick={analyzeRecordedB} disabled={loadingB} className="glass-button-gold w-full flex items-center justify-center gap-2 py-3">
-                        {loadingB ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {loadingB ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                         {loadingB ? 'Thinking like the IO...' : 'Generate Cross-Questions from Audio'}
                       </button>
                       <button onClick={() => { setVideoBlobB(null); setVideoUrlB(null); }} className="text-xs text-muted-foreground hover:text-destructive flex items-center justify-center gap-2 w-full mt-2">
-                        <Trash2 className="h-3 w-3" /> Discard Recording
+                         Discard Recording
                       </button>
                     </div>
                   )}
@@ -418,7 +418,7 @@ export default function Interview() {
                     disabled={loadingB}
                     className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
                   >
-                    {loadingB ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {loadingB ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     {loadingB ? 'Thinking like the IO...' : 'Generate Cross-Questions'}
                   </button>
                 )}
@@ -428,7 +428,7 @@ export default function Interview() {
                 <div className="space-y-4">
                   <AnalysisOutput content={resultB} title="IO Cross-Examination Plan" />
                   <button onClick={() => { setResultB(''); setStatementB(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center justify-center gap-2 w-full mx-auto max-w-sm mt-4">
-                    <Trash2 className="h-4 w-4" /> Delete & Reset This Statement
+                     Delete & Reset This Statement
                   </button>
                 </div>
               ) : null}
@@ -445,7 +445,7 @@ export default function Interview() {
                   <label className="text-sm font-heading font-semibold text-muted-foreground block">Voice Record Mock Interview</label>
                   {!isRecording && !videoUrlC && (
                     <button onClick={() => startRecording('C')} className="glass-button-gold flex items-center justify-center gap-2 py-3 border-dashed">
-                      <Mic className="h-4 w-4" /> Start Audio Recording
+                       Start Audio Recording
                     </button>
                   )}
                   {isRecording && recordingMode === 'C' && (
@@ -463,11 +463,11 @@ export default function Interview() {
                     <div className="space-y-3">
                       <audio src={videoUrlC} controls className="w-full h-10 border border-gold/20 rounded-md" />
                       <button onClick={analyzeRecordedC} disabled={loadingC} className="glass-button-gold w-full flex items-center justify-center gap-2 py-3">
-                        {loadingC ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {loadingC ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                         {loadingC ? 'Evaluating Profile...' : 'Analyze Recorded Transcript'}
                       </button>
                       <button onClick={() => { setVideoBlobC(null); setVideoUrlC(null); }} className="text-xs text-muted-foreground hover:text-destructive flex items-center justify-center gap-2 w-full mt-2">
-                        <Trash2 className="h-3 w-3" /> Discard Recording
+                         Discard Recording
                       </button>
                     </div>
                   )}
@@ -495,7 +495,7 @@ export default function Interview() {
                     disabled={loadingC}
                     className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
                   >
-                    {loadingC ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {loadingC ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                     {loadingC ? 'Evaluating Candidate Psych Profile...' : 'Analyze Full Transcript'}
                   </button>
                 )}
@@ -505,7 +505,7 @@ export default function Interview() {
                 <div className="space-y-4">
                   <AnalysisOutput content={resultC} title="Comprehensive Interview Report" />
                   <button onClick={() => { setResultC(''); setTranscriptC(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center justify-center gap-2 w-full mx-auto max-w-sm mt-4">
-                    <Trash2 className="h-4 w-4" /> Delete & Reset Transcript
+                     Delete & Reset Transcript
                   </button>
                 </div>
               ) : null}

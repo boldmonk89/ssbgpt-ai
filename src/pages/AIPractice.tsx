@@ -578,7 +578,6 @@ export default function AIPracticePage() {
           onClick={() => setShowOlqTags(!showOlqTags)}
           className="glass-button flex items-center gap-2 text-xs"
         >
-          {showOlqTags ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
           {showOlqTags ? 'Hide' : 'Show'} OLQ Tags
         </button>
       </div>
@@ -637,7 +636,7 @@ export default function AIPracticePage() {
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
                     <button onClick={() => { setTatResult(''); setTatImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                      <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
+                       Delete & Reset This Prompt
                     </button>
                   </div>
                 </div>
@@ -647,7 +646,7 @@ export default function AIPracticePage() {
                   disabled={tatLoading || !tatImage}
                   className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                  {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {tatLoading ? 'Analyzing Image & Generating Stories...' : 'Generate TAT Stories'}
                 </button>
               )}
@@ -680,7 +679,7 @@ export default function AIPracticePage() {
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
                     <button onClick={() => { setWatResult(''); setWatWord(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                      <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
+                       Delete & Reset This Prompt
                     </button>
                   </div>
                 </div>
@@ -690,7 +689,7 @@ export default function AIPracticePage() {
                   disabled={watLoading || !watWord.trim()}
                   className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {watLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Type className="h-4 w-4" />}
+                  {watLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {watLoading ? 'Generating Responses...' : 'Generate WAT Responses'}
                 </button>
               )}
@@ -722,7 +721,7 @@ export default function AIPracticePage() {
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
                     <button onClick={() => { setSrtResult(''); setSrtSituation(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                      <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
+                       Delete & Reset This Prompt
                     </button>
                   </div>
                 </div>
@@ -732,7 +731,7 @@ export default function AIPracticePage() {
                   disabled={srtLoading || !srtSituation.trim()}
                   className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {srtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <AlertTriangle className="h-4 w-4" />}
+                  {srtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {srtLoading ? 'Generating Reactions...' : 'Generate SRT Reactions'}
                 </button>
               )}
@@ -767,9 +766,9 @@ export default function AIPracticePage() {
               {ppdtResult && !ppdtLoading ? (
                 <div className="glass-card-subtle border-gold/20 text-center py-4 flex flex-col items-center gap-3">
                   <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
-                  <button onClick={() => { setPpdtResult(''); setPpdtImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                    <Trash2 className="h-4 w-4" /> Delete & Reset PPDT
-                  </button>
+                    <button onClick={() => { setPpdtResult(''); setPpdtImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                       Delete & Reset PPDT
+                    </button>
                 </div>
               ) : (
                 <button
@@ -777,7 +776,7 @@ export default function AIPracticePage() {
                   disabled={ppdtLoading || !ppdtImage}
                   className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+                  {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   {ppdtLoading ? 'Generating PPDT Story & Narration...' : 'Generate PPDT Story'}
                 </button>
               )}

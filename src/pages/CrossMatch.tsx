@@ -70,7 +70,7 @@ export default function CrossMatchPage() {
         {file ? <p className="text-xs text-success mt-1">✓ {file.name}</p> : <p className="text-xs text-muted-foreground mt-1">No file selected</p>}
       </div>
       <button onClick={() => document.getElementById(inputId)?.click()} className="glass-button-gold flex items-center gap-2">
-        <Upload className="h-4 w-4" />{file ? 'Replace' : 'Upload PDF'}
+        {file ? 'Replace' : 'Upload PDF'}
       </button>
       <input id={inputId} type="file" accept="application/pdf" className="hidden"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) { onFile(f); e.target.value = ''; } }} />
@@ -103,7 +103,6 @@ export default function CrossMatchPage() {
       ) : (
         <button onClick={handleAnalyse} disabled={loading || !piqFile || !psychFile}
           className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold flex items-center justify-center gap-2">
-          <ShieldCheck className="h-4 w-4" />
           {loading ? 'CROSS-MATCHING...' : 'RUN CROSS-MATCH ANALYSIS'}
         </button>
       )}

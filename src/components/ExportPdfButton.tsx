@@ -153,7 +153,6 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
       disabled={exporting || !content}
       className={`glass-button-accent flex items-center gap-2 ${className}`}
     >
-      <Download className="h-4 w-4" />
       {exporting ? 'Preparing...' : 'Export PDF'}
     </button>
   );

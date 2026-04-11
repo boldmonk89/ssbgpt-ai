@@ -65,7 +65,6 @@ export function InstallAppButton() {
             border: '1px solid hsl(var(--gold) / 0.3)',
           }}
         >
-          <Download className="h-4 w-4" />
           Install App
         </button>
 
@@ -86,7 +85,6 @@ export function InstallAppButton() {
         border: '1px solid hsl(var(--gold) / 0.3)',
       }}
     >
-      <Download className="h-4 w-4" />
       Install App
     </button>
   );

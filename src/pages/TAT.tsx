@@ -115,7 +115,6 @@ export default function TATPage() {
           </div>
           <button onClick={() => document.getElementById('tat-pdf')?.click()} disabled={pdfLoading}
             className="glass-button-accent text-xs">
-            <FileText className="h-4 w-4 inline mr-1.5" />
             {pdfLoading ? 'Analyzing...' : 'Upload TAT PDF'}
           </button>
           <input id="tat-pdf" type="file" accept="application/pdf,image/*" className="hidden"
@@ -158,7 +157,6 @@ export default function TATPage() {
               <button onClick={() => document.getElementById('tat-story-img')?.click()}
                 disabled={extractingStory}
                 className="flex items-center gap-1.5 text-xs font-heading text-muted-foreground hover:text-gold transition-colors disabled:opacity-40">
-                <Upload className="h-3.5 w-3.5" />
                 {extractingStory ? 'Extracting...' : 'Upload handwritten'}
               </button>
               <input id="tat-story-img" type="file" accept="image/*" className="hidden"
@@ -184,7 +182,7 @@ export default function TATPage() {
               </div>
               <div className="flex gap-3 justify-center relative z-10 mt-2">
                 <button onClick={() => updateTatStory(0, { story: '', picture: undefined, analysis: '' })} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                  <Trash2 className="h-4 w-4" /> Delete & Upload New Image
+                   Delete & Upload New Image
                 </button>
               </div>
             </div>

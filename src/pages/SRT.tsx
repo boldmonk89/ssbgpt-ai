@@ -124,7 +124,6 @@ export default function SRTPage() {
           </div>
           <button onClick={() => document.getElementById('srt-pdf')?.click()} disabled={pdfLoading}
             className="glass-button-accent text-xs">
-            <FileText className="h-4 w-4 inline mr-1.5" />
             {pdfLoading ? 'Analyzing...' : 'Upload SRT PDF'}
           </button>
           <input id="srt-pdf" type="file" accept="application/pdf,image/*" className="hidden"
@@ -151,7 +150,6 @@ export default function SRTPage() {
         <div className="mt-3">
           <button onClick={() => document.getElementById('srt-images')?.click()} disabled={extracting}
             className="glass-button-accent text-xs">
-            <ImageIcon className="h-4 w-4 inline mr-1.5" />
             {extracting ? 'Extracting...' : 'Upload SRT Images'}
           </button>
           <input id="srt-images" type="file" accept="image/*" multiple className="hidden"

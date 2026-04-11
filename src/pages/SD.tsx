@@ -81,7 +81,6 @@ export default function SDPage() {
           </div>
           <button onClick={() => document.getElementById('sd-pdf')?.click()} disabled={pdfLoading}
             className="glass-button-accent text-xs">
-            <FileText className="h-4 w-4 inline mr-1.5" />
             {pdfLoading ? 'Analyzing...' : 'Upload SD PDF'}
           </button>
           <input id="sd-pdf" type="file" accept="application/pdf" className="hidden"

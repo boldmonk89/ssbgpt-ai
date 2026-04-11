@@ -138,9 +138,7 @@ export default function DashboardPage() {
             onClick={() => navigate('/full-analysis')}
             className="glass-button-gold inline-flex items-center gap-2 text-sm px-8 py-3"
           >
-            <Sparkles className="h-4 w-4" />
             Start Full Analysis
-            <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -202,9 +200,7 @@ export default function DashboardPage() {
         </p>
         <div className="flex justify-center mt-5">
           <button onClick={() => navigate('/gto')} className="glass-button-gold flex items-center gap-2 text-sm">
-            <Swords className="h-4 w-4" />
             Go to GTO Tasks
-            <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -220,9 +216,7 @@ export default function DashboardPage() {
         </p>
         <div className="flex justify-center mt-5">
           <button onClick={() => navigate('/ai-practice')} className="glass-button-gold flex items-center gap-2 text-sm">
-            <BrainCircuit className="h-4 w-4" />
             Go to AI Practice
-            <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -238,9 +232,7 @@ export default function DashboardPage() {
         </p>
         <div className="flex justify-center mt-5">
           <button onClick={() => navigate('/full-analysis')} className="glass-button-gold flex items-center gap-2 text-sm">
-            <Sparkles className="h-4 w-4" />
             Go to Full Analysis
-            <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -295,9 +287,7 @@ export default function DashboardPage() {
               rel="noopener noreferrer"
               className="glass-button-gold inline-flex items-center gap-2 text-sm"
             >
-              <ExternalLink className="h-4 w-4" />
               Visit SSB Mentor
-              <ArrowRight className="h-4 w-4" />
             </a>
           </div>
 
