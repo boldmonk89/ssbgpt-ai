@@ -128,8 +128,8 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
   const [timeLeft, setTimeLeft] = useState(30);
   const [isFinished, setIsFinished] = useState(false);
 
-  // Real TAT Image pool: tat1.jpg to tat20.jpg (User to place in public/tat/)
-  const tatImagePaths = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.jpg`);
+  // Real TAT Image pool: tat1.png to tat20.png (User to place in public/tat/)
+  const tatImagePaths = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.png`);
   const [activeTatSet, setActiveTatSet] = useState<string[]>([]);
 
   useEffect(() => {
