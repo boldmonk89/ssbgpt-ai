@@ -290,14 +290,6 @@ export default function Interview() {
               <div className="space-y-4">
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-sm font-heading font-semibold text-muted-foreground block">What was the IO's question?</label>
-                    {questionA && (
-                      <button 
-                        onClick={() => speakText(questionA)} 
-                        className="text-[10px] uppercase tracking-widest font-bold text-gold flex items-center gap-1 hover:opacity-70 transition-opacity"
-                      >
-                        <Volume2 className="h-3 w-3" /> Hear Question
-                      </button>
-                    )}
                   </div>
                   <Input 
                     value={questionA} 

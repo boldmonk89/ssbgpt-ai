@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppLayout from "@/components/AppLayout";
 import DashboardPage from "./pages/Dashboard";
-import CrossMatchPage from "./pages/CrossMatch";
 import PIQPage from "./pages/PIQ";
 import TATPage from "./pages/TAT";
 import WATPage from "./pages/WAT";
@@ -29,7 +28,6 @@ const App = () => (
             <AppLayout>
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
-                <Route path="/cross-match" element={<CrossMatchPage />} />
                 <Route path="/piq" element={<PIQPage />} />
                 <Route path="/tat" element={<TATPage />} />
                 <Route path="/wat" element={<WATPage />} />

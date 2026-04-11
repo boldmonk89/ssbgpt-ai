@@ -22,7 +22,6 @@ const navItems = [
   { to: '/gto', label: 'GTO Tasks', icon: Swords },
   { to: '/interview', label: 'Interview Practice', icon: Users },
   { to: '/ai-practice', label: 'AI Practice Sandbox', icon: BrainCircuit },
-  { to: '/cross-match', label: 'Cross-Match Analysis', icon: GitCompare },
   { to: '/history', label: 'History', icon: History },
   { to: '/full-analysis', label: 'Full Psych Test', icon: Shield },
 ];

@@ -347,7 +347,9 @@ export function buildFullReportPrompt(
   srtSummary: string,
   sdSummary: string
 ): string {
-  return `You are a board-level SSB psychologist. Generate a comprehensive assessment based on ALL test data.
+  return `You are a board-level SSB psychologist generating the MOST CRITICAL assessment — matching a candidate's PIQ (Personal Information Questionnaire) profile against their actual psychological test performance.
+  
+This is the "Mansa-Vacha-Karma" alignment check — does what the candidate CLAIMS (PIQ) match what their SUBCONSCIOUS reveals (TAT, WAT, SRT, SD)?
 
 PIQ Profile: ${JSON.stringify(piqContext || 'Not available')}
 TAT Analysis: ${tatSummary || 'Not available'}
@@ -355,32 +357,35 @@ WAT Analysis: ${watSummary || 'Not available'}
 SRT Analysis: ${srtSummary || 'Not available'}
 SD Analysis: ${sdSummary || 'Not available'}
 
-Generate:
+Generate a DEEP clinical report:
 
-## 1. Executive Summary
-Overall psychological profile in 5-6 lines.
+## 1. Executive Summary & Identity Match Score
+Overall psychological profile in 5-6 lines. Give an overall alignment percentage (0-100%) between PIQ claims and test evidence.
 
-## 2. Cross-Test Consistency (Mansa-Vacha-Karma)
-Compare personality across PIQ, TAT, WAT, SRT, SD. Highlight:
-- Where personality is CONSISTENT across tests → "Your psychological profile shows strong alignment in..."
-- Where there are CONTRADICTIONS → specific flags
+## 2. Mansa-Vacha-Karma (Cross-Match)
+Compare personality across all tests. Highlight:
+- **Consistency Zones (Green Flags)**: Where PIQ and tests perfectly align — these are the candidate's GENUINE strengths.
+- **Contradiction Zones (Red Flags)**: Where PIQ claims directly contradict test evidence. Specific examples with quotes.
+- **Overclaimed Qualities**: Qualities emphasized in PIQ but NOT evidenced in tests.
 
-## 3. 15 OLQ Assessment
-For each OLQ: rating 1-10 with evidence from multiple tests.
+## 3. 15 OLQ Assessment Matrix
+For EACH of the 15 OLQs, rate 1-10 based on COMBINED evidence. Show PIQ indication vs subconscious test evidence.
 
-## 4. Factor-wise Summary
-Mind / Heart / Guts / Limbs — overall strength per factor.
+## 4. SSB Readiness & Potential
+- **Readiness Level**: RECOMMENDED MATERIAL / NEEDS FOCUSED WORK / SIGNIFICANT GAPS
+- **Strongest Asset**: The ONE quality that will carry the candidate
+- **Biggest Risk**: The ONE thing that could sink them
 
-## 5. Strengths
-Top 5 OLQ strengths with evidence.
+## 5. Interviewing Officer (IO) Risk Areas
+Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For each:
+- The question
+- Why they'll ask it (the specific contradiction)
+- How to answer it honestly
 
-## 6. Priority Improvements
-Top 5 specific, actionable improvements ranked by impact.
+## 6. 30-Day Action Plan
+Ranked list of 5 specific things to do to close the gap between claims and actual personality.
 
-## 7. SSB Readiness
-Recommended / Needs Work / Not Ready — with clear rationale.
-
-Format with clear headings. Be direct, constructive, and honest.`;
+Be brutally honest, constructive, and direct. The candidate needs TRUTH, not comfort.`;
 }
 
 export function buildFullPdfAnalysisPrompt(): string {
@@ -494,20 +499,28 @@ Be encouraging, structured, and exam-focused.`;
 }
 
 export function buildInterviewModeBPrompt(statement: string): string {
-  return `You are an SSB Interview Coach AI.
+  return `You are an SSB Interview Coach AI acting like an Interviewing Officer (IO).
   
 Candidate's Statement: "${statement}"
 
-You need to act like an Interviewing Officer (IO) probing this statement. Generate 8-9 logical follow-up/counter questions.
+Analyze this claim and generate 8-9 logical follow-up/counter questions that an IO would use to trap or probe the candidate. 
 
-Format your response as:
-"Based on your statement, here are 8 counter-questions an IO might ask you:"
-1. [Question]
-2. [Question]
+For EACH question, you MUST also provide a "Potential High-Impact Answer" that demonstrates honesty and OLQs.
+
+Format your response exactly as:
+**IO Counter-Questions & Model Answers:**
+
+1. **IO Question:** [The specific probe]
+   **Model Answer:** [What a recommended candidate would say]
+
+2. **IO Question:** ...
+   **Model Answer:** ...
+
 ...
-"Tip: Prepare specific, honest, story-based answers for each of these."
 
-Be encouraging, structured, and exam-focused.`;
+**Psychologist's Tip:** Prepare your own versions of these story-based answers. Don't memorize, internalize the logic.
+
+Be direct and exam-focused.`;
 }
 
 export function buildInterviewModeCPrompt(transcript: string): string {
