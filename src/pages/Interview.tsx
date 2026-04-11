@@ -32,6 +32,17 @@ export default function Interview() {
   const [resultC, setResultC] = useState('');
   const [loadingC, setLoadingC] = useState(false);
 
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    // Setup slideshow timer
+    const slideTimer = setInterval(() => {
+      setCurrentImage(prev => (prev + 1) % INT_IMAGES.length);
+    }, 5000);
+
+    return () => clearInterval(slideTimer);
+  }, []);
+
   // Audio Recording (Lecturette style)
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
