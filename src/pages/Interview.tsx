@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { callGemini, callGeminiMultiPart, buildInterviewModeAPrompt, buildInterviewModeBPrompt, buildInterviewModeCPrompt } from '@/lib/gemini';
-import { MessageSquare, RefreshCw, ChevronRight, Loader2, Target, Users, Mic, Trash2, StopCircle } from 'lucide-react';
+import { MessageSquare, RefreshCw, ChevronRight, Loader2, Target, Users, Mic, Trash2, StopCircle, Volume2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
@@ -202,6 +202,18 @@ export default function Interview() {
     }
   };
 
+  const speakText = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9; // Slightly slower for formal feel
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert('Your browser does not support speech synthesis.');
+    }
+  };
+
   return (
     <PageTransition>
       <div className="space-y-6 scroll-reveal pb-12">
@@ -276,15 +288,23 @@ export default function Interview() {
               <h2 className="text-xl font-heading font-bold text-gold gold-border-left">Polish an Answer</h2>
               
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-heading font-semibold text-muted-foreground mb-1 block">What was the IO's question?</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-sm font-heading font-semibold text-muted-foreground block">What was the IO's question?</label>
+                    {questionA && (
+                      <button 
+                        onClick={() => speakText(questionA)} 
+                        className="text-[10px] uppercase tracking-widest font-bold text-gold flex items-center gap-1 hover:opacity-70 transition-opacity"
+                      >
+                        <Volume2 className="h-3 w-3" /> Hear Question
+                      </button>
+                    )}
+                  </div>
                   <Input 
                     value={questionA} 
                     onChange={e => setQuestionA(e.target.value)} 
                     placeholder="e.g. Why do you want to join the Armed Forces?"
                     className="glass-input h-12"
                   />
-                </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-heading font-semibold text-muted-foreground block">Voice Record Your Answer</label>
                   {!isRecording && !videoUrlA && (

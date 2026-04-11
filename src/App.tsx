@@ -14,6 +14,7 @@ import AIPracticePage from "./pages/AIPractice";
 import GTOPage from "./pages/GTO";
 import HistoryPage from "./pages/History";
 import InterviewPage from "./pages/Interview";
+import FullAnalysisPage from "./pages/FullAnalysis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/gto" element={<GTOPage />} />
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/interview" element={<InterviewPage />} />
+                <Route path="/full-analysis" element={<FullAnalysisPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

@@ -62,6 +62,21 @@
     font-family: 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
     font-weight: 400;
     overflow-wrap: break-word;
+    position: relative;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    opacity: 0.03;
+    z-index: 9999;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -102,6 +117,15 @@
       0 8px 40px hsl(var(--background) / 0.6),
       0 1px 0 hsl(var(--foreground) / 0.05) inset,
       0 -1px 0 hsl(var(--background) / 0.4) inset;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .glass-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: hsl(var(--gold) / 0.3);
+    box-shadow:
+      0 32px 64px -12px hsl(var(--background) / 0.8),
+      0 1px 0 hsl(var(--foreground) / 0.1) inset;
   }
 
   /* Top edge highlight */
@@ -139,6 +163,15 @@
     box-shadow:
       0 4px 20px hsl(var(--background) / 0.5),
       0 1px 0 hsl(var(--foreground) / 0.03) inset;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .glass-card-subtle:hover {
+    transform: translateY(-2px) scale(1.015);
+    border-color: hsl(var(--gold) / 0.2);
+    box-shadow:
+      0 20px 40px -8px hsl(var(--background) / 0.6),
+      0 1px 0 hsl(var(--foreground) / 0.08) inset;
   }
 
   .glass-card-subtle::before {

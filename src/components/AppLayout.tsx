@@ -24,6 +24,7 @@ const navItems = [
   { to: '/ai-practice', label: 'AI Practice Sandbox', icon: BrainCircuit },
   { to: '/cross-match', label: 'Cross-Match Analysis', icon: GitCompare },
   { to: '/history', label: 'History', icon: History },
+  { to: '/full-analysis', label: 'Full Psych Test', icon: Shield },
 ];
 
 function SplashScreen() {
