@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit, BookOpen, GraduationCap, FileText, Users, ExternalLink, Swords } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 import slide1 from '@/assets/slideshow/slide1.jpg';
 import slide2 from '@/assets/slideshow/slide2.jpg';
@@ -134,12 +135,14 @@ export default function DashboardPage() {
           </p>
 
           {/* CTA Button */}
-          <button
+          <Button
             onClick={() => navigate('/full-analysis')}
-            className="glass-button-gold inline-flex items-center gap-2 text-sm px-8 py-3"
+            variant="default"
+            size="xl"
+            className="w-fit"
           >
             Start Full Analysis
-          </button>
+          </Button>
         </div>
       </div>
 
