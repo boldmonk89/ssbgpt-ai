@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
-import { callGemini, buildInterviewModeAPrompt, buildInterviewModeBPrompt, buildInterviewModeCPrompt } from '@/lib/gemini';
-import { MessageSquare, RefreshCw, ChevronRight, Loader2, Target, Users, Mic, Trash2 } from 'lucide-react';
+import { callGemini, callGeminiMultiPart, buildInterviewModeAPrompt, buildInterviewModeBPrompt, buildInterviewModeCPrompt } from '@/lib/gemini';
+import { MessageSquare, RefreshCw, ChevronRight, Loader2, Target, Users, Mic, Trash2, StopCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
@@ -32,53 +32,124 @@ export default function Interview() {
   const [resultC, setResultC] = useState('');
   const [loadingC, setLoadingC] = useState(false);
 
-  // Speech Recognition
-  const [activeMic, setActiveMic] = useState<'answerA' | 'statementB' | 'transcriptC' | null>(null);
-  const recognitionRef = useRef<any>(null);
+  // Audio Recording (Lecturette style)
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordingMode, setRecordingMode] = useState<'A' | 'B' | 'C' | null>(null);
+  const recordingModeRef = useRef<'A' | 'B' | 'C' | null>(null);
 
-  const [currentImage, setCurrentImage] = useState(0);
+  const [videoBlobA, setVideoBlobA] = useState<Blob | null>(null);
+  const [videoUrlA, setVideoUrlA] = useState<string | null>(null);
+  const [videoBlobB, setVideoBlobB] = useState<Blob | null>(null);
+  const [videoUrlB, setVideoUrlB] = useState<string | null>(null);
+  const [videoBlobC, setVideoBlobC] = useState<Blob | null>(null);
+  const [videoUrlC, setVideoUrlC] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Setup slideshow timer
-    const slideTimer = setInterval(() => {
-      setCurrentImage(prev => (prev + 1) % INT_IMAGES.length);
-    }, 5000);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-    return () => clearInterval(slideTimer);
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsRecording(false);
+    setRecordingMode(null);
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        recognitionRef.current = new SpeechRecognition();
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = false;
-        recognitionRef.current.lang = 'en-IN';
-      }
-    }
-  }, []);
+  const startRecording = useCallback(async (mode: 'A' | 'B' | 'C') => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      streamRef.current = stream;
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
 
-  const toggleMic = (field: 'answerA' | 'statementB' | 'transcriptC', setter: (v: any) => void) => {
-    if (!recognitionRef.current) {
-      alert("Voice recording is not supported in this browser. Please use Chrome.");
-      return;
-    }
-    
-    if (activeMic === field) {
-      recognitionRef.current.stop();
-      setActiveMic(null);
-    } else {
-      if (activeMic) recognitionRef.current.stop();
-      setActiveMic(field);
-      recognitionRef.current.onresult = (event: any) => {
-        const text = event.results[event.results.length - 1][0].transcript;
-        setter((prev: string) => prev + " " + text);
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
       };
-      recognitionRef.current.onerror = () => setActiveMic(null);
-      recognitionRef.current.onend = () => setActiveMic(null);
-      try { recognitionRef.current.start(); } catch(e) { }
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        if (recordingModeRef.current === 'A') { setVideoBlobA(blob); setVideoUrlA(url); }
+        if (recordingModeRef.current === 'B') { setVideoBlobB(blob); setVideoUrlB(url); }
+        if (recordingModeRef.current === 'C') { setVideoBlobC(blob); setVideoUrlC(url); }
+        stream.getTracks().forEach(t => t.stop());
+      };
+
+      mediaRecorder.start(1000);
+      setIsRecording(true);
+      setRecordingMode(mode);
+      recordingModeRef.current = mode;
+      setRecordingTime(0);
+      
+      if (mode === 'A') { setVideoBlobA(null); setVideoUrlA(null); setResultA(''); }
+      if (mode === 'B') { setVideoBlobB(null); setVideoUrlB(null); setResultB(''); }
+      if (mode === 'C') { setVideoBlobC(null); setVideoUrlC(null); setResultC(''); }
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 600) { stopRecording(); return 600; }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      alert('Microphone access denied. Please allow mic access.');
     }
+  }, [stopRecording]);
+
+  const analyzeRecordedA = async () => {
+    if (!videoBlobA || !questionA.trim()) { alert('Need question and recording'); return; }
+    setLoadingA(true);
+    setResultA('');
+    try {
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => { reader.onload = () => resolve(reader.result as string); reader.readAsDataURL(videoBlobA); });
+      const base64 = await base64Promise;
+      const response = await callGeminiMultiPart(
+        buildInterviewModeAPrompt(questionA, "The candidate has recorded their answer as an audio clip. Transcribe and evaluate their spoken answer exactly as if it was written, but prioritize spoken fluency and pauses as well."),
+        [{ base64, mimeType: 'audio/webm' }]
+      );
+      setResultA(response);
+    } catch (e: any) { alert(e.message); } finally { setLoadingA(false); }
+  };
+
+  const analyzeRecordedB = async () => {
+    if (!videoBlobB) { alert('Need recording'); return; }
+    setLoadingB(true);
+    setResultB('');
+    try {
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => { reader.onload = () => resolve(reader.result as string); reader.readAsDataURL(videoBlobB); });
+      const base64 = await base64Promise;
+      const response = await callGeminiMultiPart(
+        buildInterviewModeBPrompt("The candidate has stated this in an audio recording. Transcribe and process it as their claim."),
+        [{ base64, mimeType: 'audio/webm' }]
+      );
+      setResultB(response);
+    } catch (e: any) { alert(e.message); } finally { setLoadingB(false); }
+  };
+
+  const analyzeRecordedC = async () => {
+    if (!videoBlobC) { alert('Need transcript recording'); return; }
+    setLoadingC(true);
+    setResultC('');
+    try {
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => { reader.onload = () => resolve(reader.result as string); reader.readAsDataURL(videoBlobC); });
+      const base64 = await base64Promise;
+      const response = await callGeminiMultiPart(
+        buildInterviewModeCPrompt("The candidate uploaded a full audio mock interview. Transcribe the conversation, detect the IO vs Candidate tone, and evaluate the full transcript."),
+        [{ base64, mimeType: 'audio/webm' }]
+      );
+      setResultC(response);
+    } catch (e: any) { alert(e.message); } finally { setLoadingC(false); }
   };
 
   const handleModeA = async () => {
@@ -203,29 +274,63 @@ export default function Interview() {
                     className="glass-input h-12"
                   />
                 </div>
-                <div className="relative">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-heading font-semibold text-muted-foreground block">Voice Record Your Answer</label>
+                  {!isRecording && !videoUrlA && (
+                    <button onClick={() => startRecording('A')} className="glass-button-gold flex items-center justify-center gap-2 py-3 border-dashed">
+                      <Mic className="h-4 w-4" /> Start Audio Recording
+                    </button>
+                  )}
+                  {isRecording && recordingMode === 'A' && (
+                    <div className="glass-card-subtle flex flex-col items-center justify-center gap-3 py-6 border-destructive/30">
+                      <div className="flex items-center gap-2 text-destructive font-heading font-bold animate-pulse">
+                        <div className="w-3 h-3 rounded-full bg-destructive" />
+                        Recording... {Math.floor(recordingTime / 60)}:{String(recordingTime % 60).padStart(2, '0')}
+                      </div>
+                      <button onClick={stopRecording} className="glass-button w-48 border-destructive text-destructive hover:bg-destructive hover:text-white flex items-center justify-center gap-2">
+                        <StopCircle className="h-4 w-4" /> Stop Recording
+                      </button>
+                    </div>
+                  )}
+                  {videoUrlA && !isRecording && (
+                    <div className="space-y-3">
+                      <audio src={videoUrlA} controls className="w-full h-10 border border-gold/20 rounded-md" />
+                      <button onClick={analyzeRecordedA} disabled={loadingA} className="glass-button-gold w-full flex items-center justify-center gap-2 py-3">
+                        {loadingA ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {loadingA ? 'Analyzing...' : 'Analyze My Recorded Answer'}
+                      </button>
+                      <button onClick={() => { setVideoBlobA(null); setVideoUrlA(null); }} className="text-xs text-muted-foreground hover:text-destructive flex items-center justify-center gap-2 w-full mt-2">
+                        <Trash2 className="h-3 w-3" /> Discard Recording
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3 my-2">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-xs text-muted-foreground font-body">OR paste text</span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+
+                <div>
                   <label className="text-sm font-heading font-semibold text-muted-foreground mb-1 block">Your Answer</label>
                   <Textarea 
                     value={answerA} 
                     onChange={e => setAnswerA(e.target.value)} 
-                    placeholder="Type or record your exact response here..."
-                    className={`glass-input min-h-[120px] pb-10 ${activeMic === 'answerA' ? 'border-primary shadow-[0_0_15px_rgba(234,179,8,0.3)]' : ''}`}
+                    placeholder="Type your exact response here..."
+                    className="glass-input min-h-[120px]"
                   />
-                  <button 
-                    onClick={() => toggleMic('answerA', setAnswerA)} 
-                    className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${activeMic === 'answerA' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'bg-transparent text-muted-foreground hover:bg-gold/10 hover:text-gold'}`}
-                  >
-                    <Mic className="h-4 w-4" />
-                  </button>
                 </div>
-                <button
-                  onClick={handleModeA}
-                  disabled={loadingA || !questionA.trim() || !answerA.trim()}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
-                >
-                  {loadingA ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
-                  {loadingA ? 'Analyzing Response...' : 'Improve Answer'}
-                </button>
+                {answerA.trim() && (
+                  <button
+                    onClick={handleModeA}
+                    disabled={loadingA || !questionA.trim()}
+                    className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
+                  >
+                    {loadingA ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {loadingA ? 'Analyzing Response...' : 'Improve Typed Answer'}
+                  </button>
+                )}
               </div>
 
               {resultA ? (
@@ -245,33 +350,67 @@ export default function Interview() {
               <h2 className="text-xl font-heading font-bold text-gold gold-border-left">Generate Counter Questions</h2>
               
               <div className="space-y-4">
-                <div className="relative">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-heading font-semibold text-muted-foreground block">Voice Record Your Statement</label>
+                  {!isRecording && !videoUrlB && (
+                    <button onClick={() => startRecording('B')} className="glass-button-gold flex items-center justify-center gap-2 py-3 border-dashed">
+                      <Mic className="h-4 w-4" /> Start Audio Recording
+                    </button>
+                  )}
+                  {isRecording && recordingMode === 'B' && (
+                    <div className="glass-card-subtle flex flex-col items-center justify-center gap-3 py-6 border-destructive/30">
+                      <div className="flex items-center gap-2 text-destructive font-heading font-bold animate-pulse">
+                        <div className="w-3 h-3 rounded-full bg-destructive" />
+                        Recording... {Math.floor(recordingTime / 60)}:{String(recordingTime % 60).padStart(2, '0')}
+                      </div>
+                      <button onClick={stopRecording} className="glass-button w-48 border-destructive text-destructive hover:bg-destructive hover:text-white flex items-center justify-center gap-2">
+                        <StopCircle className="h-4 w-4" /> Stop Recording
+                      </button>
+                    </div>
+                  )}
+                  {videoUrlB && !isRecording && (
+                    <div className="space-y-3">
+                      <audio src={videoUrlB} controls className="w-full h-10 border border-gold/20 rounded-md" />
+                      <button onClick={analyzeRecordedB} disabled={loadingB} className="glass-button-gold w-full flex items-center justify-center gap-2 py-3">
+                        {loadingB ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {loadingB ? 'Thinking like the IO...' : 'Generate Cross-Questions from Audio'}
+                      </button>
+                      <button onClick={() => { setVideoBlobB(null); setVideoUrlB(null); }} className="text-xs text-muted-foreground hover:text-destructive flex items-center justify-center gap-2 w-full mt-2">
+                        <Trash2 className="h-3 w-3" /> Discard Recording
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3 my-2">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-xs text-muted-foreground font-body">OR paste text</span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+
+                <div>
                   <label className="text-sm font-heading font-semibold text-muted-foreground mb-1 block">Statement or Claim you plan to make</label>
                   <Textarea 
                     value={statementB} 
                     onChange={e => setStatementB(e.target.value)} 
                     placeholder="e.g. I am a highly motivated person and a natural leader because I was the captain of my college sports team."
-                    className={`glass-input min-h-[120px] pb-10 ${activeMic === 'statementB' ? 'border-primary shadow-[0_0_15px_rgba(234,179,8,0.3)]' : ''}`}
+                    className="glass-input min-h-[120px]"
                   />
-                  <button 
-                    onClick={() => toggleMic('statementB', setStatementB)} 
-                    className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${activeMic === 'statementB' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'bg-transparent text-muted-foreground hover:bg-gold/10 hover:text-gold'}`}
-                  >
-                    <Mic className="h-4 w-4" />
-                  </button>
                   <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                     <Target className="h-3 w-3" /> The IO will use this statement against you. Let's see how.
                   </p>
                 </div>
                 
-                <button
-                  onClick={handleModeB}
-                  disabled={loadingB || !statementB.trim()}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
-                >
-                  {loadingB ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
-                  {loadingB ? 'Thinking like the IO...' : 'Generate Cross-Questions'}
-                </button>
+                {statementB.trim() && (
+                  <button
+                    onClick={handleModeB}
+                    disabled={loadingB}
+                    className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
+                  >
+                    {loadingB ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {loadingB ? 'Thinking like the IO...' : 'Generate Cross-Questions'}
+                  </button>
+                )}
               </div>
 
               {resultB ? (
@@ -291,30 +430,64 @@ export default function Interview() {
               <h2 className="text-xl font-heading font-bold text-gold gold-border-left">Mock Interview Transcript Evaluation</h2>
               
               <div className="space-y-4">
-                <div className="relative">
-                  <label className="text-sm font-heading font-semibold text-muted-foreground mb-1 block">Paste full Q&A Transcript</label>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-heading font-semibold text-muted-foreground block">Voice Record Mock Interview</label>
+                  {!isRecording && !videoUrlC && (
+                    <button onClick={() => startRecording('C')} className="glass-button-gold flex items-center justify-center gap-2 py-3 border-dashed">
+                      <Mic className="h-4 w-4" /> Start Audio Recording
+                    </button>
+                  )}
+                  {isRecording && recordingMode === 'C' && (
+                    <div className="glass-card-subtle flex flex-col items-center justify-center gap-3 py-6 border-destructive/30">
+                      <div className="flex items-center gap-2 text-destructive font-heading font-bold animate-pulse">
+                        <div className="w-3 h-3 rounded-full bg-destructive" />
+                        Recording... {Math.floor(recordingTime / 60)}:{String(recordingTime % 60).padStart(2, '0')}
+                      </div>
+                      <button onClick={stopRecording} className="glass-button w-48 border-destructive text-destructive hover:bg-destructive hover:text-white flex items-center justify-center gap-2">
+                        <StopCircle className="h-4 w-4" /> Stop Recording
+                      </button>
+                    </div>
+                  )}
+                  {videoUrlC && !isRecording && (
+                    <div className="space-y-3">
+                      <audio src={videoUrlC} controls className="w-full h-10 border border-gold/20 rounded-md" />
+                      <button onClick={analyzeRecordedC} disabled={loadingC} className="glass-button-gold w-full flex items-center justify-center gap-2 py-3">
+                        {loadingC ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        {loadingC ? 'Evaluating Profile...' : 'Analyze Recorded Transcript'}
+                      </button>
+                      <button onClick={() => { setVideoBlobC(null); setVideoUrlC(null); }} className="text-xs text-muted-foreground hover:text-destructive flex items-center justify-center gap-2 w-full mt-2">
+                        <Trash2 className="h-3 w-3" /> Discard Recording
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3 my-2">
+                  <div className="flex-1 h-px bg-border/30" />
+                  <span className="text-xs text-muted-foreground font-body">OR paste text transcript</span>
+                  <div className="flex-1 h-px bg-border/30" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-heading font-semibold text-muted-foreground mb-1 block">Paste Q&A Transcript</label>
                   <Textarea 
                     value={transcriptC} 
                     onChange={e => setTranscriptC(e.target.value)} 
                     placeholder="Q1: Tell me about your friends.&#10;A1: My friends are supportive.&#10;Q2: What do you do when you disagree with them?&#10;A2: We talk it out."
-                    className={`glass-input min-h-[250px] font-mono text-sm pb-10 ${activeMic === 'transcriptC' ? 'border-primary shadow-[0_0_15px_rgba(234,179,8,0.3)]' : ''}`}
+                    className="glass-input min-h-[250px] font-mono text-sm"
                   />
-                  <button 
-                    onClick={() => toggleMic('transcriptC', setTranscriptC)} 
-                    className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${activeMic === 'transcriptC' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'bg-transparent text-muted-foreground hover:bg-gold/10 hover:text-gold'}`}
-                  >
-                    <Mic className="h-4 w-4" />
-                  </button>
                 </div>
                 
-                <button
-                  onClick={handleModeC}
-                  disabled={loadingC || !transcriptC.trim()}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
-                >
-                  {loadingC ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
-                  {loadingC ? 'Evaluating Candidate Psych Profile...' : 'Analyze Full Transcript'}
-                </button>
+                {transcriptC.trim() && (
+                  <button
+                    onClick={handleModeC}
+                    disabled={loadingC}
+                    className="glass-button-gold w-full flex items-center justify-center gap-2 py-3"
+                  >
+                    {loadingC ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                    {loadingC ? 'Evaluating Candidate Psych Profile...' : 'Analyze Full Transcript'}
+                  </button>
+                )}
               </div>
 
               {resultC ? (
