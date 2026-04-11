@@ -2,6 +2,7 @@ import { Instagram, Send } from 'lucide-react';
 import founderImg from '@/assets/founder.jpg';
 import telegramQr from '@/assets/telegram-qr.png';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
+import { Button } from '@/components/ui/button';
 
 export default function Footer() {
   return (
@@ -25,41 +26,51 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Contact & Socials */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-8">
-          {/* Instagram */}
-          <a
-            href="https://www.instagram.com/traghavvv/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105"
-            style={{
-              background: 'linear-gradient(135deg, hsl(var(--gold) / 0.1), hsl(var(--gold) / 0.03))',
-              border: '1px solid hsl(var(--gold) / 0.2)',
-            }}
+        {/* Contact & Socials — Premium Buttons */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-12">
+          {/* Instagram Button */}
+          <Button 
+            asChild
+            variant="outline"
+            size="xl"
+            className="w-full md:w-64 h-16 rounded-2xl border-gold/30 hover:border-gold hover:bg-gold/5 transition-all group overflow-hidden relative"
           >
-            <Instagram className="h-5 w-5 text-gold" />
-            <div>
-              <p className="font-heading font-bold text-sm text-foreground">@traghavvv</p>
-              <p className="font-body text-[10px] text-muted-foreground">Instagram</p>
-            </div>
-          </a>
+            <a
+              href="https://www.instagram.com/traghavvv/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-3"
+            >
+              <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Instagram className="h-5 w-5 text-gold relative z-10" />
+              <div className="text-left relative z-10">
+                <p className="font-heading font-black text-xs text-foreground uppercase tracking-widest leading-none">@traghavvv</p>
+                <p className="font-body text-[8px] text-muted-foreground uppercase tracking-widest mt-1">Visit Instagram</p>
+              </div>
+            </a>
+          </Button>
 
-          {/* Telegram */}
-          <a
-            href="https://t.me/scorchiee"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-col items-center gap-2 group"
+          {/* Telegram Button */}
+          <Button 
+            asChild
+            variant="outline"
+            size="xl"
+            className="w-full md:w-64 h-16 rounded-2xl border-gold/30 hover:border-gold hover:bg-gold/5 transition-all group overflow-hidden relative"
           >
-            <div className="h-28 w-28 rounded-xl overflow-hidden border border-border/30 bg-white p-1 transition-all group-hover:scale-105">
-              <img src={telegramQr} alt="Telegram QR - @scorchiee" className="h-full w-full object-contain" />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Send className="h-3.5 w-3.5 text-gold" />
-              <p className="font-body text-xs text-muted-foreground">@scorchiee on Telegram</p>
-            </div>
-          </a>
+            <a
+              href="https://t.me/scorchiee"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-3"
+            >
+              <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Send className="h-5 w-5 text-gold relative z-10" />
+              <div className="text-left relative z-10">
+                <p className="font-heading font-black text-xs text-foreground uppercase tracking-widest leading-none">@scorchiee</p>
+                <p className="font-body text-[8px] text-muted-foreground uppercase tracking-widest mt-1">Connect on Telegram</p>
+              </div>
+            </a>
+          </Button>
         </div>
 
         {/* Bottom Bar */}
