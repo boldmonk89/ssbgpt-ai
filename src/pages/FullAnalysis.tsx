@@ -3,7 +3,7 @@ import { useAppStore } from '@/store/appStore';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Timer, FileText, Share2, Shield, Upload, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Timer, FileText, Share2, Shield, Upload, Clock, AlertTriangle, CheckCircle, Zap, UserCircle } from 'lucide-react';
 import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 
@@ -105,19 +105,70 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
           </div>
         </div>
 
-        <Button size="xl" onClick={onStart} className="w-full">Initialize Examination</Button>
+        <Button 
+          size="xl" 
+          onClick={onStart} 
+          className="w-full h-20 text-xl font-heading font-black tracking-tighter shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all bg-gold hover:bg-gold/90 text-background"
+        >
+          START FULL PSYCH ANALYSIS
+        </Button>
       </div>
     </div>
   );
 }
 
-// STUB COMPONENTS - These will be implemented in the next steps
 function PiqStep({ onComplete }: { onComplete: () => void }) {
+  const [isUploaded, setIsUploaded] = useState(false);
+
   return (
-    <div className="glass-card text-center py-20">
-      <h2 className="text-xl font-heading font-bold mb-4">Step 1: Universal Context (PIQ)</h2>
-      <p className="text-muted-foreground mb-8">Upload your PIQ form for baseline psychological analysis.</p>
-      <Button onClick={onComplete}>Next: TAT</Button>
+    <div className="glass-card stagger-children p-10 text-center space-y-8">
+      <div className="mx-auto h-20 w-20 rounded-3xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+        <UserCircle className="h-10 w-10 text-gold" />
+      </div>
+      
+      <div className="space-y-2">
+        <h2 className="text-2xl font-heading font-bold">Step 1: Universal Context</h2>
+        <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
+          Upload your PIQ (Personal Information Questionnaire) form. This helps our AI psychologists establish your baseline life-history profile.
+        </p>
+      </div>
+
+      <div className="flex flex-col items-center gap-4">
+        {!isUploaded ? (
+          <div className="w-full max-w-sm border-2 border-dashed border-gold/30 rounded-2xl p-8 hover:border-gold/60 transition-colors bg-gold/5 group">
+            <Upload className="h-8 w-8 text-gold mx-auto mb-4 group-hover:scale-110 transition-transform" />
+            <p className="text-xs font-bold text-gold uppercase tracking-widest mb-1">Click to Upload PIQ PDF</p>
+            <p className="text-[10px] text-muted-foreground">Supports PDF, JPG, PNG — Maximum 5MB</p>
+            <input 
+              type="file" 
+              className="absolute inset-0 opacity-0 cursor-pointer" 
+              onChange={() => {
+                setIsUploaded(true);
+                toast.success('PIQ uploaded successfully');
+              }}
+            />
+          </div>
+        ) : (
+          <div className="w-full max-w-sm rounded-2xl p-6 bg-success/10 border border-success/30 flex items-center gap-4">
+             <div className="h-10 w-10 rounded-full bg-success/20 flex items-center justify-center">
+               <CheckCircle className="h-5 w-5 text-success" />
+             </div>
+             <div className="text-left">
+               <p className="text-sm font-bold text-success">PIQ Data Captured</p>
+               <p className="text-[10px] text-muted-foreground">baseline_profile.pdf (Ready for analysis)</p>
+             </div>
+          </div>
+        )}
+      </div>
+
+      <Button 
+        disabled={!isUploaded} 
+        onClick={onComplete} 
+        size="lg"
+        className="w-full max-w-xs"
+      >
+        Proceed to TAT Test
+      </Button>
     </div>
   );
 }
