@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { callGemini, fileToBase64 } from '@/lib/gemini';
-import { Loader2, Upload, ImageIcon, Type, AlertTriangle, Eye, EyeOff, Users } from 'lucide-react';
+import { Loader2, Upload, ImageIcon, Type, AlertTriangle, Eye, EyeOff, Users, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const SYSTEM_PROMPT_TAT = `You are an expert SSB psychologist and TAT evaluator for Indian defence selection. You know exactly what a RECOMMENDED candidate's story looks like.
@@ -627,12 +627,19 @@ export default function AIPracticePage() {
               </label>
 
               {tatResult && !tatLoading ? (
-                <div className="glass-card-subtle border-gold/20 text-center py-4 px-6 relative overflow-hidden">
+                <div className="glass-card-subtle border-gold/20 text-center py-4 px-6 relative overflow-hidden flex flex-col gap-4">
                   <div className="absolute inset-0 bg-gold/5 blur-xl"></div>
-                  <p className="font-heading font-semibold text-sm text-gold mb-1 relative z-10">Analysis Complete (1/1)</p>
-                  <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-                    The core of TAT is evaluating your first, instinctive thought. Generating multiple responses for the exact same image dilutes the psychological authenticity. To practice a new story, clear your session from the sidebar.
-                  </p>
+                  <div>
+                    <p className="font-heading font-semibold text-sm text-gold mb-1 relative z-10">Analysis Complete (1/1)</p>
+                    <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+                      The core of TAT is evaluating your first, instinctive thought. Generating multiple responses for the exact same image dilutes the psychological authenticity.
+                    </p>
+                  </div>
+                  <div className="flex gap-3 justify-center relative z-10 mt-2">
+                    <button onClick={() => { setTatResult(null); setTatImage(null); setAnalysisCount(prev => ({...prev, tat: 0})); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                      <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button
@@ -663,12 +670,19 @@ export default function AIPracticePage() {
                 onKeyDown={(e) => e.key === 'Enter' && analyzeWat()}
               />
               {watResult && !watLoading ? (
-                <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden">
+                <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden flex flex-col gap-4">
                   <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
-                  <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (4/4)</p>
-                  <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-                    You have analyzed responses for this specific word the maximum allowed times. The SSB focuses on your rapid, subconscious associations rather than over-practiced perfection. To practice a new word, please clear your session from the sidebar to ensure a fresh psychological evaluation state.
-                  </p>
+                  <div>
+                    <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (4/4)</p>
+                    <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+                      You have analyzed responses for this specific word the maximum allowed times. The SSB focuses on your rapid, subconscious associations rather than over-practiced perfection.
+                    </p>
+                  </div>
+                  <div className="flex gap-3 justify-center relative z-10 mt-2">
+                    <button onClick={() => { setWatResult(null); setWatWord(''); setAnalysisCount(prev => ({...prev, wat: 0})); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                      <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button
@@ -698,12 +712,19 @@ export default function AIPracticePage() {
                 className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
               />
               {srtResult && !srtLoading ? (
-                <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden">
+                <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden flex flex-col gap-4">
                   <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
-                  <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (2/2)</p>
-                  <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-                    You have analyzed reactions for this specific situation the maximum allowed times. SRT evaluates your immediate reaction to crisis/scenarios. Practicing beyond this limit removes the true reaction validity. Clear your session from the sidebar to test new situations.
-                  </p>
+                  <div>
+                    <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (2/2)</p>
+                    <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
+                      You have analyzed reactions for this specific situation the maximum allowed times. SRT evaluates your immediate reaction to crisis/scenarios. Practicing beyond this limit removes the true reaction validity.
+                    </p>
+                  </div>
+                  <div className="flex gap-3 justify-center relative z-10 mt-2">
+                    <button onClick={() => { setSrtResult(null); setSrtSituation(''); setAnalysisCount(prev => ({...prev, srt: 0})); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                      <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button
@@ -744,8 +765,11 @@ export default function AIPracticePage() {
               </label>
 
               {ppdtResult && !ppdtLoading ? (
-                <div className="glass-card-subtle border-gold/20 text-center py-3">
+                <div className="glass-card-subtle border-gold/20 text-center py-4 flex flex-col items-center gap-3">
                   <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
+                  <button onClick={() => { setPpdtResult(null); setPpdtImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                    <Trash2 className="h-4 w-4" /> Delete & Reset PPDT
+                  </button>
                 </div>
               ) : (
                 <button

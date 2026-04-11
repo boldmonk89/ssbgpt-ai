@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { callGemini, buildInterviewModeAPrompt, buildInterviewModeBPrompt, buildInterviewModeCPrompt } from '@/lib/gemini';
-import { MessageSquare, RefreshCw, ChevronRight, Loader2, Target, Users, Mic } from 'lucide-react';
+import { MessageSquare, RefreshCw, ChevronRight, Loader2, Target, Users, Mic, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
@@ -25,6 +25,44 @@ export default function Interview() {
   const [transcriptC, setTranscriptC] = useState('');
   const [resultC, setResultC] = useState('');
   const [loadingC, setLoadingC] = useState(false);
+
+  // Speech Recognition
+  const [activeMic, setActiveMic] = useState<'answerA' | 'statementB' | 'transcriptC' | null>(null);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = 'en-IN';
+      }
+    }
+  }, []);
+
+  const toggleMic = (field: 'answerA' | 'statementB' | 'transcriptC', setter: (v: any) => void) => {
+    if (!recognitionRef.current) {
+      alert("Voice recording is not supported in this browser. Please use Chrome.");
+      return;
+    }
+    
+    if (activeMic === field) {
+      recognitionRef.current.stop();
+      setActiveMic(null);
+    } else {
+      if (activeMic) recognitionRef.current.stop();
+      setActiveMic(field);
+      recognitionRef.current.onresult = (event: any) => {
+        const text = event.results[event.results.length - 1][0].transcript;
+        setter((prev: string) => prev + " " + text);
+      };
+      recognitionRef.current.onerror = () => setActiveMic(null);
+      recognitionRef.current.onend = () => setActiveMic(null);
+      try { recognitionRef.current.start(); } catch(e) { }
+    }
+  };
 
   const handleModeA = async () => {
     if (!questionA.trim() || !answerA.trim()) return;
@@ -132,14 +170,20 @@ export default function Interview() {
                     className="glass-input h-12"
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <label className="text-sm font-heading font-semibold text-muted-foreground mb-1 block">Your Answer</label>
                   <Textarea 
                     value={answerA} 
                     onChange={e => setAnswerA(e.target.value)} 
-                    placeholder="Type your exact response here..."
-                    className="glass-input min-h-[120px]"
+                    placeholder="Type or record your exact response here..."
+                    className={`glass-input min-h-[120px] pb-10 ${activeMic === 'answerA' ? 'border-primary shadow-[0_0_15px_rgba(234,179,8,0.3)]' : ''}`}
                   />
+                  <button 
+                    onClick={() => toggleMic('answerA', setAnswerA)} 
+                    className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${activeMic === 'answerA' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'bg-transparent text-muted-foreground hover:bg-gold/10 hover:text-gold'}`}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </button>
                 </div>
                 <button
                   onClick={handleModeA}
@@ -151,7 +195,14 @@ export default function Interview() {
                 </button>
               </div>
 
-              {resultA && <AnalysisOutput content={resultA} title="Feedback & Improved Answer" />}
+              {resultA ? (
+                <div className="space-y-4">
+                  <AnalysisOutput content={resultA} title="Feedback & Improved Answer" />
+                  <button onClick={() => { setResultA(''); setQuestionA(''); setAnswerA(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center justify-center gap-2 w-full mx-auto max-w-sm mt-4">
+                    <Trash2 className="h-4 w-4" /> Delete & Reset This Question
+                  </button>
+                </div>
+              ) : null}
             </div>
           )}
 
@@ -161,14 +212,20 @@ export default function Interview() {
               <h2 className="text-xl font-heading font-bold text-gold gold-border-left">Generate Counter Questions</h2>
               
               <div className="space-y-4">
-                <div>
+                <div className="relative">
                   <label className="text-sm font-heading font-semibold text-muted-foreground mb-1 block">Statement or Claim you plan to make</label>
                   <Textarea 
                     value={statementB} 
                     onChange={e => setStatementB(e.target.value)} 
                     placeholder="e.g. I am a highly motivated person and a natural leader because I was the captain of my college sports team."
-                    className="glass-input min-h-[120px]"
+                    className={`glass-input min-h-[120px] pb-10 ${activeMic === 'statementB' ? 'border-primary shadow-[0_0_15px_rgba(234,179,8,0.3)]' : ''}`}
                   />
+                  <button 
+                    onClick={() => toggleMic('statementB', setStatementB)} 
+                    className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${activeMic === 'statementB' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'bg-transparent text-muted-foreground hover:bg-gold/10 hover:text-gold'}`}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </button>
                   <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                     <Target className="h-3 w-3" /> The IO will use this statement against you. Let's see how.
                   </p>
@@ -184,7 +241,14 @@ export default function Interview() {
                 </button>
               </div>
 
-              {resultB && <AnalysisOutput content={resultB} title="IO Cross-Examination Plan" />}
+              {resultB ? (
+                <div className="space-y-4">
+                  <AnalysisOutput content={resultB} title="IO Cross-Examination Plan" />
+                  <button onClick={() => { setResultB(''); setStatementB(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center justify-center gap-2 w-full mx-auto max-w-sm mt-4">
+                    <Trash2 className="h-4 w-4" /> Delete & Reset This Statement
+                  </button>
+                </div>
+              ) : null}
             </div>
           )}
 
@@ -194,14 +258,20 @@ export default function Interview() {
               <h2 className="text-xl font-heading font-bold text-gold gold-border-left">Mock Interview Transcript Evaluation</h2>
               
               <div className="space-y-4">
-                <div>
+                <div className="relative">
                   <label className="text-sm font-heading font-semibold text-muted-foreground mb-1 block">Paste full Q&A Transcript</label>
                   <Textarea 
                     value={transcriptC} 
                     onChange={e => setTranscriptC(e.target.value)} 
                     placeholder="Q1: Tell me about your friends.&#10;A1: My friends are supportive.&#10;Q2: What do you do when you disagree with them?&#10;A2: We talk it out."
-                    className="glass-input min-h-[250px] font-mono text-sm"
+                    className={`glass-input min-h-[250px] font-mono text-sm pb-10 ${activeMic === 'transcriptC' ? 'border-primary shadow-[0_0_15px_rgba(234,179,8,0.3)]' : ''}`}
                   />
+                  <button 
+                    onClick={() => toggleMic('transcriptC', setTranscriptC)} 
+                    className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${activeMic === 'transcriptC' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'bg-transparent text-muted-foreground hover:bg-gold/10 hover:text-gold'}`}
+                  >
+                    <Mic className="h-4 w-4" />
+                  </button>
                 </div>
                 
                 <button
@@ -214,7 +284,14 @@ export default function Interview() {
                 </button>
               </div>
 
-              {resultC && <AnalysisOutput content={resultC} title="Comprehensive Interview Report" />}
+              {resultC ? (
+                <div className="space-y-4">
+                  <AnalysisOutput content={resultC} title="Comprehensive Interview Report" />
+                  <button onClick={() => { setResultC(''); setTranscriptC(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center justify-center gap-2 w-full mx-auto max-w-sm mt-4">
+                    <Trash2 className="h-4 w-4" /> Delete & Reset Transcript
+                  </button>
+                </div>
+              ) : null}
             </div>
           )}
 

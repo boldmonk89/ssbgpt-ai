@@ -9,19 +9,50 @@ import PageTransition from '@/components/PageTransition';
 import { useAppStore } from '@/store/appStore';
 import { toast } from 'sonner';
 
+import { useEffect } from 'react';
+import splashImg from '@/assets/splash.jpg';
+
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
-  { to: '/ai-practice', label: 'AI Practice', icon: BrainCircuit },
-  { to: '/gto', label: 'GTO Tasks', icon: Swords },
   { to: '/piq', label: 'PIQ', icon: UserCircle },
   { to: '/tat', label: 'TAT', icon: FileText },
   { to: '/wat', label: 'WAT', icon: MessageSquare },
   { to: '/srt', label: 'SRT', icon: Zap },
   { to: '/sd', label: 'SD', icon: Shield },
+  { to: '/gto', label: 'GTO Tasks', icon: Swords },
   { to: '/interview', label: 'Interview Practice', icon: Users },
-  { to: '/cross-match', label: 'Cross-Match', icon: GitCompare },
+  { to: '/ai-practice', label: 'AI Practice Sandbox', icon: BrainCircuit },
+  { to: '/cross-match', label: 'Cross-Match Analysis', icon: GitCompare },
   { to: '/history', label: 'History', icon: History },
 ];
+
+function SplashScreen() {
+  const [show, setShow] = useState(true);
+  const [fade, setFade] = useState(false);
+
+  useEffect(() => {
+    // Show for 3.5 seconds, then trigger fade out
+    const fadeTimer = setTimeout(() => setFade(true), 3500);
+    // Remove from DOM after transition completes
+    const removeTimer = setTimeout(() => setShow(false), 4500);
+    return () => { clearTimeout(fadeTimer); clearTimeout(removeTimer); };
+  }, []);
+
+  if (!show) return null;
+
+  return (
+    <div className={`fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-background transition-opacity duration-1000 ${fade ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <img src={splashImg} alt="Your Future" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px]" />
+      <div className="relative z-10 flex flex-col items-center text-center animate-in slide-in-from-bottom-5 fade-in duration-1000">
+        <h1 className="text-4xl md:text-6xl font-heading font-black text-white tracking-widest drop-shadow-2xl">THIS IS YOU</h1>
+        <h2 className="text-2xl md:text-4xl font-heading font-bold text-gold tracking-widest drop-shadow-2xl mt-1">IN THE FUTURE</h2>
+        <div className="mt-8 gold-stripe w-32" />
+        <p className="mt-6 text-sm font-body tracking-widest text-muted-foreground/80 uppercase">Work hard. Earn the camouflage.</p>
+      </div>
+    </div>
+  );
+}
 
 function InstallHeaderButton() {
   const { canInstall, isInstalled, isIOS, install } = useInstallPrompt();
@@ -59,6 +90,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col topo-bg">
+      <SplashScreen />
       <OfflineBanner />
       <div className="flex flex-col lg:flex-row flex-1">
       {/* Mobile Header */}
