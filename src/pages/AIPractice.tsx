@@ -636,7 +636,7 @@ export default function AIPracticePage() {
                     </p>
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={() => { setTatResult(null); setTatImage(null); setAnalysisCount(prev => ({...prev, tat: 0})); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                    <button onClick={() => { setTatResult(''); setTatImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                       <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
                     </button>
                   </div>
@@ -679,7 +679,7 @@ export default function AIPracticePage() {
                     </p>
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={() => { setWatResult(null); setWatWord(''); setAnalysisCount(prev => ({...prev, wat: 0})); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                    <button onClick={() => { setWatResult(''); setWatWord(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                       <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
                     </button>
                   </div>
@@ -721,7 +721,7 @@ export default function AIPracticePage() {
                     </p>
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={() => { setSrtResult(null); setSrtSituation(''); setAnalysisCount(prev => ({...prev, srt: 0})); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                    <button onClick={() => { setSrtResult(''); setSrtSituation(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                       <Trash2 className="h-4 w-4" /> Delete & Reset This Prompt
                     </button>
                   </div>
@@ -767,7 +767,7 @@ export default function AIPracticePage() {
               {ppdtResult && !ppdtLoading ? (
                 <div className="glass-card-subtle border-gold/20 text-center py-4 flex flex-col items-center gap-3">
                   <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
-                  <button onClick={() => { setPpdtResult(null); setPpdtImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                  <button onClick={() => { setPpdtResult(''); setPpdtImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                     <Trash2 className="h-4 w-4" /> Delete & Reset PPDT
                   </button>
                 </div>
