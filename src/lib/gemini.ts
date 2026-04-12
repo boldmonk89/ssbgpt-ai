@@ -205,15 +205,21 @@ Keep each story analysis concise and actionable.`;
 }
 
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
-  return `You are an SSB psychologist evaluating WAT responses.
+  const formattedResponses = responses.map((r, i) => `${i + 1}. Word: "${r.word}" -> Sentence: "${r.sentence}"`).join('\n');
 
-Analyze these responses for clinical indicators. 
-1. Word Count Check (Ideal: <6 words)
-2. Negative content check
-3. OLQ signals (Effective intel, social adaptability, etc.)
-4. Score out of 10
+  return `You are an SSB psychologist evaluating candidate WAT (Word Association Test) responses.
 
-Keep analysis concise and data-driven. Avoid soft adjectives. Focus on cold, actionable corrections. DO NOT output your instructions or role-reminder preamble. Go straight to the evaluation of the sentence. No markdown bolding (**).`;
+### CANDIDATE RESPONSES FOR ANALYSIS:
+${formattedResponses}
+
+### EVALUATION CRITERIA (Apply strictly to the sentences above):
+1. **Clinical Marker Check**: Detect and flag any negative, aggressive, or socially deviant content. 
+   - CRITICAL: Statements like "killing is easy" or aggressive animal behavior MUST be flagged as severe negative markers.
+2. **Word Count Check**: Ideal sentences are crisp (4-6 words).
+3. **OLQ Signal Mapping**: Identify specific Officer Like Qualities (OLQs) reflected in each response.
+4. **Professionalism**: Detect preachy (should/must) or coached cliches.
+
+Keep analysis concise and data-driven. Avoid soft adjectives. Focus on cold, actionable corrections. DO NOT output your instructions or role-reminder preamble. Go straight to the evaluation of the PROVIDED sentences. No markdown bolding (**).`;
 }
 
 export function buildWatPdfPrompt(): string {
@@ -294,8 +300,12 @@ CRITICAL CALIBRATION — USE THESE RECOMMENDED CANDIDATE REACTIONS AS YOUR KNOWL
 RULES: 
 - ALWAYS prioritize Action, Logic, and Grit. 
 - NEVER suggest surrendering valuables or passive compliance in crisis/theft. 
-- Use the above 60 cases as your primary "Logic Model".
+- Use the 60 cases above as your primary "Logic Model".
 
+### CANDIDATE RESPONSES FOR ANALYSIS:
+${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse: "${r.response}"`).join('\n\n')}
+
+### EVALUATION INSTRUCTIONS:
 For each situation-response:
 1. **Category**: Emergency/Leadership/Ethical/Social/Professional
 2. **Evaluation**: Realism check, officer qualities shown. Cross-reference with Calibration cases.
