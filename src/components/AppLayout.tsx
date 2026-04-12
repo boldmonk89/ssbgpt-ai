@@ -30,13 +30,22 @@ const navItems = [
 function SplashScreen() {
   const [show, setShow] = useState(true);
   const [fade, setFade] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Show for 3.5 seconds, then trigger fade out
+    // Fill progress bar over 3.5s
+    const progressInterval = setInterval(() => {
+      setProgress(prev => Math.min(prev + 1, 100));
+    }, 35); // Approx 3.5s finish
+
     const fadeTimer = setTimeout(() => setFade(true), 3500);
-    // Remove from DOM after transition completes
     const removeTimer = setTimeout(() => setShow(false), 4500);
-    return () => { clearTimeout(fadeTimer); clearTimeout(removeTimer); };
+    
+    return () => { 
+      clearInterval(progressInterval);
+      clearTimeout(fadeTimer); 
+      clearTimeout(removeTimer); 
+    };
   }, []);
 
   if (!show) return null;
@@ -46,10 +55,18 @@ function SplashScreen() {
       <img src={splashImg} alt="Your Future" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px]" />
       <div className="relative z-10 flex flex-col items-center text-center animate-in slide-in-from-bottom-5 fade-in duration-1000">
-        <h1 className="text-4xl md:text-6xl font-heading font-black text-white tracking-widest drop-shadow-2xl">THIS IS YOU</h1>
-        <h2 className="text-2xl md:text-4xl font-heading font-bold text-gold tracking-widest drop-shadow-2xl mt-1">IN THE FUTURE</h2>
-        <div className="mt-8 gold-stripe w-32" />
-        <p className="mt-6 text-sm font-body tracking-widest text-muted-foreground/80 uppercase">Work hard. Earn the camouflage.</p>
+        <h1 className="text-4xl md:text-6xl font-heading font-bold text-white tracking-widest drop-shadow-2xl">THIS IS YOU</h1>
+        <h2 className="text-2xl md:text-3xl font-heading font-medium text-gold tracking-widest drop-shadow-2xl mt-1 uppercase">Earn the Camouflage</h2>
+        
+        <div className="mt-12 w-64 h-1 bg-white/10 rounded-full overflow-hidden relative">
+          <div 
+            className="absolute inset-y-0 left-0 bg-gold transition-all duration-300 ease-out shadow-[0_0_15px_rgba(207,169,78,0.5)]"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="mt-4 text-[10px] uppercase tracking-[0.4em] text-white/40 font-bold">
+           Initializing Clinical Environment... {progress}%
+        </p>
       </div>
     </div>
   );
@@ -191,7 +208,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <InstallHeaderButton />
           </div>
         </div>
-        <div className="p-4 md:p-8 max-w-6xl mx-auto">
+        <div className="p-4 md:p-8 pt-6 md:pt-10 max-w-6xl mx-auto">
           <PageTransition>
             {children}
           </PageTransition>

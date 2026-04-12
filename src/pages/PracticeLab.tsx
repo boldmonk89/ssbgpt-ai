@@ -145,7 +145,7 @@ function DashboardCard({ title, icon: Icon, desc, onClick, accent = false }: { t
 function RulesOverlay({ title, rules, onStart, onBack }: { title: string, rules: string[], onStart: () => void, onBack: () => void }) {
   return (
     <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-3xl overflow-y-auto">
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 py-20 relative">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 py-32 relative">
         <Button 
           variant="ghost" 
           onClick={onBack}
