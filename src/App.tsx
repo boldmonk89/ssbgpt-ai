@@ -14,6 +14,7 @@ import GTOPage from "./pages/GTO";
 import HistoryPage from "./pages/History";
 import InterviewPage from "./pages/Interview";
 import FullAnalysisPage from "./pages/FullAnalysis";
+import PracticeLabPage from "./pages/PracticeLab";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/interview" element={<InterviewPage />} />
                 <Route path="/full-analysis" element={<FullAnalysisPage />} />
+                <Route path="/practice-lab" element={<PracticeLabPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

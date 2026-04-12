@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, BrainCircuit, Swords, History, Trash2, GitCompare, Users } from 'lucide-react';
+import { Shield, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, BrainCircuit, Swords, History, Trash2, GitCompare, Users, FlaskConical } from 'lucide-react';
 import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
@@ -23,6 +23,7 @@ const navItems = [
   { to: '/interview', label: 'Interview Practice', icon: Users },
   { to: '/ai-practice', label: 'AI Practice Sandbox', icon: BrainCircuit },
   { to: '/full-analysis', label: 'Full Psych Test', icon: Shield },
+  { to: '/practice-lab', label: 'SSB Practice Lab', icon: FlaskConical },
   { to: '/history', label: 'History', icon: History },
 ];
 
