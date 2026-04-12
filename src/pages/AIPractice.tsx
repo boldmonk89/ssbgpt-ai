@@ -487,7 +487,7 @@ export default function AIPracticePage() {
       const result = await callGemini(
         SYSTEM_PROMPT_WAT + `\n\nThe word is: "${trimmed}"\n\nGenerate WAT responses as instructed.`
       );
-      setWatResult(result);
+      setWatResult(result.replace(/\*/g, ''));
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed');
     } finally {
@@ -507,7 +507,7 @@ export default function AIPracticePage() {
       const result = await callGemini(
         SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`
       );
-      setSrtResult(result);
+      setSrtResult(result.replace(/\*/g, ''));
     } catch (err: any) {
       toast.error(err.message || 'Analysis failed');
     } finally {

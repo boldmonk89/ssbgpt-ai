@@ -308,14 +308,14 @@ RULES:
 ${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse: "${r.response}"`).join('\n\n')}
 
 ### EVALUATION INSTRUCTIONS (Concise Review):
-1. **Response Assessment**: Brief realism check vs calibration cases.
-2. **Improved Logic**: Better action if the candidate's response was weak.
-3. **OLQ Signals**: Map demonstrated qualities.
+1. **Assessment**: Brief realism check. NEVER MENTION ITEM NUMBERS FROM THE REFERENCE LIST (e.g., Do NOT say "Similar to 17").
+2. **Improved Logic**: Provide a 5-6 word max action response (e.g., "Alerted police, caught thief, proceeded"). Use phrases, NOT full sentences.
+3. **OLQ Signals**: Map qualities.
 4. **Final Score**: X/10.
 
 CRITICAL:
-- Analyze ONLY the Candidate Data provided above. DO NOT evaluate the reference cases.
-- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. Use hyphens (-) for lists. NO asterisks anywhere in the output.`;
+- Analyze ONLY the Candidate Data provided above. DO NOT evaluate or mention the reference cases.
+- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
 }
 
 export function buildSrtPdfPrompt(): string {

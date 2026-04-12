@@ -168,8 +168,8 @@ function RulesOverlay({ title, rules, onStart, onBack }: { title: string, rules:
   const allChecked = checked.paper && checked.quiet && checked.time;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-3xl overflow-y-auto custom-scrollbar">
-      <div className="min-h-screen flex flex-col items-center justify-start p-6 pt-16 pb-32 relative">
+    <div className="absolute inset-0 z-[200] bg-background backdrop-blur-3xl overflow-y-auto custom-scrollbar">
+      <div className="min-h-full flex flex-col items-center justify-start p-6 pt-12 pb-32 relative">
         <Button 
           variant="ghost" 
           onClick={onBack}

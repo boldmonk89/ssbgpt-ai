@@ -124,7 +124,7 @@ export default function HistoryPage() {
                      {expandedId === item.id && (
                        <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
                           <div className="p-6 bg-white/[0.02] rounded-xl border border-white/5 prose prose-invert prose-sm max-w-none font-body text-[11px] leading-relaxed text-white/70 whitespace-pre-wrap">
-                             {item.result}
+                             {item.result.replace(/\*/g, '')}
                           </div>
                           <p className="mt-4 text-[8px] text-muted-foreground/40 text-center uppercase tracking-[0.3em]">End of Transcript — Strictly Confidential</p>
                        </div>
