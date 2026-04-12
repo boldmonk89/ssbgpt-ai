@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { callGemini, fileToBase64 } from '@/lib/gemini';
-import { Loader2, Upload, ImageIcon, Type, AlertTriangle, Eye, EyeOff, Users, Trash2 } from 'lucide-react';
+import { Loader2, Upload, ImageIcon, Pencil, Zap, Eye, EyeOff, Users, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const SYSTEM_PROMPT_TAT = `You are an expert SSB psychologist and TAT evaluator for Indian defence selection. You know exactly what a RECOMMENDED candidate's story looks like.
@@ -593,10 +593,10 @@ export default function AIPracticePage() {
             <ImageIcon className="h-4 w-4 mr-1.5" /> TAT
           </TabsTrigger>
           <TabsTrigger value="wat" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
-            <Type className="h-4 w-4 mr-1.5" /> WAT
+            <Pencil className="h-4 w-4 mr-1.5" /> WAT
           </TabsTrigger>
           <TabsTrigger value="srt" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
-            <AlertTriangle className="h-4 w-4 mr-1.5" /> SRT
+            <Zap className="h-4 w-4 mr-1.5" /> SRT
           </TabsTrigger>
           <TabsTrigger value="ppdt" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
             <Users className="h-4 w-4 mr-1.5" /> PPDT
