@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
+import signatureImg from '@/assets/signature.png';
+import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 
 interface ExportPdfButtonProps {
   content: string;
@@ -137,7 +139,7 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
 </head>
 <body>
   <div class="header">
-    <img src="/ssbgpt-logo.png" alt="SSBGPT" class="logo" />
+    <img src="${ssbgptLogo}" alt="SSBGPT" class="logo" />
     <h1>SSBGPT</h1>
     <div class="subtitle">SSB Psychological Assessment Report</div>
     <div class="date">Generated: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
@@ -146,6 +148,9 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
   ${convertMarkdownToHtml(content)}
   <div class="footer">
     <div class="signature-area">
+      <div style="height: 60px; margin-bottom: -10px;">
+        <img src="${signatureImg}" style="height: 100%; object-fit: contain;" />
+      </div>
       <div class="signature-line"></div>
       <div class="signature-label">Clinical Examiner Signature</div>
       <div style="font-size: 8px; color: #888; margin-top: 2px;">Psychomotor Synthesis Hub — Verified</div>
