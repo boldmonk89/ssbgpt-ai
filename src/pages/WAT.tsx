@@ -94,7 +94,7 @@ export default function WATPage() {
     setGenCount(prev => prev + 1);
     try {
       const result = await callGemini(buildWatPrompt(filledRows));
-      setWatSummary(result);
+      setWatSummary(result.replace(/\*/g, ''));
       saveToHistory('WAT', { responses: filledRows }, result);
       toast.success('WAT analysis complete');
     } catch (err: any) {

@@ -622,7 +622,7 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq:
       ];
 
       const res = await callGeminiMultiPart(prompt + "\n\nIMPORTANT: Use the provided actual response sheets for analysis. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. DO NOT use markdown bolding (**) in your response. Output plain text report.", files);
-      setAnalysisResult(res.replace(/\*\*/g, '').replace(/\*/g, ''));
+      setAnalysisResult(res.replace(/\*/g, ''));
     } catch (e: any) {
       toast.error("Deep Matrix synthesis failed or Timeout");
       console.error(e);

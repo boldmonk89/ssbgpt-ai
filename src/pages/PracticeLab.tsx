@@ -168,8 +168,8 @@ function RulesOverlay({ title, rules, onStart, onBack }: { title: string, rules:
   const allChecked = checked.paper && checked.quiet && checked.time;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-3xl overflow-y-auto">
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 py-32 relative">
+    <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-3xl overflow-y-auto custom-scrollbar">
+      <div className="min-h-screen flex flex-col items-center justify-start p-6 pt-16 pb-32 relative">
         <Button 
           variant="ghost" 
           onClick={onBack}
@@ -587,8 +587,8 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
         `User attempted ${stats.srtAttempted} SRT items.`,
         `SD completed across ${stats.sdAttempted} dimensions.`
       );
-      const res = await callGemini(prompt + "\n\nAnalyze the attempted counts and provide a strictly clinical and professional assessment. DO NOT use markdown bolding (**) in your response.");
-      setAnalysisResult(res.replace(/\*\*/g, ''));
+      const res = await callGemini(prompt + "\n\nAnalyze the attempted counts and provide a strictly clinical and professional assessment. DO NOT use markdown bolding (**) or italics (*) in your response. No asterisks should be used.");
+      setAnalysisResult(res.replace(/\*/g, ''));
     } catch (e: any) {
       toast.error("Analysis generation failed");
     } finally {

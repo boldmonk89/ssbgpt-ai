@@ -95,7 +95,7 @@ export default function SRTPage() {
     setGenCount(prev => prev + 1);
     try {
       const result = await callGemini(buildSrtPrompt(filledRows));
-      setSrtSummary(result);
+      setSrtSummary(result.replace(/\*/g, ''));
       saveToHistory('SRT', { responses: filledRows }, result);
       toast.success('SRT analysis complete');
     } catch (err: any) {

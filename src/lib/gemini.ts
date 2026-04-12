@@ -183,7 +183,7 @@ If valid, provide a structured analysis:
 
 Always respond in a strictly professional, clinical tone. Avoid any generic praise like "Good start" or "Excellent story". Focus on cold, evidence-based psychological patterns. Be brutally honest about weaknesses. 
 
-CRITICAL FORMATTING: DO NOT use markdown bolding (**) or italics (*) in any part of your response. Use plain text or simple list markers (-). Output MUST be clean text suitable for a clinical report.`;
+CRITICAL FORMATTING: DO NOT use markdown bolding (**) or italics (*) in any part of your response. Use plain text or simple list markers (-). NO asterisks anywhere in the output. Output MUST be clean text suitable for a clinical report.`;
 }
 
 export function buildTatPdfPrompt(): string {
@@ -207,19 +207,21 @@ Keep each story analysis concise and actionable.`;
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
   const formattedResponses = responses.map((r, i) => `${i + 1}. Word: "${r.word}" -> Sentence: "${r.sentence}"`).join('\n');
 
-  return `You are an SSB psychologist evaluating candidate WAT (Word Association Test) responses.
+  return `You are an SSB psychologist performing a concise WAT (Word Association Test) review.
 
-### CANDIDATE RESPONSES FOR ANALYSIS:
+### CANDIDATE DATA FOR ANALYSIS:
 ${formattedResponses}
 
-### EVALUATION CRITERIA (Apply strictly to the sentences above):
-1. **Clinical Marker Check**: Detect and flag any negative, aggressive, or socially deviant content. 
-   - CRITICAL: Statements like "killing is easy" or aggressive animal behavior MUST be flagged as severe negative markers.
-2. **Word Count Check**: Ideal sentences are crisp (4-6 words).
-3. **OLQ Signal Mapping**: Identify specific Officer Like Qualities (OLQs) reflected in each response.
-4. **Professionalism**: Detect preachy (should/must) or coached cliches.
+### EVALUATION INSTRUCTIONS:
+1. **Clinical Markers**: Flag any aggression, deviant behavior, or coached cliches. 
+2. **Improved Model Sentences**: Rapid-fire better versions (8-10 words max each).
+3. **OLQ Rating**: Map shown qualities.
+4. **Final Score**: X/10.
 
-Keep analysis concise and data-driven. Avoid soft adjectives. Focus on cold, actionable corrections. DO NOT output your instructions or role-reminder preamble. Go straight to the evaluation of the PROVIDED sentences. No markdown bolding (**).`;
+CRITICAL: 
+- Analyze ONLY the candidate data provided above. 
+- The AI must be concise — similar to a clinical note. 
+- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
 }
 
 export function buildWatPdfPrompt(): string {
@@ -300,23 +302,20 @@ CRITICAL CALIBRATION — USE THESE RECOMMENDED CANDIDATE REACTIONS AS YOUR KNOWL
 RULES: 
 - ALWAYS prioritize Action, Logic, and Grit. 
 - NEVER suggest surrendering valuables or passive compliance in crisis/theft. 
-- Use the 60 cases above as your primary "Logic Model".
+- Use the 60 cases above as your REFERENCE KNOWLEDGE ONLY.
 
-### CANDIDATE RESPONSES FOR ANALYSIS:
+### CANDIDATE DATA FOR ANALYSIS:
 ${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse: "${r.response}"`).join('\n\n')}
 
-### EVALUATION INSTRUCTIONS:
-For each situation-response:
-1. **Category**: Emergency/Leadership/Ethical/Social/Professional
-2. **Evaluation**: Realism check, officer qualities shown. Cross-reference with Calibration cases.
-3. **OLQ Signals**: Which of the 15 OLQs demonstrated.
-4. **Improvement**: Better response if needed.
-5. **Score**: Out of 10.
+### EVALUATION INSTRUCTIONS (Concise Review):
+1. **Response Assessment**: Brief realism check vs calibration cases.
+2. **Improved Logic**: Better action if the candidate's response was weak.
+3. **OLQ Signals**: Map demonstrated qualities.
+4. **Final Score**: X/10.
 
-Then **Synthesis Summary**:
-- OLQ patterns, weaknesses, top improvements, overall evaluation.
-- DO NOT USE GENERIC ADJECTIVES (e.g., "Good", "Fine"). Use clinical descriptors.
-- No markdown tables. No markdown bolding (**). Keep concise and actionable. No repetitive preamble.`;
+CRITICAL:
+- Analyze ONLY the Candidate Data provided above. DO NOT evaluate the reference cases.
+- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. Use hyphens (-) for lists. NO asterisks anywhere in the output.`;
 }
 
 export function buildSrtPdfPrompt(): string {
@@ -427,7 +426,7 @@ Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For
 ## 8. 30-Day Action Plan
 Ranked list of 5 specific things to do to close the gap between claims and actual personality.
 
-Be brutally honest, clinical, and data-driven. The candidate needs the COLD TRUTH, not comfort or generic encouragement. Avoid all soft adjectives. DO NOT use markdown bolding (**) in any part of this massive report. Use plain text headings (e.g., ## SECTION NAME).`;
+Be brutally honest, clinical, and data-driven. The candidate needs the COLD TRUTH, not comfort or generic encouragement. Avoid all soft adjectives. DO NOT use markdown bolding (**) or italics (*) in any part of this massive report. Use plain text headings (e.g., SECTION NAME). NO asterisks anywhere in the output.`;
 }
 
 export function buildFullPdfAnalysisPrompt(): string {

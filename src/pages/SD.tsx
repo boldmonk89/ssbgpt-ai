@@ -37,7 +37,7 @@ export default function SDPage() {
     setLoading(true);
     try {
       const result = await callGemini(buildSdPrompt(para.type, para.content));
-      updateSdParagraph(activeTab, { analysis: result });
+      updateSdParagraph(activeTab, { analysis: result.replace(/\*/g, '') });
       saveToHistory('SD', { type: para.type, content: para.content }, result);
       toast.success('SD paragraph analyzed');
     } catch (err: any) {

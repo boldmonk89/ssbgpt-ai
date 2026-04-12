@@ -70,7 +70,7 @@ export default function TATPage() {
       } else {
         result = await callGemini(prompt);
       }
-      updateTatStory(0, { analysis: result });
+      updateTatStory(0, { analysis: result.replace(/\*/g, '') });
       saveToHistory('TAT', { storyNumber: story.storyNumber, story: story.story }, result);
       toast.success('Story analyzed');
     } catch (err: any) {
