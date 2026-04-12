@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { 
-  Timer, FileText, Share2, Shield, Upload, Clock, 
+  Timer, FileText, MessageSquare, Share2, Shield, Upload, Clock, 
   AlertTriangle, CheckCircle, Zap, UserCircle, 
   FlaskConical, Play, Pause, ChevronLeft, ChevronRight,
   SkipForward, Lightbulb, Save, Layout
