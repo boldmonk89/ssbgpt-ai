@@ -16,14 +16,20 @@ import InterviewPage from "./pages/Interview";
 import FullAnalysisPage from "./pages/FullAnalysis";
 import PracticeLabPage from "./pages/PracticeLab";
 import NotFound from "./pages/NotFound";
+import LoginModal from "./components/LoginModal";
+import { useAppStore } from "@/store/appStore";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Sonner />
-      <BrowserRouter>
+const App = () => {
+  const { isAuthenticated } = useAppStore();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Sonner />
+        {!isAuthenticated && <LoginModal />}
+        <BrowserRouter>
         <Routes>
           <Route path="*" element={
             <AppLayout>

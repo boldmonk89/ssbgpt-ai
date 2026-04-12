@@ -159,7 +159,8 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
 }
 
 function convertMarkdownToHtml(text: string): string {
-  return text
+  const cleanText = text.replace(/\*\*/g, ''); // Stop using markdown bolding markers
+  return cleanText
     .replace(/\*\*\*/g, '') // Remove all *** 
     .split('\n')
     .map((line) => {

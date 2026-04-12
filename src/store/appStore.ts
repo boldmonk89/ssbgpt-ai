@@ -70,7 +70,22 @@ export interface SdParagraph {
   analysis?: string;
 }
 
+export interface ExamStats {
+  tatAttempted: number;
+  watAttempted: number;
+  srtAttempted: number;
+  sdAttempted: number;
+}
+
 interface AppState {
+  isAuthenticated: boolean;
+  setAuthenticated: (val: boolean) => void;
+  userPhone: string;
+  setUserPhone: (val: string) => void;
+
+  examStats: ExamStats;
+  setExamStats: (stats: Partial<ExamStats>) => void;
+
   piqContext: any | null;
   setPiqContext: (ctx: any) => void;
   piqImageUrl: string | null;
@@ -113,6 +128,14 @@ const SD_TYPES = [
 ];
 
 const initialState = {
+  isAuthenticated: false,
+  userPhone: '',
+  examStats: {
+    tatAttempted: 0,
+    watAttempted: 0,
+    srtAttempted: 0,
+    sdAttempted: 0
+  },
   piqContext: null,
   piqImageUrl: null,
   tatStories: [{ storyNumber: 1, story: '' }] as TatStory[],
@@ -130,6 +153,9 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       ...initialState,
+      setAuthenticated: (val) => set({ isAuthenticated: val }),
+      setUserPhone: (val) => set({ userPhone: val }),
+      setExamStats: (stats) => set((s) => ({ examStats: { ...s.examStats, ...stats } })),
       setPiqContext: (ctx) => set({ piqContext: ctx }),
       setPiqImageUrl: (url) => set({ piqImageUrl: url }),
       setTatStories: (stories) => set({ tatStories: stories }),

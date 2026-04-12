@@ -13,7 +13,7 @@ import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
 import { ExportPdfButton } from '@/components/ExportPdfButton';
-import { callGemini, buildFullReportPrompt } from '@/lib/gemini';
+import { buildFullReportPrompt, callGemini } from '@/lib/gemini';
 
 // Shuffling utility
 const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
@@ -28,6 +28,7 @@ const speak = (text: string) => {
 };
 
 export default function PracticeLabPage() {
+  const { examStats, setExamStats } = useAppStore();
   const [mode, setMode] = useState<LabMode>('DASHBOARD');
   const [isPaused, setIsPaused] = useState(false);
   
@@ -36,15 +37,6 @@ export default function PracticeLabPage() {
   const [watPool, setWatPool] = useState<any[]>([]);
   const [srtPool, setSrtPool] = useState<any[]>([]);
 
-  // Statistics for Final Analysis
-  const [stats, setStats] = useState({
-    tatAttempted: 0,
-    watAttempted: 0,
-    srtAttempted: 0,
-    sdAttempted: 0,
-    totalTime: 0
-  });
-
   useEffect(() => {
     const tatImages = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.png`);
     setTatPool(shuffle(tatImages).slice(0, 11)); // 11 + 1 blank
@@ -52,8 +44,8 @@ export default function PracticeLabPage() {
     setSrtPool(shuffle(SRT_SITUATIONS).slice(0, 60));
   }, []);
 
-  const updateStats = (key: keyof typeof stats, value: number) => {
-    setStats(prev => ({ ...prev, [key]: value }));
+  const updateStats = (key: string, value: number) => {
+    setExamStats({ [key]: value });
   };
 
   return (
@@ -106,7 +98,7 @@ export default function PracticeLabPage() {
         {mode === 'WAT' && <WatLabStep onComplete={() => setMode('DASHBOARD')} watPool={watPool} onUpdateAttempted={(n) => updateStats('watAttempted', n)} isPaused={isPaused} />}
         {mode === 'SRT' && <SrtLabStep onComplete={() => setMode('DASHBOARD')} srtPool={srtPool} onUpdateAttempted={(n) => updateStats('srtAttempted', n)} isPaused={isPaused} />}
         {mode === 'SD' && <SdLabStep onComplete={() => setMode('DASHBOARD')} onUpdateAttempted={(n) => updateStats('sdAttempted', n)} isPaused={isPaused} />}
-        {mode === 'ANALYSIS' && <FinalAnalysisStep stats={stats} onBack={() => setMode('DASHBOARD')} />}
+        {mode === 'ANALYSIS' && <FinalAnalysisStep stats={examStats} onBack={() => setMode('DASHBOARD')} />}
       </div>
 
       {mode !== 'DASHBOARD' && mode !== 'ANALYSIS' && (
@@ -127,13 +119,13 @@ function DashboardCard({ title, icon: Icon, desc, onClick, accent = false }: { t
   return (
     <div 
       onClick={onClick}
-      className={`glass-card p-8 cursor-pointer transition-all border-white/5 active:scale-95 flex flex-col items-center text-center space-y-4 ${accent ? 'bg-gold/5 border-gold/20' : 'hover:bg-white/5'}`}
+      className={`glass-card p-4 cursor-pointer transition-all border-white/5 active:scale-95 flex flex-col items-center text-center space-y-2 ${accent ? 'bg-gold/5 border-gold/20' : 'hover:bg-white/5'}`}
     >
-      <div className={`p-4 rounded-2xl ${accent ? 'bg-gold/10 text-gold' : 'bg-white/5 text-white/40'}`}>
-        <Icon className="h-10 w-10" />
+      <div className={`p-2 rounded-xl ${accent ? 'bg-gold/10 text-gold' : 'bg-white/5 text-white/40'}`}>
+        <Icon className="h-6 w-6" />
       </div>
-      <h3 className={`text-2xl font-black italic uppercase ${accent ? 'text-gold' : 'text-white'}`}>{title}</h3>
-      <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+      <h3 className={`text-lg font-black italic uppercase ${accent ? 'text-gold' : 'text-white'}`}>{title}</h3>
+      <p className="text-[10px] text-muted-foreground leading-tight">{desc}</p>
     </div>
   );
 }
@@ -374,6 +366,10 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
   const [analysisResult, setAnalysisResult] = useState('');
 
   const handleGenerate = async () => {
+    if (stats.tatAttempted + stats.watAttempted + stats.srtAttempted + stats.sdAttempted === 0) {
+      setAnalysisResult("⚠️ You haven't attempted any tests yet. Please complete some sessions before generating a matrix report.");
+      return;
+    }
     setLoading(true);
     try {
       const prompt = buildFullReportPrompt(
@@ -383,8 +379,8 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
         `User attempted ${stats.srtAttempted} SRT items.`,
         `SD completed across ${stats.sdAttempted} dimensions.`
       );
-      const res = await callGemini(prompt + "\n\nAnalyze the attempted counts and provide a strictly clinical and professional assessment.");
-      setAnalysisResult(res);
+      const res = await callGemini(prompt + "\n\nAnalyze the attempted counts and provide a strictly clinical and professional assessment. DO NOT use markdown bolding (**) in your response.");
+      setAnalysisResult(res.replace(/\*\*/g, ''));
     } catch (e: any) {
       toast.error("Analysis generation failed");
     } finally {
@@ -411,15 +407,15 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
   );
 
   return (
-    <div className="glass-card p-16 text-center space-y-12 bg-black/40">
-      <CheckCircle className="h-16 w-16 text-gold mx-auto" />
-      <h2 className="text-6xl font-black tracking-tighter text-white uppercase italic">EXAMINATION VERIFIED</h2>
-      <div className="max-w-4xl mx-auto prose prose-invert text-left bg-white/5 p-12 rounded-3xl border-l-4 border-gold">
+    <div className="glass-card p-10 text-center space-y-8 bg-black/40">
+      <CheckCircle className="h-12 w-12 text-gold mx-auto" />
+      <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic font-serif">EXAMINATION VERIFIED</h2>
+      <div className="max-w-4xl mx-auto prose prose-invert text-left bg-white/5 p-8 rounded-2xl border-l-4 border-gold shadow-2xl">
          <div className="text-white/80 font-body whitespace-pre-wrap leading-relaxed text-sm">
             {analysisResult}
          </div>
       </div>
-      <div className="flex gap-6 max-w-xl mx-auto pt-6">
+      <div className="flex gap-4 max-w-lg mx-auto pt-4">
         <ExportPdfButton content={analysisResult} className="flex-1 h-16 bg-gold text-black rounded-2xl uppercase" />
         <Button size="xl" variant="outline" onClick={onBack} className="flex-1 h-16 uppercase rounded-2xl">BACK TO LAB</Button>
       </div>

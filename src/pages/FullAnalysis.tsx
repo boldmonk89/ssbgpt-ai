@@ -7,11 +7,17 @@ import { Timer, FileText, Share2, Shield, Upload, Clock, AlertTriangle, CheckCir
 import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
+import { buildFullReportPrompt, callGemini } from '@/lib/gemini';
 
 // We'll shuffle these pools to pick the test sets
 const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
 
 type TestStep = 'INSTRUCTIONS' | 'PIQ' | 'TAT' | 'WAT' | 'SRT' | 'SD' | 'FEEDBACK' | 'ANALYSIS';
+
+function convertMarkdownToHtml(text: string): string {
+  const cleanText = text.replace(/\*\*/g, ''); 
+  return cleanText.replace(/\*\*\*/g, '');
+}
 
 const speak = (text: string) => {
   const utterance = new SpeechSynthesisUtterance(text);
@@ -21,8 +27,10 @@ const speak = (text: string) => {
 };
 
 export default function FullAnalysisPage() {
+  const { examStats, setExamStats } = useAppStore();
   const [step, setStep] = useState<TestStep>('INSTRUCTIONS');
   const [progress, setProgress] = useState(0);
+  const [piqFile, setPiqFile] = useState<File | null>(null);
 
   // States for shuffling
   const [tatPool, setTatPool] = useState<any[]>([]);
@@ -33,7 +41,6 @@ export default function FullAnalysisPage() {
     // Shuffling on mount for this session
     setWatPool(shuffle(WAT_WORDS).slice(0, 60));
     setSrtPool(shuffle(SRT_SITUATIONS).slice(0, 60));
-    // TAT images will be added here
   }, []);
 
   const nextStep = () => {
@@ -46,7 +53,7 @@ export default function FullAnalysisPage() {
   };
 
   return (
-    <div className="space-y-6 scroll-reveal pb-20">
+    <div className="space-y-6 scroll-reveal pb-20 font-serif">
       <div className="gold-border-left">
         <h1 className="text-3xl font-heading font-black tracking-tight">SSB Psychological Examination</h1>
         <p className="text-muted-foreground font-body text-sm mt-1">Real SSB Pattern — Strict Timers — Mansa-Vacha-Karma Verification</p>
@@ -66,7 +73,7 @@ export default function FullAnalysisPage() {
       {step === 'WAT' && <WatStep onComplete={nextStep} />}
       {step === 'SRT' && <SrtStep onComplete={nextStep} />}
       {step === 'SD' && <SdStep onComplete={nextStep} />}
-      {step === 'ANALYSIS' && <FinalAnalysisStep />}
+      {step === 'ANALYSIS' && <FinalAnalysisStep stats={examStats} />}
     </div>
   );
 }
@@ -108,7 +115,7 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
             <p className="text-[11px] text-destructive leading-relaxed">
-              <strong>WARNING:</strong> This is a continuous examination. Ensure you have 2+ hours and a pen/paper ready. You must upload your PDFs at each milestone to receive the final Clinical Report.
+              WARNING: This is a continuous examination. Ensure you have 2+ hours and a pen/paper ready. You must upload your PDFs at each milestone to receive the final Clinical Report.
             </p>
           </div>
         </div>
@@ -187,12 +194,10 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
   const [timeLeft, setTimeLeft] = useState(30);
   const [isFinished, setIsFinished] = useState(false);
 
-  // Real TAT Image pool: tat1.png to tat20.png (User to place in public/tat/)
   const tatImagePaths = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.png`);
   const [activeTatSet, setActiveTatSet] = useState<string[]>([]);
 
   useEffect(() => {
-    // Pick 11 random images + 1 blank slide
     const shuffled = shuffle(tatImagePaths).slice(0, 11);
     setActiveTatSet(shuffled);
   }, []);
@@ -207,13 +212,13 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
           if (prev <= 1) {
             if (isViewing) {
               setIsViewing(false);
-              speak("Begin writing."); // Updated voice cue
-              return 240; // 4 minutes for writing
+              speak("Begin writing."); 
+              return 240; 
             } else {
               if (index < totalSlides - 1) {
                 setIndex(index + 1);
                 setIsViewing(true);
-                speak("Stop writing."); // Updated voice cue
+                speak("Stop writing."); 
                 return 30;
               } else {
                 speak("Stop writing.");
@@ -271,13 +276,12 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
               alt={`TAT Scene ${index + 1}`}
               className="w-full h-full object-contain"
               onError={(e) => {
-                // Fallback if user hasn't uploaded yet
                 e.currentTarget.style.display = 'none';
                 e.currentTarget.parentElement?.querySelector('.fallback')?.classList.remove('hidden');
               }}
             />
           ) : (
-            <div className="absolute inset-0 bg-white" /> // Blank Slide
+            <div className="absolute inset-0 bg-white" /> 
           )
         ) : (
           <div className="flex flex-col items-center gap-4 p-8 text-center">
@@ -304,7 +308,7 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
 function WatStep({ onComplete }: { onComplete: () => void }) {
   const [index, setIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
-  const [showWord, setShowWord] = useState(true); // false for "Turn Page"
+  const [showWord, setShowWord] = useState(true); 
   const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
@@ -316,13 +320,11 @@ function WatStep({ onComplete }: { onComplete: () => void }) {
             if (showWord && (index + 1) % 15 === 0 && index < 59) {
               setShowWord(false);
               speak("Turn page. You have 15 seconds to prepare for the next set.");
-              return 15; // Turn page break
+              return 15; 
             } else {
               if (index < 59) {
-                if (!showWord) setShowWord(true); // back to words after break
+                if (!showWord) setShowWord(true); 
                 setIndex((i) => i + 1);
-                // Note: Don't speak every word as it might be too fast/annoying
-                // but speak at the start of a block
                 if (index % 15 === 14) speak("Begin next 15 words."); 
                 return 15;
               } else {
@@ -397,7 +399,7 @@ function WatStep({ onComplete }: { onComplete: () => void }) {
 }
 
 function SrtStep({ onComplete }: { onComplete: () => void }) {
-  const [timeLeft, setTimeLeft] = useState(2700); // 45 minutes
+  const [timeLeft, setTimeLeft] = useState(2700); 
   const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
@@ -464,7 +466,7 @@ function SrtStep({ onComplete }: { onComplete: () => void }) {
 }
 
 function SdStep({ onComplete }: { onComplete: () => void }) {
-  const [timeLeft, setTimeLeft] = useState(900); // 15 minutes
+  const [timeLeft, setTimeLeft] = useState(900); 
   const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
@@ -555,15 +557,47 @@ const mockOlqData = [
   { subject: 'Stamina', A: 70, fullMark: 100 },
 ];
 
-function FinalAnalysisStep() {
-  const [loading, setLoading] = useState(true);
-  const [selectedOlq, setSelectedOlq] = useState<any>(null);
+function FinalAnalysisStep({ stats }: { stats: any }) {
+  const [loading, setLoading] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState('');
 
-  useEffect(() => {
-    // Simulate deep synthesis
-    const timer = setTimeout(() => setLoading(false), 3500);
-    return () => clearTimeout(timer);
-  }, []);
+  const handleGenerate = async () => {
+    if (stats.tatAttempted + stats.watAttempted + stats.srtAttempted + stats.sdAttempted === 0) {
+      setAnalysisResult("⚠️ You haven't attempted any tests yet. Please complete some sessions before generating a matrix report.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const prompt = buildFullReportPrompt(
+        { mode: "Full Psych Exam (Strict Calibration)" },
+        "Strict 12 TAT Set completed under proctored timer.",
+        "60 WAT words processed in sequential 15s flash mode.",
+        "45 Minute SRT block synthesized into 15-per-page responses.",
+        "SD composite evaluated against standard SSB descriptors."
+      );
+      const res = await callGemini(prompt + "\n\nIMPORTANT: This is the FULL PSYCH REPORT. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. DO NOT use markdown bolding (**) in your response.");
+      setAnalysisResult(res.replace(/\*\*/g, ''));
+    } catch (e: any) {
+      toast.error("Deep Matrix synthesis failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!analysisResult && !loading) return (
+     <div className="max-w-3xl mx-auto py-10 text-center">
+        <div className="glass-card p-12 bg-black/40 border-gold/40 border-t-8 shadow-2xl space-y-6">
+           <BrainCircuit className="h-16 w-16 text-gold mx-auto animate-pulse" />
+           <div className="space-y-2">
+              <h2 className="text-3xl font-heading font-black text-white italic tracking-tighter uppercase font-serif">Execute Matrix Analysis</h2>
+              <p className="text-muted-foreground uppercase tracking-[0.4em] text-[10px] font-black">Connecting with Psychomotor Engine...</p>
+           </div>
+           <Button onClick={handleGenerate} size="xl" className="w-full h-16 text-xl font-black tracking-widest bg-gold text-black shadow-2xl uppercase">
+              GENERATE PSYCH CLINICAL REPORT
+           </Button>
+        </div>
+     </div>
+  );
 
   if (loading) return (
     <div className="space-y-6">
