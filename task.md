@@ -1,0 +1,18 @@
+- [/] Phase 1: Global Aesthetic & UI Overhaul
+    - [ ] Update `index.css` with Deep HD Dark palette
+    - [ ] Sanitize interactive animations (less "pop-up")
+- [/] Phase 2: Practice Lab Logic & Flow
+    - [ ] Refactor `PracticeLab.tsx` state and layout
+    - [ ] Implement Mandatory PIQ Upload
+    - [ ] Create Milestone PDF Upload component
+- [/] Phase 3: Lab Modules (TAT/WAT/SRT/SD)
+    - [ ] TAT: Fullscreen View-Only slideshow
+    - [ ] WAT: Fullscreen Paged Calligraphy View-Only
+    - [ ] SRT: Paged View (15/pg), Numbering, Fullscreen
+    - [ ] SD: Instruction + Timer phase
+- [/] Phase 4: Analysis & Reporting
+    - [ ] Implement "Cross-Match" Analysis in `gemini.ts`
+    - [ ] Fix Rating Bias & Download Report
+- [ ] Phase 5: Verification & Deployment
+    - [ ] Local build check
+    - [ ] Push to GitHub

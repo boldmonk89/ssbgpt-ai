@@ -205,28 +205,14 @@ export function buildWatPrompt(responses: { word: string; sentence: string }[]):
   return `You are an SSB psychologist evaluating WAT responses.
 
 CRITICAL — GIBBERISH & IRRELEVANT INPUT DETECTION:
-Before analyzing, check if any sentences are random keyboard mashing, gibberish, completely irrelevant, or trolling. If the majority of responses are gibberish/irrelevant, DO NOT analyze — respond with a witty sarcastic 3-4 line message about what the SSB psychologist would think, and ask for real responses. If only a few are gibberish, flag those specifically with sarcasm and analyze the rest.
-
-WAT Responses: ${JSON.stringify(responses)}
-
-For each response, check:
-1. Word count (max 6 words)
-2. Third-person/observational quality (no personal pronouns)
-3. Positivity (negative words must be reframed positively)
-4. OLQ signal
-
-Then provide a **Summary List** (DO NOT output markdown tables). Ensure everything is in clean plain text with bolded headers:
-**Word:** [word]
-**Original Response:** [sentence]
-**Pass/Fail:** [pass/fail]
-**Issues:** [issues found]
-**Corrected Sentence:** [re-written sentence]
-**OLQs Signaled:** [list OLQs]
-
-Followed by **Batch Summary**:
-- OLQ Coverage: which OLQs are well-covered, which are missing
-- Top 5 improvements needed
-- Overall WAT Rating (Excellent/Good/Average/Below Average)
+Check if the user has typed random characters, "dfghjk", or completely nonsensical single words.
+If detected: Output ONLY "⚠️ GIBBERISH DETECTED. Real officer-like responses required for analysis."
+Otherwise, perform analysis:
+...
+**Analysis Mode**: Clinical
+**Report Quality**: High Definition
+...
+Overall WAT Rating (Realistic Rating: DO NOT defaults to Excellent. Rate strictly).
 
 Keep analysis concise. Focus on actionable corrections.`;
 }
@@ -402,24 +388,25 @@ Generate a DEEP clinical report:
 ## 1. Executive Summary & Identity Match Score
 Overall psychological profile in 5-6 lines. Give an overall alignment percentage (0-100%) between PIQ claims and test evidence.
 
-## 2. Mansa-Vacha-Karma (Cross-Match)
-Compare personality across all tests. Highlight:
-- **Consistency Zones (Green Flags)**: Where PIQ and tests perfectly align — these are the candidate's GENUINE strengths.
-- **Contradiction Zones (Red Flags)**: Where PIQ claims directly contradict test evidence. Specific examples with quotes.
-- **Overclaimed Qualities**: Qualities emphasized in PIQ but NOT evidenced in tests.
+## 2. Mansa-Vacha-Karma (Cross-Match Matrix)
+Analyze consistency between:
+- TAT (Mansa/Mind)
+- WAT (Vacha/Speech)
+- SRT/SD (Karma/Action)
+- PIQ (Context)
+
+Detect discrepancies: e.g., Brave in TAT but hesitant/passive in SRT.
 
 ## 4. Stress Index & Emotional Markers
-- **Anxiety/Pressure Detection**: Detect signs of forced positive thinking or over-preparation.
-- **Stress-Reaction Patterns**: How the candidate handles time-sensitive transitions.
+- Detect signs of "Coached" responses or forcing "Officer-like" adjectives instead of actions.
+- Flag repetitive themes or excessive "Bravery" cliches.
 
-## 5. 15 OLQ Assessment Matrix (with Drill-Down Evidence)
-For EACH of the 15 OLQs, rate 1-10 based on COMBINED evidence. 
-- **Evidence Snippets**: Provide direct quotes or specific story themes that triggered this rating.
+## 5. 15 OLQ Assessment Matrix
+Provide a 1-10 score for each. BE STRICT. Most candidates are NOT "Excellent". 4-6 is average. 7-8 is Recommended. 9-10 is exceptional.
 
-## 6. SSB Readiness & Potential
-- **Readiness Level**: RECOMMENDED MATERIAL / NEEDS FOCUSED WORK / SIGNIFICANT GAPS
-- **Strongest Asset**: The ONE quality that will carry the candidate
-- **Biggest Risk**: The ONE thing that could sink them
+## 6. SSB Readiness
+Output ONE of: RECOMMENDED / BORDERLINE / NOT RECOMMENDED.
+...
 
 ## 7. Interviewing Officer (IO) Risk Areas
 Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For each:

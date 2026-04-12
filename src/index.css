@@ -4,51 +4,51 @@
 
 @layer base {
   :root {
-    /* SSB Military Dark — Glassy HD Theme */
-    --background: 220 65% 3%;
-    --foreground: 220 20% 93%;
+    /* SSB Military HD Dark Theme — Deep Charcoal & Matte Gold */
+    --background: 240 10% 2%;
+    --foreground: 0 0% 98%;
 
-    --card: 220 50% 8%;
-    --card-foreground: 220 20% 93%;
+    --card: 240 10% 4%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 45% 12%;
-    --popover-foreground: 220 20% 93%;
+    --popover: 240 10% 5%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 215 55% 22%;
-    --primary-foreground: 220 20% 93%;
+    --primary: 43 55% 58%;
+    --primary-foreground: 240 10% 2%;
 
-    --secondary: 215 60% 30%;
-    --secondary-foreground: 220 20% 93%;
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 40% 12%;
-    --muted-foreground: 220 18% 55%;
+    --muted: 240 5% 8%;
+    --muted-foreground: 240 5% 60%;
 
-    --accent: 215 65% 45%;
-    --accent-foreground: 220 20% 93%;
+    --accent: 43 50% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 220 20% 93%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --success: 155 65% 32%;
-    --success-foreground: 220 20% 93%;
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 98%;
 
     --gold: 43 55% 58%;
-    --gold-foreground: 220 65% 3%;
+    --gold-foreground: 240 10% 2%;
 
-    --border: 215 40% 16%;
-    --input: 215 40% 16%;
-    --ring: 215 65% 45%;
+    --border: 240 5% 12%;
+    --input: 240 5% 12%;
+    --ring: 43 55% 58%;
 
-    --radius: 0.875rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 220 55% 5%;
-    --sidebar-foreground: 220 20% 93%;
+    --sidebar-background: 240 10% 3%;
+    --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 43 55% 58%;
-    --sidebar-primary-foreground: 220 65% 3%;
-    --sidebar-accent: 220 40% 12%;
-    --sidebar-accent-foreground: 220 20% 93%;
-    --sidebar-border: 215 40% 14%;
-    --sidebar-ring: 215 65% 45%;
+    --sidebar-primary-foreground: 240 10% 2%;
+    --sidebar-accent: 240 10% 10%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 8%;
+    --sidebar-ring: 43 55% 58%;
   }
 }
 
@@ -121,12 +121,9 @@
   }
 
   .glass-card:hover {
-    transform: translateY(-8px) scale(1.025);
-    border-color: hsl(var(--gold) / 0.4);
-    box-shadow:
-      0 40px 80px -12px hsl(var(--background) / 0.9),
-      0 0 20px hsl(var(--gold) / 0.05),
-      0 1px 0 hsl(var(--foreground) / 0.1) inset;
+    transform: translateY(-2px);
+    border-color: hsl(var(--gold) / 0.3);
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.7);
   }
 
   /* Top edge highlight */
@@ -160,19 +157,12 @@
       hsl(var(--card) / 0.3) 100%
     );
     border: 1px solid hsl(var(--border) / 0.4);
-    backdrop-filter: blur(20px) saturate(1.6);
-    box-shadow:
-      0 4px 20px hsl(var(--background) / 0.5),
-      0 1px 0 hsl(var(--foreground) / 0.03) inset;
-    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    backdrop-filter: blur(20px);
+    transition: all 0.4s ease;
   }
 
   .glass-card-subtle:hover {
-    transform: translateY(-4px) scale(1.02);
-    border-color: hsl(var(--gold) / 0.3);
-    box-shadow:
-      0 24px 48px -8px hsl(var(--background) / 0.7),
-      0 1px 0 hsl(var(--foreground) / 0.1) inset;
+    border-color: hsl(var(--gold) / 0.2);
   }
 
   .glass-card-subtle::before {
@@ -241,22 +231,8 @@
   }
 
   .glass-button:hover {
-    transform: translateY(-3px) scale(1.04);
-    border-color: hsl(var(--foreground) / 0.25);
-    box-shadow:
-      0 16px 40px -4px hsl(var(--background) / 1),
-      0 0 15px hsl(var(--foreground) / 0.05),
-      0 1px 0 hsl(var(--foreground) / 0.2) inset;
-  }
-
-  .glass-button:hover::after {
-    background-position: 200% 0;
-  }
-
-  .glass-button:active {
-    transform: translateY(0) scale(0.98);
-    background: hsl(var(--card) / 0.7);
-    transition-duration: 0.1s;
+    transform: translateY(-1px);
+    border-color: hsl(var(--foreground) / 0.2);
   }
 
   /* ── Gold Button (Matches User Reference Image) ── */

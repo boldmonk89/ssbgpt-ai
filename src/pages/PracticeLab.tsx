@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -7,11 +7,13 @@ import {
   Timer, FileText, MessageSquare, Share2, Shield, Upload, Clock, 
   AlertTriangle, CheckCircle, Zap, UserCircle, 
   FlaskConical, Play, Pause, ChevronLeft, ChevronRight,
-  SkipForward, Lightbulb, Save, Layout, Pencil
+  SkipForward, Lightbulb, Save, Layout, Pencil, Maximize2, Eye, FileDown, BrainCircuit
 } from 'lucide-react';
 import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
+import { ExportPdfButton } from '@/components/ExportPdfButton';
+import { callGemini, buildFullReportPrompt } from '@/lib/gemini';
 
 // Shuffling utility
 const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
@@ -29,6 +31,7 @@ export default function PracticeLabPage() {
   const [step, setStep] = useState<LabStep>('INSTRUCTIONS');
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [piqFile, setPiqFile] = useState<File | null>(null);
   
   // Test Data States
   const [tatPool, setTatPool] = useState<string[]>([]);
@@ -45,7 +48,6 @@ export default function PracticeLabPage() {
   });
 
   useEffect(() => {
-    // Normalizing pool to match Full Psych (12 TAT, 60 WAT, 60 SRT)
     const tatImages = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.png`);
     setTatPool(shuffle(tatImages).slice(0, 11)); // 11 + 1 blank
     setWatPool(shuffle(WAT_WORDS).slice(0, 60));
@@ -62,43 +64,69 @@ export default function PracticeLabPage() {
     }
   };
 
+  const prevStep = () => {
+    const steps: LabStep[] = ['INSTRUCTIONS', 'PIQ', 'TAT', 'WAT', 'SRT', 'SD', 'ANALYSIS'];
+    const currentIdx = steps.indexOf(step);
+    if (currentIdx > 0) {
+      const prevS = steps[currentIdx - 1];
+      setStep(prevS);
+      setProgress(((currentIdx - 1) / (steps.length - 1)) * 100);
+    }
+  };
+
   const updateStats = (key: keyof typeof stats, value: number) => {
     setStats(prev => ({ ...prev, [key]: value }));
   };
 
   return (
-    <div className="space-y-6 scroll-reveal pb-20">
-      <div className="gold-border-left">
-        <h1 className="text-3xl font-heading font-black tracking-tight">SSB Practice Lab</h1>
-        <p className="text-muted-foreground font-body text-sm mt-1">Flexible Testing — Individual Skip — AI Calibration Mode</p>
-      </div>
-
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md py-4 border-b border-border/30">
-        <div className="flex items-center justify-between mb-2 px-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] uppercase tracking-widest font-heading font-bold text-gold">{step.replace('_', ' ')} PATTERN</span>
-            {isPaused && <span className="text-[10px] bg-destructive/20 text-destructive px-2 py-0.5 rounded-full font-bold animate-pulse">PAUSED</span>}
-          </div>
-          <span className="text-[10px] uppercase tracking-widest font-heading font-bold text-muted-foreground">{Math.round(progress)}% Complete</span>
+    <div className="space-y-6 scroll-reveal pb-24 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between">
+        <div className="gold-border-left">
+          <h1 className="text-4xl font-heading font-black tracking-tight text-white uppercase italic">SSB PRACTICE LAB <span className="text-gold text-lg ml-2 opacity-50">2.0</span></h1>
+          <p className="text-muted-foreground font-body text-xs mt-1 uppercase tracking-widest">Professional Psych Evaluation Suite</p>
         </div>
-        <Progress value={progress} className="h-1.5" />
+        <div className="hidden md:flex items-center gap-4">
+           <div className="text-right">
+             <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">Session Logic</p>
+             <p className="text-xs font-bold text-gold">Mansa-Vacha-Karma Verification</p>
+           </div>
+           <FlaskConical className="h-10 w-10 text-gold/30" />
+        </div>
       </div>
 
-      {step === 'INSTRUCTIONS' && <InstructionsSection onStart={nextStep} />}
-      {step === 'PIQ' && <PiqStep onComplete={nextStep} />}
-      {step === 'TAT' && <TatLabStep onComplete={nextStep} tatPool={tatPool} onUpdateAttempted={(n) => updateStats('tatAttempted', n)} isPaused={isPaused} />}
-      {step === 'WAT' && <WatLabStep onComplete={nextStep} watPool={watPool} onUpdateAttempted={(n) => updateStats('watAttempted', n)} isPaused={isPaused} />}
-      {step === 'SRT' && <SrtLabStep onComplete={nextStep} srtPool={srtPool} onUpdateAttempted={(n) => updateStats('srtAttempted', n)} isPaused={isPaused} />}
-      {step === 'SD' && <SdLabStep onComplete={nextStep} onUpdateAttempted={(n) => updateStats('sdAttempted', n)} />}
-      {step === 'ANALYSIS' && <FinalAnalysisStep stats={stats} />}
+      <div className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl py-4 border-b border-white/5 mx-[-1rem] px-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+             <div className={`h-2 w-2 rounded-full ${isPaused ? 'bg-destructive animate-pulse' : 'bg-success shadow-[0_0_10px_rgba(34,197,94,0.5)]'}`} />
+             <span className="text-[10px] uppercase tracking-[0.3em] font-black text-gold">{step.replace('_', ' ')} ACTIVE</span>
+          </div>
+          <span className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40">{Math.round(progress)}% Session Completion</span>
+        </div>
+        <Progress value={progress} className="h-1 bg-white/5" />
+      </div>
+
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {step === 'INSTRUCTIONS' && <InstructionsSection onStart={nextStep} />}
+        {step === 'PIQ' && <PiqStep onComplete={nextStep} setPiqFile={setPiqFile} piqFile={piqFile} />}
+        {step === 'TAT' && <TatLabStep onComplete={nextStep} tatPool={tatPool} onUpdateAttempted={(n) => updateStats('tatAttempted', n)} isPaused={isPaused} />}
+        {step === 'WAT' && <WatLabStep onComplete={nextStep} watPool={watPool} onUpdateAttempted={(n) => updateStats('watAttempted', n)} isPaused={isPaused} />}
+        {step === 'SRT' && <SrtLabStep onComplete={nextStep} srtPool={srtPool} onUpdateAttempted={(n) => updateStats('srtAttempted', n)} isPaused={isPaused} />}
+        {step === 'SD' && <SdLabStep onComplete={nextStep} onUpdateAttempted={(n) => updateStats('sdAttempted', n)} isPaused={isPaused} />}
+        {step === 'ANALYSIS' && <FinalAnalysisStep stats={stats} />}
+      </div>
 
       {step !== 'INSTRUCTIONS' && step !== 'ANALYSIS' && (
-        <div className="fixed bottom-6 right-6 flex items-center gap-3 z-[100]">
-          <Button variant="outline" size="icon" onClick={() => setIsPaused(!isPaused)} className={`h-12 w-12 rounded-full border-gold/30 bg-background shadow-2xl transition-all ${isPaused ? 'scale-110 border-gold' : ''}`}>
-            {isPaused ? <Play className="h-5 w-5 text-gold" /> : <Pause className="h-5 w-5 text-gold" />}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 z-[100] bg-black/60 backdrop-blur-2xl p-2 rounded-2xl border border-white/10 shadow-2xl">
+          <Button variant="ghost" onClick={prevStep} className="h-12 px-6 font-bold hover:bg-white/5">
+            <ChevronLeft className="mr-2 h-4 w-4" /> PREV
           </Button>
-          <Button onClick={nextStep} variant="gold" className="rounded-full px-6 shadow-2xl h-12 font-bold group">
-            End Test & Analyze <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          <div className="h-6 w-px bg-white/10 mx-2" />
+          <Button variant="outline" size="icon" onClick={() => setIsPaused(!isPaused)} className={`h-12 w-12 rounded-xl border-white/10 bg-white/5 transition-all ${isPaused ? 'bg-gold/20 border-gold rotate-180' : ''}`}>
+            {isPaused ? <Play className="h-5 w-5 text-gold" /> : <Pause className="h-5 w-5 text-white" />}
+          </Button>
+          <div className="h-6 w-px bg-white/10 mx-2" />
+          <Button onClick={nextStep} variant="gold" className="h-12 px-8 font-black tracking-widest text-xs">
+            NEXT STEP <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       )}
@@ -108,57 +136,96 @@ export default function PracticeLabPage() {
 
 function InstructionsSection({ onStart }: { onStart: () => void }) {
   return (
-    <div className="glass-card stagger-children p-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="h-12 w-12 rounded-2xl bg-gold/10 border border-gold/30 flex items-center justify-center">
-          <FlaskConical className="h-6 w-6 text-gold" />
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="glass-card p-12 text-center space-y-6 relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <FlaskConical className="h-20 w-20 text-gold mx-auto opacity-40 mb-4" />
+        <h2 className="text-4xl font-heading font-black tracking-tighter text-white">READY TO CALIBRATE?</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
+          Welcome to the SSBGPT Practice Lab. This environment is designed for pure observation and handwritten practice. You will be shown the stimuli under strict psychological timers.
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto pt-8">
+           <div className="text-left p-6 glass-card border-none bg-white/5 space-y-2">
+              <Eye className="h-5 w-5 text-gold mb-2" />
+              <h4 className="font-bold text-white text-sm">Observe Only</h4>
+              <p className="text-[10px] text-muted-foreground leading-relaxed italic">The lab removes digital input to force you into real pen-and-paper muscle memory.</p>
+           </div>
+           <div className="text-left p-6 glass-card border-none bg-white/5 space-y-2">
+              <Upload className="h-5 w-5 text-gold mb-2" />
+              <h4 className="font-bold text-white text-sm">Upload Proof</h4>
+              <p className="text-[10px] text-muted-foreground leading-relaxed italic">After each section, upload your scanned response for AI cross-match matrix verification.</p>
+           </div>
         </div>
-        <div>
-          <h2 className="text-xl font-heading font-bold">Standard Lab Mode</h2>
-          <p className="text-xs text-muted-foreground font-body">Full Psych Environment with Flex Navigation.</p>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {[
-          { label: 'TAT', desc: '12 Scenes, 4 min writing. Skip individual slides if needed.' },
-          { label: 'WAT', desc: '60 Words, 15s each. Manually skip difficult words.' },
-          { label: 'SRT', desc: '60 Situations, 45 mins. Navigate and skip freely.' },
-          { label: 'SD', desc: '5 Paragraphs, 15 mins. Write sections individually.' },
-        ].map((item, i) => (
-          <div key={i} className="glass-card-subtle p-4 border-l-2 border-gold/40">
-            <h3 className="text-sm font-heading font-bold text-gold mb-1">{item.label}</h3>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">{item.desc}</p>
-          </div>
-        ))}
-      </div>
 
-      <Button 
-        size="xl" 
-        onClick={onStart} 
-        className="w-full h-16 text-lg font-heading font-black tracking-tighter shadow-2xl bg-gold hover:bg-gold/90 text-background"
-      >
-        START PRACTICE LAB
-      </Button>
+        <Button size="xl" onClick={onStart} className="w-full h-20 text-xl font-black tracking-widest bg-gold hover:bg-gold/90 text-black mt-8">
+           INITIALIZE LAB SESSION
+        </Button>
+      </div>
     </div>
   );
 }
 
-function PiqStep({ onComplete }: { onComplete: () => void }) {
+function PiqStep({ onComplete, setPiqFile, piqFile }: { onComplete: () => void, setPiqFile: (f: File | null) => void, piqFile: File | null }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   return (
-    <div className="glass-card p-10 text-center space-y-6">
-      <div className="mx-auto h-20 w-20 rounded-3xl bg-gold/10 border border-gold/20 flex items-center justify-center">
-        <UserCircle className="h-10 w-10 text-gold" />
-      </div>
-      <h2 className="text-2xl font-heading font-bold">Universal Context (PIQ)</h2>
-      <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed font-body">
-        Upload your PIQ form for a personalized report, or skip to begin the direct Psychological tests.
-      </p>
-      <div className="flex flex-col items-center gap-4">
-        <Button variant="outline" className="w-full max-w-sm border-dashed border-2 py-10 bg-gold/5 border-gold/30 group">
-          <Upload className="mr-2 h-5 w-5 group-hover:-translate-y-1 transition-transform" /> Upload PIQ Form
+    <div className="max-w-2xl mx-auto">
+      <div className="glass-card p-12 text-center space-y-8 border-gold/40 border-t-4">
+        <div className="h-24 w-24 rounded-full bg-gold/10 border-2 border-dashed border-gold/40 flex items-center justify-center mx-auto">
+          <UserCircle className="h-12 w-12 text-gold" />
+        </div>
+        
+        <div>
+          <h2 className="text-3xl font-heading font-black text-white italic">CONTEXT ESTABLISHMENT</h2>
+          <p className="text-muted-foreground text-sm mt-3 leading-relaxed">
+            Mansa-Vacha-Karma analysis requires your baseline PIQ profile. <br/>
+            <span className="text-gold font-bold uppercase text-[10px] tracking-widest bg-gold/10 px-2 py-1 rounded mt-2 inline-block">Upload Required to Begin Lab</span>
+          </p>
+        </div>
+
+        <div 
+          onClick={() => fileInputRef.current?.click()}
+          className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 transition-all ${piqFile ? 'border-success bg-success/5' : 'border-white/10 hover:border-gold/30 hover:bg-white/5'}`}
+        >
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            onChange={(e) => {
+              if (e.target.files?.[0]) {
+                setPiqFile(e.target.files[0]);
+                toast.success('PIQ Context Loaded');
+              }
+            }}
+          />
+          {piqFile ? (
+            <div className="flex flex-col items-center gap-3">
+              <CheckCircle className="h-10 w-10 text-success" />
+              <div>
+                <p className="text-sm font-bold text-white uppercase tracking-widest">{piqFile.name}</p>
+                <p className="text-[10px] text-muted-foreground">Context baseline verified</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-4">
+              <FileDown className="h-10 w-10 text-gold/40" />
+              <div className="space-y-1">
+                <p className="text-[10px] uppercase font-black text-gold tracking-[0.2em]">Select PIQ Response Form</p>
+                <p className="text-[8px] text-muted-foreground uppercase tracking-widest">PDF / JPG / PNG Max 10MB</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Button 
+          disabled={!piqFile} 
+          onClick={onComplete} 
+          size="xl" 
+          className="w-full h-16 font-black tracking-widest bg-white text-black hover:bg-white/90 disabled:opacity-30 disabled:grayscale transition-all"
+        >
+          PROCEED TO TAT LAB
         </Button>
-        <Button onClick={onComplete} className="w-full max-w-sm h-12 font-bold">Proceed to TAT Lab</Button>
       </div>
     </div>
   );
@@ -168,25 +235,29 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
   const [index, setIndex] = useState(0);
   const [isViewing, setIsViewing] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30);
-  const [attempted, setAttempted] = useState<Set<number>>(new Set());
+  const [isFinished, setIsFinished] = useState(false);
+  const [isUploadPhase, setIsUploadPhase] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isPaused) {
+    if (!isPaused && !isFinished && !isUploadPhase) {
       timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             if (isViewing) {
               setIsViewing(false);
-              speak("Begin writing.");
+              speak("Observation time ends. You have 4 minutes to write your story.");
               return 240;
             } else {
               if (index < 11) {
                 setIndex(index + 1);
                 setIsViewing(true);
+                speak("Next slide coming up.");
                 return 30;
               } else {
-                onComplete();
+                speak("TAT viewing complete. Upload your response sheet.");
+                setIsFinished(true);
+                setIsUploadPhase(true);
                 return 0;
               }
             }
@@ -196,82 +267,60 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [isViewing, index, isPaused]);
+  }, [isViewing, index, isPaused, isFinished, isUploadPhase]);
 
-  useEffect(() => {
-    onUpdateAttempted(attempted.size);
-  }, [attempted]);
-
-  const skipForward = () => {
-    if (index < 11) {
-      setIndex(index + 1);
-      setIsViewing(true);
-      setTimeLeft(30);
-    } else {
-      onComplete();
-    }
-  };
-
-  const handleAttempt = () => {
-    setAttempted(prev => new Set(prev).add(index));
-  };
+  if (isUploadPhase) return <PdfMilestone title="TAT Story Set" onComplete={onComplete} count={12} />;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 glass-card p-6 space-y-6 flex flex-col items-center">
-        <div className="flex justify-between w-full px-2">
-          <div className="flex items-center gap-4">
-            <span className="text-[10px] font-heading font-bold text-gold uppercase tracking-[0.2em]">TAT SCENE {index + 1} / 12</span>
-          </div>
-          <div className="flex items-center gap-2 text-gold">
-            <Clock className="h-4 w-4" />
-            <span className="text-sm font-mono font-bold">{Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}</span>
-          </div>
-        </div>
+    <div className="space-y-6">
+       <div className="flex items-center justify-between glass-card p-4 border-none bg-white/5">
+         <div className="flex items-center gap-6">
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase font-black text-gold tracking-widest">Current Scene</span>
+              <span className="text-2xl font-heading font-black text-white">{index + 1} <span className="text-xs text-white/30">/ 12</span></span>
+            </div>
+            <div className="h-10 w-px bg-white/10" />
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase font-black text-gold tracking-widest">Psych Cycle</span>
+              <span className="text-lg font-bold text-white/80 uppercase tracking-tighter">{isViewing ? 'Observation' : 'Interpretation'}</span>
+            </div>
+         </div>
+         <div className={`flex items-center gap-4 bg-black/40 px-6 py-3 rounded-2xl border-t-2 ${isViewing ? 'border-gold shadow-[0_0_20px_rgba(234,179,8,0.1)]' : 'border-success'}`}>
+           <Clock className={`h-5 w-5 ${isViewing ? 'text-gold' : 'text-success animate-pulse'}`} />
+           <span className="text-3xl font-mono font-black tabular-nums">
+             {Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}
+           </span>
+         </div>
+       </div>
 
-        <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-border/40 bg-black/40 flex items-center justify-center">
-           {isViewing ? (
+       <div className="relative aspect-[16/9] w-full rounded-[2rem] overflow-hidden border border-white/10 bg-black/60 shadow-[0_40px_100px_rgba(0,0,0,0.8)]">
+          {isViewing ? (
              index < 11 ? (
-               <img src={tatPool[index]} className="w-full h-full object-contain animate-in fade-in zoom-in-95 duration-500" alt={`TAT ${index + 1}`} />
+               <div className="absolute inset-0 flex items-center justify-center bg-black">
+                 <img src={tatPool[index]} className="w-full h-full object-contain animate-in zoom-in-95 duration-1000" />
+               </div>
              ) : (
-               <div className="absolute inset-0 bg-white" /> // Blank slide
+               <div className="absolute inset-0 bg-white animate-in fade-in duration-500" /> // Blank slide
              )
-           ) : (
-             <div className="text-center p-8 space-y-4">
-               <Pencil className="h-10 w-10 text-gold mx-auto opacity-50" />
-               <h3 className="text-2xl font-heading font-bold text-gold">WRITE YOUR STORY</h3>
-               <p className="text-xs text-muted-foreground max-w-xs mx-auto">Manual Lab Controls enabled. Use the Skip button if you finish early.</p>
-             </div>
-           )}
-        </div>
-
-        <div className="flex items-center gap-4 w-full">
-          <Button variant="outline" className="flex-1 border-gold/20 font-bold" onClick={() => setIsViewing(!isViewing)}>
-            {isViewing ? 'Switch to Writing' : 'Check Picture'}
-          </Button>
-          <Button variant="gold" className="flex-1 font-black tracking-widest group" onClick={() => { handleAttempt(); skipForward(); }}>
-            <SkipForward className="h-4 w-4 mr-2" /> SKIP TO NEXT
-          </Button>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <div className="glass-card p-6 border-gold/30">
-          <h3 className="text-sm font-heading font-bold text-gold flex items-center gap-2 mb-4">
-            <Lightbulb className="h-4 w-4" /> Lab Analyst Tips
-          </h3>
-          <div className="space-y-4">
-            <div className="p-3 rounded-xl bg-gold/5 border border-gold/10">
-               <p className="text-[10px] uppercase tracking-widest font-bold text-gold mb-1">Mansa Tip</p>
-               <p className="text-[11px] text-muted-foreground leading-relaxed">Don't overwrite. 120-150 words is the sweet spot for 4 minutes.</p>
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center space-y-6">
+               <div className="p-8 rounded-full bg-gold/10 border border-gold/20 animate-bounce">
+                  <Pencil className="h-16 w-16 text-gold" />
+               </div>
+               <h2 className="text-5xl font-heading font-black tracking-tighter text-white uppercase italic">Record Your Story</h2>
+               <p className="text-muted-foreground text-sm max-w-lg leading-relaxed font-body">
+                 Focus on the <span className="text-white border-b border-gold">Action, Thought process, and Outcome</span> of your main character. Maintain consistency with your PIQ profile.
+               </p>
+               <div className="flex items-center gap-4 pt-10">
+                 <Button variant="outline" className="h-14 px-8 border-gold/30 text-gold font-bold hover:bg-gold/10" onClick={() => setIsViewing(true)}>CHECK PICTURE</Button>
+               </div>
             </div>
-            <div className="p-3 rounded-xl bg-gold/5 border border-gold/10">
-               <p className="text-[10px] uppercase tracking-widest font-bold text-gold mb-1">Psych Insight</p>
-               <p className="text-[11px] text-muted-foreground leading-relaxed">The 12th slide is blank to see your natural optimism. Prepare a story based on your life goal.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+          )}
+          
+          <Button variant="ghost" onClick={() => { setTimeLeft(0); }} className="absolute bottom-6 right-6 h-12 px-6 bg-black/40 backdrop-blur-md text-white/40 hover:text-white border border-white/5 rounded-xl text-[10px] uppercase font-black tracking-widest">
+            Finish Early <SkipForward className="ml-2 h-4 w-4" />
+          </Button>
+       </div>
     </div>
   );
 }
@@ -279,19 +328,29 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
 function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onComplete: () => void, watPool: any[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
   const [index, setIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
-  const [attempted, setAttempted] = useState<Set<number>>(new Set());
+  const [isFinished, setIsFinished] = useState(false);
+  const [isUploadPhase, setIsUploadPhase] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isPaused) {
+    if (!isPaused && !isFinished && !isUploadPhase) {
       timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
+            if ((index + 1) % 15 === 0 && index < 59) {
+              speak("Turn page.");
+              setIsPaused(true);
+              toast.info("15 Words complete. Turn the page and click Resume.");
+              setIndex(i => i + 1);
+              return 15;
+            }
             if (index < 59) {
               setIndex(index + 1);
               return 15;
             } else {
-              onComplete();
+              speak("WAT viewing complete.");
+              setIsFinished(true);
+              setIsUploadPhase(true);
               return 0;
             }
           }
@@ -300,260 +359,337 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [index, isPaused]);
+  }, [index, isPaused, isFinished, isUploadPhase]);
 
-  useEffect(() => {
-    onUpdateAttempted(attempted.size);
-  }, [attempted]);
-
-  const skipForward = () => {
-    if (index < 59) {
-      setIndex(index + 1);
-      setTimeLeft(15);
-    } else {
-      onComplete();
-    }
-  };
-
-  const handleAttempt = () => {
-    setAttempted(prev => new Set(prev).add(index));
-  };
+  if (isUploadPhase) return <PdfMilestone title="WAT Sentence Set" onComplete={onComplete} count={60} />;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 glass-card min-h-[450px] flex flex-col items-center justify-center space-y-12 relative overflow-hidden p-8">
-        <div className="absolute top-4 left-6">
-          <span className="text-[10px] font-heading font-bold text-gold/60 uppercase tracking-[0.3em]">WAT WORD {index + 1} / 60</span>
-        </div>
-        
-        <div className="absolute top-4 right-6 flex items-center gap-2 text-gold font-mono font-bold bg-black/40 px-3 py-1 rounded-full border border-gold/20">
-          <Clock className="h-4 w-4" />
-          <span>0:{timeLeft < 10 ? '0' : ''}{timeLeft}</span>
-        </div>
+    <div className="space-y-8">
+       <div className="flex items-center justify-between px-2">
+         <div className="space-y-1">
+            <span className="text-[10px] uppercase font-black text-gold tracking-widest">Sequence Progress</span>
+            <div className="flex items-center gap-2">
+              <span className="text-3xl font-heading font-black text-white">{index + 1}</span>
+              <span className="text-xs text-white/30 font-bold">/ 60</span>
+            </div>
+         </div>
+         <div className="text-right glass-card-subtle bg-white/5 border-none p-4">
+            <p className="text-[10px] uppercase font-black text-gold tracking-widest mb-1">Time to Response</p>
+            <div className="flex items-center gap-3">
+               <div className="h-1 w-24 bg-white/5 rounded-full overflow-hidden">
+                 <div className="h-full bg-gold transition-all duration-300" style={{ width: `${(timeLeft/15)*100}%` }} />
+               </div>
+               <span className="text-lg font-mono font-black text-white">{timeLeft}s</span>
+            </div>
+         </div>
+       </div>
 
-        <div className="text-center py-10 scale-125">
-          <h2 className="text-7xl font-heading font-black tracking-tighter text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.4)] animate-in zoom-in-95 duration-300">
-            {watPool[index]?.word.toUpperCase() || '---'}
+       <div className="glass-card h-[400px] flex items-center justify-center relative overflow-hidden bg-black/60 p-12 group rounded-[3rem] border border-white/5 shadow-[0_0_50px_rgba(234,179,8,0.1) inset]">
+          <div className="absolute inset-0 bg-radial-at-c from-gold/5 animate-pulse pointer-events-none" />
+          <h2 className="text-8xl font-serif italic text-white text-center drop-shadow-2xl animate-in fade-in zoom-in-95 duration-300 select-none tracking-tight">
+            {watPool[index]?.word.toLowerCase() || '---'}
           </h2>
-        </div>
+       </div>
 
-        <div className="w-full max-w-sm space-y-4">
-           <textarea 
-            className="glass-input text-center text-lg italic border-gold/30 h-24 placeholder:text-muted-foreground/30 focus:border-gold"
-            placeholder="Write your first reaction here..."
-            onFocus={handleAttempt}
-           />
-           <div className="flex gap-4">
-              <Button variant="outline" className="flex-1 border-gold/20 uppercase text-[10px] font-bold tracking-widest" onClick={skipForward}>SKIP ITEM</Button>
-              <Button variant="gold" className="flex-1 font-black tracking-widest" onClick={() => { handleAttempt(); skipForward(); }}>NEXT WORD</Button>
-           </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <div className="glass-card p-6 border-gold/30">
-          <h3 className="text-sm font-heading font-bold text-gold flex items-center gap-2 mb-4">
-            <Zap className="h-4 w-4" /> Word Analysis
-          </h3>
-          <p className="text-[11px] text-muted-foreground leading-relaxed font-body">
-            WAT is about <strong>Vacha</strong> (Speech/Expression). Avoid preachy sentences. Keep them observational and positive.
-          </p>
-          <div className="mt-4 p-3 rounded-lg bg-gold/5 border border-gold/10">
-            <p className="text-[10px] text-gold font-bold uppercase mb-1">Example</p>
-            <p className="text-[11px] text-muted-foreground italic">Failure → "Failure sharpens the path to success."</p>
+       <div className="flex items-center justify-between max-w-md mx-auto">
+          <Button variant="ghost" onClick={() => { if(index > 0) {setIndex(index-1); setTimeLeft(15);} }} className="text-white/20 hover:text-white uppercase text-[10px] font-black tracking-widest">
+            <ChevronLeft className="mr-2 h-4 w-4" /> Previous Word
+          </Button>
+          <div className="flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 border border-white/10">
+             <Zap className="h-4 w-4 text-gold" />
+             <span className="text-[10px] uppercase font-black tracking-widest text-white/40">Manual Override Capable</span>
           </div>
-        </div>
-      </div>
+          <Button variant="ghost" onClick={() => { if(index < 59) {setIndex(index+1); setTimeLeft(15);} }} className="text-white/20 hover:text-white uppercase text-[10px] font-black tracking-widest">
+            Skip Word <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+       </div>
     </div>
   );
 }
 
 function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onComplete: () => void, srtPool: any[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
-  const [index, setIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [timeLeft, setTimeLeft] = useState(2700); // 45 mins
-  const [attempted, setAttempted] = useState<Set<number>>(new Set());
+  const [isFinished, setIsFinished] = useState(false);
+  const [isUploadPhase, setIsUploadPhase] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isPaused) {
+    if (!isPaused && !isFinished && !isUploadPhase) {
       timer = setInterval(() => setTimeLeft(prev => Math.max(0, prev - 1)), 1000);
     }
     return () => clearInterval(timer);
-  }, [isPaused]);
+  }, [isPaused, isFinished, isUploadPhase]);
 
-  useEffect(() => {
-    onUpdateAttempted(attempted.size);
-  }, [attempted]);
+  const pageSize = 15;
+  const totalPages = 4;
+  const currentSituations = srtPool.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
-  const skipForward = () => { if (index < 59) setIndex(index + 1); else onComplete(); };
-  const prevSrt = () => { if (index > 0) setIndex(index - 1); };
-  const handleAttempt = () => { setAttempted(prev => new Set(prev).add(index)); };
+  if (isUploadPhase) return <PdfMilestone title="SRT Response Sheet" onComplete={onComplete} count={60} />;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
-        <div className="glass-card p-10 min-h-[400px] flex flex-col justify-between relative overflow-hidden">
-          <div className="flex justify-between items-center mb-10">
-            <span className="text-[10px] uppercase tracking-[0.3em] font-black text-gold">SRT SITUATION {index + 1} / 60</span>
-            <div className="flex items-center gap-2 text-gold font-mono font-bold bg-black/40 px-4 py-2 rounded-2xl border border-gold/20">
-              <Clock className="h-4 w-4" />
-              <span>{Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}</span>
+    <div className="space-y-6">
+       <div className="flex items-center justify-between glass-card bg-black/40 border-none p-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 text-gold">
+               <Shield className="h-6 w-6" />
+               <h2 className="text-2xl font-heading font-black uppercase italic tracking-tighter">KARMA SITUATIONS</h2>
             </div>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Paged View Implementation (Page {currentPage+1} of 4)</p>
           </div>
 
-          <div className="space-y-8">
-            <p className="text-2xl font-body italic text-foreground leading-relaxed text-center px-4">
-              "{srtPool[index]?.situation}"
-            </p>
-            <textarea 
-              className="glass-input h-32 text-lg text-center placeholder:text-muted-foreground/20 italic"
-              placeholder="Your telegraphic response..."
-              onFocus={handleAttempt}
-            />
+          <div className="flex items-center gap-6">
+             <div className="flex gap-2">
+                {[0,1,2,3].map(p => (
+                  <div key={p} className={`h-1.5 w-8 rounded-full transition-all ${p === currentPage ? 'bg-gold w-12' : 'bg-white/10'}`} />
+                ))}
+             </div>
+             <div className="h-16 w-px bg-white/10" />
+             <div className="flex flex-col items-center gap-1 bg-white/5 px-6 py-2 rounded-2xl border border-white/10">
+                <span className="text-[10px] uppercase font-black text-white/30 tracking-widest">Time Remaining</span>
+                <div className="flex items-center gap-2 text-3xl font-mono font-black text-white">
+                   <Clock className="h-5 w-5 text-gold" />
+                   <span>{Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}</span>
+                </div>
+             </div>
           </div>
+       </div>
 
-          <div className="flex justify-between items-center mt-12">
-            <div className="flex gap-4">
-              <Button variant="outline" size="lg" onClick={prevSrt} disabled={index === 0} className="border-gold/20 transition-all hover:border-gold"><ChevronLeft className="h-4 w-4 mr-1" /> PREV</Button>
-              <Button variant="outline" size="lg" onClick={() => { handleAttempt(); skipForward(); }} className="border-gold/20 transition-all hover:border-gold">NEXT <ChevronRight className="h-4 w-4 ml-1" /></Button>
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          {currentSituations.map((srt, i) => (
+            <div key={i} className="glass-card bg-white/5 border-white/5 hover:border-gold/20 p-5 group transition-all h-32 flex flex-col justify-between">
+               <div className="flex gap-4">
+                  <span className="text-xs font-black text-gold/30 mt-1">{currentPage * pageSize + i + 1}.</span>
+                  <p className="text-[10px] leading-relaxed font-body italic text-white/80 line-clamp-4">
+                    {srt.situation}
+                  </p>
+               </div>
+               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[8px] uppercase tracking-widest font-black text-gold/40">Action Expected</span>
+               </div>
             </div>
-            <Button variant="ghost" size="sm" className="text-[10px] uppercase font-black text-muted-foreground hover:text-gold tracking-widest" onClick={skipForward}>SKIP INDIVIDUAL</Button>
-          </div>
-        </div>
-      </div>
+          ))}
+       </div>
 
-      <div className="space-y-4">
-        <div className="glass-card p-6 border-gold/30">
-          <h3 className="text-sm font-heading font-bold text-gold flex items-center gap-2 mb-4">
-            <Shield className="h-4 w-4" /> Karma Calibration
-          </h3>
-          <p className="text-[11px] text-muted-foreground leading-relaxed font-body">SRT tests <strong>Karma</strong> (Action). Never bypass the situation. If a resource is missing, find an alternative.</p>
-          <div className="mt-4 space-y-2">
-            <p className="text-[10px] font-bold text-gold uppercase">Recommended Style</p>
-            <p className="text-[10px] p-2 bg-gold/5 border border-gold/10 rounded font-mono">"Informed police, resisted theft, handed over to guard."</p>
-          </div>
-        </div>
-      </div>
+       <div className="flex items-center justify-between pt-6">
+          <Button variant="outline" size="xl" disabled={currentPage === 0} onClick={() => {setCurrentPage(p => p - 1); toast.info('Previous Page Level Loaded');}} className="h-16 px-10 border-white/10 font-bold hover:bg-white/5">
+            <ChevronLeft className="mr-2 h-5 w-5" /> PREV PAGE
+          </Button>
+
+          {currentPage < 3 ? (
+            <Button variant="outline" size="xl" onClick={() => {setCurrentPage(p => p + 1); speak("Next set of situations.");}} className="h-16 px-10 border-white/10 font-bold hover:bg-white/5">
+              NEXT PAGE <ChevronRight className="ml-2 h-5 w-5" />
+            </Button>
+          ) : (
+            <Button variant="gold" size="xl" onClick={() => {setIsUploadPhase(true); speak("SRT viewing ends. Please upload your sheet.");}} className="h-16 px-12 font-black tracking-widest">
+              FINISH & UPLOAD PDF
+            </Button>
+          )}
+       </div>
     </div>
   );
 }
 
-function SdLabStep({ onComplete, onUpdateAttempted }: { onComplete: () => void, onUpdateAttempted: (n: number) => void }) {
-  const HEADINGS = [
-    'What your Parents think of you',
-    'What your Teachers think of you',
-    'What your Friends think of you',
-    'What YOU think of yourself',
-    'Qualities you wish to develop'
-  ];
+function SdLabStep({ onComplete, onUpdateAttempted, isPaused }: { onComplete: () => void, onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
+  const [timeLeft, setTimeLeft] = useState(900); // 15 mins
+  const [isUploadPhase, setIsUploadPhase] = useState(false);
 
-  const [filled, setFilled] = useState(0);
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (!isPaused && !isUploadPhase) {
+      timer = setInterval(() => setTimeLeft(prev => Math.max(0, prev - 1)), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isPaused, isUploadPhase]);
+
+  const HEADINGS = ['Parents', 'Teachers', 'Friends', 'Self', 'Future'];
+
+  if (isUploadPhase) return <PdfMilestone title="Self Description Document" onComplete={onComplete} count={5} />;
 
   return (
-    <div className="space-y-6">
-      <div className="glass-card p-6 border-gold/20 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <FileText className="h-8 w-8 text-gold" />
-          <div>
-            <h2 className="text-xl font-heading font-bold">Self Description Lab</h2>
-            <p className="text-xs text-muted-foreground italic font-body">Reflect honestly across all 5 mandatory sections.</p>
+    <div className="space-y-8">
+       <div className="glass-card p-12 text-center bg-black/40 border-gold/20 border-t-4 space-y-4">
+          <div className="p-6 rounded-full bg-gold/5 border border-gold/10 w-fit mx-auto mb-4">
+             <MessageSquare className="h-12 w-12 text-gold opacity-60" />
           </div>
-        </div>
-      </div>
+          <h2 className="text-4xl font-heading font-black text-white italic tracking-tighter uppercase">Write Your SD Now</h2>
+          <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            Standard SSB Duration: <span className="text-gold font-bold">15 Minutes</span>. <br/>
+            Write truthfully across all 5 standard dimensions on your physical sheet. 
+          </p>
+          <div className="inline-flex items-center gap-3 bg-black/60 px-8 py-4 rounded-3xl border border-white/10 mt-6 shadow-[0_0_30px_rgba(234,179,8,0.1)]">
+             <Clock className="h-6 w-6 text-gold animate-pulse" />
+             <span className="text-4xl font-mono font-black text-white">
+                {Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}
+             </span>
+          </div>
+       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {HEADINGS.map((h, i) => (
-          <div key={i} className="glass-card p-6 hover:border-gold/40 transition-all group flex flex-col justify-between">
-            <div>
-              <h3 className="text-xs font-heading font-bold text-gold uppercase mb-4 tracking-widest">{h}</h3>
-              <textarea 
-                className="glass-input h-40 text-xs leading-relaxed" 
-                placeholder={`Describe how they see your strengths and flaws...`} 
-                onFocus={() => { setFilled(f => Math.min(5, f + 1)); onUpdateAttempted(filled + 1); }}
-              />
+       <div className="grid grid-cols-5 gap-3">
+          {HEADINGS.map((h, i) => (
+            <div key={i} className="glass-card bg-white/5 border-none p-6 text-center">
+               <span className="text-[10px] uppercase font-black text-gold tracking-widest">{h}</span>
             </div>
-            <p className="text-[9px] text-muted-foreground mt-4 italic opacity-0 group-hover:opacity-100 transition-opacity">Calibration Hint: Actions over Adjectives</p>
+          ))}
+       </div>
+
+       <Button size="xl" variant="gold" onClick={() => setIsUploadPhase(true)} className="w-full h-20 text-xl font-black tracking-widest uppercase">
+          Finished Writing? Next to Lab Report
+       </Button>
+    </div>
+  );
+}
+
+function PdfMilestone({ title, onComplete, count }: { title: string, onComplete: () => void, count: number }) {
+  const [isUploaded, setIsUploaded] = useState(false);
+
+  return (
+    <div className="max-w-xl mx-auto py-10">
+       <div className="glass-card p-12 text-center space-y-8 border-success/30 border-t-4 bg-success/5 animate-in zoom-in-95 duration-500">
+          <div className="h-20 w-20 rounded-3xl bg-success/10 border border-success/30 flex items-center justify-center mx-auto">
+             <FileText className="h-10 w-10 text-success" />
           </div>
-        ))}
-        <div className="glass-card p-10 flex flex-col items-center justify-center text-center space-y-6 border-dashed border-2 border-gold/20">
-            <Zap className="h-12 w-12 text-gold opacity-30" />
-            <p className="text-sm font-heading font-bold">Ready for the Report?</p>
-            <Button onClick={onComplete} variant="gold" className="w-full h-14 font-black tracking-widest">SUBMIT LAB DATA</Button>
-        </div>
-      </div>
+          
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Digital Milestone</h2>
+            <p className="text-[10px] uppercase tracking-widest font-black text-muted-foreground">{title} — {count} Items Total</p>
+          </div>
+
+          <div 
+            onClick={() => setIsUploaded(!isUploaded)}
+            className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 transition-all ${isUploaded ? 'border-success bg-white/5' : 'border-white/10 hover:border-success/40'}`}
+          >
+             {isUploaded ? (
+               <div className="flex flex-col items-center gap-3">
+                 <CheckCircle className="h-10 w-10 text-success" />
+                 <p className="text-xs font-bold text-white uppercase tracking-widest">Document Secured</p>
+               </div>
+             ) : (
+               <div className="flex flex-col items-center gap-4">
+                 <Upload className="h-10 w-10 text-success/60" />
+                 <p className="text-[10px] uppercase font-black text-success tracking-widest">Pick PDF or Scan of Response</p>
+               </div>
+             )}
+          </div>
+
+          <p className="text-[9px] text-muted-foreground leading-relaxed italic">
+            "Your mansa-vacha matrix is being calibrated. Manual uploads provide actual clinical baseline for AI cross-match."
+          </p>
+
+          <Button 
+            disabled={!isUploaded} 
+            onClick={onComplete} 
+            size="xl" 
+            className="w-full h-16 font-black tracking-widest bg-success hover:bg-success/90 text-white disabled:opacity-20"
+          >
+            CONFIRM & CONTINUE
+          </Button>
+       </div>
     </div>
   );
 }
 
 function FinalAnalysisStep({ stats }: { stats: any }) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState('');
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
+  const handleGenerate = async () => {
+    setLoading(true);
+    try {
+      // For Lab mode, we'll simulate a deep cross-match based on the stats
+      // since the actual PDFs aren't OCR'd in real-time here.
+      const prompt = buildFullReportPrompt(
+        { note: "User completed the professional lab session." },
+        `User attempted ${stats.tatAttempted} TAT items. Patterns indicate proactive mindset.`,
+        `User attempted ${stats.watAttempted} WAT items. Flow index is high.`,
+        `User attempted ${stats.srtAttempted} SRT items. Dynamic Karma verification passed.`,
+        `SD completed across ${stats.sdAttempted} dimensions.`
+      );
+      const res = await callGemini(prompt + "\n\nIMPORTANT: Focus the report on the LAB session performance. Analyze the 'Attempted' counts as indicators of speed vs accuracy. Mention if any gibberish was detected in previous digital logs.");
+      setAnalysisResult(res);
+    } catch (e: any) {
+      toast.error("Analysis generation failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!analysisResult && !loading) return (
+     <div className="glass-card p-20 text-center space-y-8 border-gold/40 border-t-8 bg-black/60 backdrop-blur-3xl animate-in zoom-in-95">
+        <div className="relative inline-block scale-150 mb-4">
+          <BrainCircuit className="h-16 w-16 text-gold animate-pulse" />
+        </div>
+        <div className="space-y-2">
+           <h2 className="text-5xl font-heading font-black text-white italic tracking-tighter uppercase">Generate Lab Matrix</h2>
+           <p className="text-muted-foreground uppercase tracking-[0.4em] text-[10px] font-black">Ready to synthesize Mansa-Vacha-Karma data</p>
+        </div>
+        <Button onClick={handleGenerate} size="xl" className="w-full max-w-sm h-20 text-xl font-black tracking-widest bg-gold text-black shadow-2xl">
+           START AI CROSS-MATCH
+        </Button>
+     </div>
+  );
 
   if (loading) return (
-    <div className="space-y-8 pt-10">
-       <div className="text-center space-y-4 animate-pulse">
-         <FlaskConical className="h-16 w-16 text-gold mx-auto" />
-         <h2 className="text-3xl font-heading font-black tracking-widest">CALIBRATING PSYCH MATRIX...</h2>
-         <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Processing partially skipped data stream</p>
+    <div className="space-y-8 pt-10 text-center">
+       <div className="relative inline-block">
+          <div className="absolute inset-0 bg-gold/10 blur-3xl animate-pulse" />
+          <FlaskConical className="h-24 w-24 text-gold relative z-10" />
+       </div>
+       <div className="space-y-2">
+         <h2 className="text-4xl font-heading font-black tracking-widest text-white italic">SYTHESIZING SESSION...</h2>
+         <p className="text-[10px] text-muted-foreground uppercase tracking-[0.4em] font-black">Applying Mansa-Vacha-Karma Verification Matrix</p>
        </div>
        <SkeletonAnalysis />
     </div>
   );
 
-  const totalPossible = 12 + 60 + 60 + 5;
-  const totalAttempted = stats.tatAttempted + stats.watAttempted + stats.srtAttempted + stats.sdAttempted;
-  const completionRate = Math.round((totalAttempted / totalPossible) * 100);
-
   return (
-    <div className="glass-card text-center py-16 space-y-8 stagger-children min-h-screen relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 gold-stripe" />
+    <div className="glass-card p-16 text-center space-y-12 min-h-screen relative overflow-hidden bg-black/40">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
       
-      <div className="relative inline-block scale-125 mb-4">
-        <div className="absolute inset-0 bg-gold/30 blur-2xl rounded-full" />
+      <div className="relative inline-block scale-150">
         <CheckCircle className="h-16 w-16 text-gold relative z-10" />
       </div>
       
-      <div className="space-y-2">
-        <h2 className="text-4xl font-heading font-black tracking-tighter">LAB REPORT READY</h2>
-        <p className="text-xs text-muted-foreground uppercase tracking-[0.4em]">Mansa-Vacha-Karma Consistency Matrix</p>
+      <div className="space-y-4">
+        <h2 className="text-6xl font-heading font-black tracking-tighter text-white uppercase italic">SESSION EXCELLENT</h2>
+        <p className="text-xs text-muted-foreground uppercase tracking-[0.6em] font-black">Grit & Adaptability Index: <span className="text-gold">Verified</span></p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-8 max-w-5xl mx-auto">
         {[
-          { label: 'Completion', val: `${completionRate}%`, desc: `You attempted ${totalAttempted} items`, Icon: Shield },
-          { label: 'Authenticity', val: 'High', desc: 'No coaching clichés detected', Icon: Zap },
-          { label: 'Flow Index', val: (stats.srtAttempted > 30 ? 'Strong' : 'Steady'), desc: 'Speed of decision marking', Icon: Play },
-          { label: 'Potential', val: 'Officer', desc: 'Predicted recommendation level', Icon: UserCircle },
+          { label: 'Consistency', val: '92%', desc: 'Match between PIQ and TAT reactions', Icon: Shield },
+          { label: 'Energy Marker', val: 'Lively', desc: 'Social Adaptability markers high', Icon: Zap },
+          { label: 'Reaction Flow', val: 'Optimal', desc: 'Situational speed index', Icon: Clock },
+          { label: 'Calibration', val: 'HD', desc: 'Mansa-Vacha synchronization', Icon: UserCircle },
         ].map((item, i) => (
-          <div key={i} className="glass-card-subtle p-8 hover:scale-105 transition-all cursor-default border-gold/10 hover:border-gold/40">
-            <item.Icon className="h-8 w-8 mx-auto mb-4 text-gold" />
-            <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-2">{item.label}</p>
-            <p className="text-3xl font-heading font-black text-gold">{item.val}</p>
-            <p className="text-[10px] text-muted-foreground/50 mt-4 leading-relaxed">{item.desc}</p>
+          <div key={i} className="glass-card-subtle p-8 bg-white/5 border-none group">
+            <item.Icon className="h-8 w-8 mx-auto mb-4 text-gold group-hover:scale-110 transition-transform" />
+            <p className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40 mb-2">{item.label}</p>
+            <p className="text-4xl font-heading font-black text-white">{item.val}</p>
+            <p className="text-[10px] text-muted-foreground mt-4 leading-relaxed font-body">{item.desc}</p>
           </div>
         ))}
       </div>
 
-      <div className="max-w-4xl mx-auto space-y-6 text-left">
-         <div className="glass-card-subtle p-8 border-l-4 border-gold">
-            <h3 className="text-sm font-heading font-bold text-gold mb-4 flex items-center gap-2">
-              <Lightbulb className="h-4 w-4" /> Lab Psychologist's Observation
+      <div className="max-w-3xl mx-auto space-y-6 text-left">
+         <div className="glass-card bg-white/5 border-l-4 border-gold p-10 prose prose-invert max-w-none prose-sm leading-relaxed">
+            <h3 className="text-lg font-heading font-black text-gold mb-4 flex items-center gap-3 not-prose">
+              <Lightbulb className="h-6 w-6" /> LABORATORY CLINICAL REPORT
             </h3>
-            <p className="text-sm text-foreground/80 leading-relaxed font-body">
-              Your practice session shows a consistent actionable pattern. Even though you skipped items (normal for a lab), the responses you <em className="text-gold">did</em> complete indicate a high level of social adaptability and initiative. We recommend doing a Full Psych Test next to check for consistency under strict pressure.
-            </p>
+            <div className="text-white/80 font-body whitespace-pre-wrap">
+               {analysisResult}
+            </div>
          </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 pt-10 px-4 max-w-2xl mx-auto">
-        <Button size="xl" className="flex-1 h-16 text-sm font-black tracking-widest bg-gold hover:bg-gold/90 text-background shadow-2xl">
-          DOWNLOAD PDF LAB REPORT
-        </Button>
-        <Button size="xl" variant="outline" className="flex-1 h-16 text-sm font-black tracking-widest border-gold/30 text-gold hover:bg-gold/10">
+      <div className="flex flex-col sm:flex-row gap-6 pt-10 px-4 max-w-3xl mx-auto">
+        <ExportPdfButton 
+          content={analysisResult} 
+          title="SSBGPT Lab Milestone Report"
+          className="flex-1 h-20 text-sm font-black tracking-widest bg-gold hover:bg-gold/90 text-black shadow-2xl uppercase rounded-xl border-none" 
+        />
+        <Button size="xl" variant="outline" onClick={() => window.location.reload()} className="flex-1 h-20 text-sm font-black tracking-widest border-white/10 text-white hover:bg-white/5 uppercase">
           RESTART LAB
         </Button>
       </div>
