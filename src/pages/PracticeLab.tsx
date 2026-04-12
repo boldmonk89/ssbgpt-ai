@@ -3,6 +3,8 @@ import { useAppStore } from '@/store/appStore';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   Timer, FileText, Share2, Shield, Upload, Clock, 
   AlertTriangle, CheckCircle, Zap, UserCircle, 
@@ -31,6 +33,7 @@ export default function PracticeLabPage() {
   const { examStats, setExamStats } = useAppStore();
   const [mode, setMode] = useState<LabMode>('DASHBOARD');
   const [isPaused, setIsPaused] = useState(false);
+  const navigate = useNavigate();
   
   // Test Data States
   const [tatPool, setTatPool] = useState<string[]>([]);
@@ -80,10 +83,10 @@ export default function PracticeLabPage() {
           <Button 
             variant="ghost" 
             onClick={() => {
-              if (mode === 'DASHBOARD') window.location.href = '/dashboard';
+              if (mode === 'DASHBOARD') navigate('/');
               else setMode('DASHBOARD');
             }}
-            className="glass-button-gold px-6 h-10 text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
+            className="glass-button-gold px-3 md:px-6 h-10 text-[9px] md:text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
           >
             <ChevronLeft className="h-4 w-4" /> {mode === 'DASHBOARD' ? 'BACK TO HOME' : 'EXIT TO DASHBOARD'}
           </Button>
@@ -168,9 +171,9 @@ function RulesScreen({ title, rules, onStart, onBack }: { title: string, rules: 
   const allChecked = checked.paper && checked.quiet && checked.time;
 
   return (
-    <div className="max-w-xl mx-auto space-y-12 py-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-xl mx-auto space-y-12 py-10 animate-in fade-in slide-in-from-bottom-4 duration-700 font-heading">
       <div className="text-center space-y-3">
-        <h2 className="text-4xl font-black text-white tracking-[0.2em] uppercase font-sans leading-tight">{title}</h2>
+        <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">{title}</h2>
         <div className="h-1 w-20 bg-gold mx-auto" />
         <p className="text-[10px] text-gold uppercase tracking-[0.4em] font-bold opacity-80 mt-2">Standardized Rules of Engagement</p>
       </div>
@@ -244,13 +247,13 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
           if (prev <= 1) {
             if (isViewing) {
               setIsViewing(false);
-              speak("Begin writing."); // Only speak requested cues
+              speak("Begin writing.");
               return 240;
             } else {
               if (index < 11) {
                 setIndex(index + 1);
                 setIsViewing(true);
-                speak("Stop writing."); // Only speak requested cues
+                speak("Stop writing.");
                 return 30;
               } else {
                 speak("Stop writing.");
@@ -264,7 +267,7 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [isViewing, index, isPaused, isUploadPhase]);
+  }, [isViewing, index, isPaused, isUploadPhase, showRules]);
 
   if (showRules) return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -284,8 +287,8 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
 
   if (isUploadPhase) return <PdfMilestone title="TAT Story Set" onComplete={onComplete} count={12} />;
 
-  return (
-    <div className="fixed inset-0 z-[500] bg-black flex flex-col items-center justify-center animate-in fade-in duration-1000">
+  const overlay = (
+    <div className="fixed inset-0 z-[10000] bg-black flex flex-col items-center justify-center animate-in fade-in duration-1000">
        <Button 
          variant="ghost" 
          onClick={onComplete}
@@ -319,6 +322,8 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
        </div>
     </div>
   );
+
+  return createPortal(overlay, document.body);
 }
 
 function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onComplete: () => void, watPool: any[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
@@ -346,7 +351,7 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [index, isPaused, isUploadPhase]);
+  }, [index, isPaused, isUploadPhase, showRules]);
 
   if (showRules) return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -366,8 +371,8 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
 
   if (isUploadPhase) return <PdfMilestone title="WAT Sentence Set" onComplete={onComplete} count={60} />;
 
-  return (
-    <div className="fixed inset-0 z-[500] bg-black flex flex-col items-center justify-center animate-in fade-in duration-1000">
+  const overlay = (
+    <div className="fixed inset-0 z-[10000] bg-black flex flex-col items-center justify-center animate-in fade-in duration-1000 font-heading">
        <Button 
          variant="ghost" 
          onClick={onComplete}
@@ -383,13 +388,15 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
        </div>
 
        <div className="text-center space-y-2">
-          <h2 className="text-4xl md:text-6xl font-heading font-black text-white tracking-tight animate-in zoom-in-90 fade-in duration-300">
+          <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight animate-in zoom-in-90 fade-in duration-300">
             {watPool[index]?.word.toLowerCase() || '---'}
           </h2>
           <div className="h-1 w-24 bg-gold mx-auto mt-8 blur-[1px] opacity-50" />
        </div>
     </div>
   );
+
+  return createPortal(overlay, document.body);
 }
 
 function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onComplete: () => void, srtPool: any[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {

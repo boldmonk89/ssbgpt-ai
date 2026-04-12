@@ -121,7 +121,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Main headline — Playfair Display with gold italic highlights */}
-          <h1 className="leading-tight mb-4 tracking-tight">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl leading-tight mb-4 tracking-tight">
             Most SSB Candidates Fail For<br />
             <span className="text-gold">Predictable Reasons.</span>
           </h1>

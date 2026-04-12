@@ -9,6 +9,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tool
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
 import { buildFullReportPrompt, callGemini, callGeminiMultiPart, fileToBase64 } from '@/lib/gemini';
 import { ChevronLeft, BrainCircuit, Maximize2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // We'll shuffle these pools to pick the test sets
 const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
@@ -28,6 +29,7 @@ const speak = (text: string) => {
 };
 
 export default function FullAnalysisPage() {
+  const navigate = useNavigate();
   const { examStats, setExamStats } = useAppStore();
   const [step, setStep] = useState<TestStep>('INSTRUCTIONS');
   const [progress, setProgress] = useState(0);
@@ -77,12 +79,12 @@ export default function FullAnalysisPage() {
           <Button 
             variant="ghost" 
             onClick={() => {
-              if (step === 'INSTRUCTIONS') window.location.href = '/dashboard';
-              else setStep('INSTRUCTIONS');
+              if (step === 'INSTRUCTIONS') navigate('/');
+              else navigate('/');
             }}
-            className="glass-button-gold px-6 h-10 text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
+            className="glass-button-gold px-3 md:px-6 h-10 text-[9px] md:text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
           >
-            <ChevronLeft className="h-4 w-4" /> {step === 'INSTRUCTIONS' ? 'RETURN TO DASHBOARD' : 'CANCEL TEST'}
+            <ChevronLeft className="h-4 w-4" /> {step === 'INSTRUCTIONS' ? 'EXIT TO HOME' : 'CANCEL TEST'}
           </Button>
         </div>
       </div>
