@@ -163,68 +163,65 @@ function DashboardCard({ title, icon: Icon, desc, onClick, accent = false }: { t
   );
 }
 
-function RulesOverlay({ title, rules, onStart, onBack }: { title: string, rules: string[], onStart: () => void, onBack: () => void }) {
+function RulesScreen({ title, rules, onStart, onBack }: { title: string, rules: string[], onStart: () => void, onBack: () => void }) {
   const [checked, setChecked] = useState({ paper: false, quiet: false, time: false });
   const allChecked = checked.paper && checked.quiet && checked.time;
 
   return (
-    <div className="absolute inset-0 z-[200] bg-background backdrop-blur-3xl overflow-y-auto custom-scrollbar">
-      <div className="min-h-full flex flex-col items-center justify-start p-6 pt-12 pb-32 relative">
-        <Button 
-          variant="ghost" 
-          onClick={onBack}
-          className="absolute top-6 left-6 text-white/40 hover:text-white uppercase tracking-widest text-[10px] items-center gap-2"
-        >
-          <ChevronLeft className="h-4 w-4" /> Return to Dashboard
-        </Button>
-        <div className="max-w-xl w-full space-y-8 text-center scroll-reveal">
-          <div className="space-y-1">
-            <h2 className="text-3xl font-black text-white tracking-[0.25em] uppercase font-sans">{title}</h2>
-            <p className="text-[10px] text-gold uppercase tracking-[0.4em] font-bold">Standardized Rules of Engagement</p>
-          </div>
-          <div className="h-px w-full bg-white/10" />
-          <ul className="space-y-5 text-left max-w-lg mx-auto">
+    <div className="max-w-xl mx-auto space-y-12 py-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="text-center space-y-3">
+        <h2 className="text-4xl font-black text-white tracking-[0.2em] uppercase font-sans leading-tight">{title}</h2>
+        <div className="h-1 w-20 bg-gold mx-auto" />
+        <p className="text-[10px] text-gold uppercase tracking-[0.4em] font-bold opacity-80 mt-2">Standardized Rules of Engagement</p>
+      </div>
+
+      <div className="glass-card p-1">
+        <div className="bg-black/40 p-8 space-y-8">
+          <ul className="space-y-6">
             {rules.map((rule, i) => (
-              <li key={i} className="flex items-start gap-4 text-white/90">
-                <div className="h-2 w-2 rounded-full bg-gold mt-2.5 shrink-0" />
-                <p className="text-base leading-relaxed font-sans font-medium tracking-tight">{rule}</p>
+              <li key={i} className="flex items-start gap-4">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold font-mono text-gold">{i + 1}</span>
+                <p className="text-sm leading-relaxed font-sans text-white/80">{rule}</p>
               </li>
             ))}
           </ul>
 
-          <div className="space-y-4 pt-6 border-t border-white/10">
-             <h3 className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold text-center">Mandatory Environment Verification</h3>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {[
-                  { id: 'paper', label: 'Pen & Paper' },
-                  { id: 'quiet', label: 'Isolated Space' },
-                  { id: 'time', label: 'Full Slot Ready' }
-                ].map((item) => (
-                  <label key={item.id} className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all group">
-                     <input 
-                       type="checkbox" 
-                       checked={checked[item.id as keyof typeof checked]}
-                       onChange={() => setChecked(prev => ({ ...prev, [item.id]: !prev[item.id as keyof typeof checked] }))}
-                       className="h-4 w-4 appearance-none rounded border-gold border-2 bg-transparent checked:bg-gold transition-all cursor-pointer"
-                     />
-                     <span className="text-[9px] text-white/60 uppercase font-bold group-hover:text-gold">{item.label}</span>
-                  </label>
-                ))}
-             </div>
+          <div className="space-y-4 pt-8 border-t border-white/5">
+            <h3 className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold text-center">Environment Verification</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {[
+                { id: 'paper', label: 'Pen & Paper' },
+                { id: 'quiet', label: 'Isolated Space' },
+                { id: 'time', label: 'Full Slot Ready' }
+              ].map((item) => (
+                <label key={item.id} className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-gold/10 hover:border-gold/40 transition-all group">
+                  <input 
+                    type="checkbox" 
+                    checked={checked[item.id as keyof typeof checked]}
+                    onChange={() => setChecked(prev => ({ ...prev, [item.id]: !prev[item.id as keyof typeof checked] }))}
+                    className="h-4 w-4 appearance-none rounded border-gold border-2 bg-transparent checked:bg-gold transition-all cursor-pointer"
+                  />
+                  <span className="text-[9px] text-white/40 uppercase font-black group-hover:text-gold">{item.label}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
-          <div className="pt-6">
-             <Button 
-               disabled={!allChecked}
-               onClick={() => {
-                 toast.info("Clinical session initiated. Record all responses clearly.", { icon: "🖋️" });
-                 onStart();
-               }} 
-               size="xl" 
-               className="w-full h-16 bg-white text-black font-bold text-lg tracking-[0.2em] rounded-none hover:bg-gold transition-colors shadow-[0_0_30px_rgba(255,255,255,0.1)] disabled:opacity-20"
-             >
-               INITIATE SESSION
-             </Button>
+          <div className="pt-4 flex flex-col gap-4">
+            <Button 
+              disabled={!allChecked}
+              onClick={() => {
+                toast.info("Clinical session initiated.", { icon: "🖋️" });
+                onStart();
+              }} 
+              size="xl" 
+              className="w-full h-16 bg-gold text-black font-black text-lg tracking-widest rounded-xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-20 shadow-[0_20px_50px_rgba(207,169,78,0.2)]"
+            >
+              INITIATE SESSION
+            </Button>
+            <Button variant="ghost" onClick={onBack} className="text-white/40 uppercase tracking-widest text-[10px] h-10">
+              Return to Laboratory Dashboard
+            </Button>
           </div>
         </div>
       </div>
@@ -269,11 +266,21 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
     return () => clearInterval(timer);
   }, [isViewing, index, isPaused, isUploadPhase]);
 
-  if (showRules) return <RulesOverlay title="TAT" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
-    "The picture will appear on the screen for 30 sec (Do not write during this time)",
-    "For the next 4 minutes the screen will go blank. Write your story during these 4 minutes.",
-    "Keep writing material ready before you proceed."
-  ]} />;
+  if (showRules) return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <RulesScreen 
+        title="TAT Lab" 
+        onBack={onComplete}
+        onStart={() => { setShowRules(false); speak("Test beginning."); }}
+        rules={[
+          "The picture will appear on the screen for 30 sec.",
+          "Observe details and formulate Hero's objective.",
+          "Write your story during the blank slide interval.",
+          "Keep writing material ready before you proceed."
+        ]} 
+      />
+    </div>
+  );
 
   if (isUploadPhase) return <PdfMilestone title="TAT Story Set" onComplete={onComplete} count={12} />;
 
@@ -333,12 +340,21 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
     return () => clearInterval(timer);
   }, [index, isPaused, isUploadPhase]);
 
-  if (showRules) return <RulesOverlay title="WAT" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
-    "60 words will be displayed sequentially.",
-    "Each word will stay on screen for 15 seconds.",
-    "Write your first thought/sentence during this time.",
-    "Do not pause or wait. Respond instinctively."
-  ]} />;
+  if (showRules) return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <RulesScreen 
+        title="WAT Lab" 
+        onBack={onComplete}
+        onStart={() => { setShowRules(false); speak("Test beginning."); }}
+        rules={[
+          "60 words will be displayed sequentially.",
+          "Each word will stay on screen for 15 seconds.",
+          "Write your first thought/sentence during this time.",
+          "Do not pause or wait. Respond instinctively."
+        ]} 
+      />
+    </div>
+  );
 
   if (isUploadPhase) return <PdfMilestone title="WAT Sentence Set" onComplete={onComplete} count={60} />;
 
@@ -378,12 +394,21 @@ function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onCo
   const pageSize = 15;
   const currentSituations = srtPool.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
-  if (showRules) return <RulesOverlay title="SRT" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
-    "60 situations will be displayed in pages.",
-    "Total time: 45 Minutes for all 60 situations.",
-    "Write brief, logical and action-oriented responses.",
-    "Focus on what you will actually DO in that situation."
-  ]} />;
+  if (showRules) return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <RulesScreen 
+        title="SRT Lab" 
+        onBack={onComplete}
+        onStart={() => { setShowRules(false); speak("Test beginning."); }}
+        rules={[
+          "60 situations will be presented in a clinical run.",
+          "Observe each situation and record your logic.",
+          "Be concise and write your spontaneous reaction.",
+          "Focus on action-oriented responses."
+        ]} 
+      />
+    </div>
+  );
 
   if (isUploadPhase) return <PdfMilestone title="SRT Response Sheet" onComplete={onComplete} count={60} />;
 
@@ -460,12 +485,21 @@ function SdLabStep({ onComplete, onUpdateAttempted, isPaused }: { onComplete: ()
     return () => clearInterval(timer);
   }, [isPaused, showRules, isFinished]);
 
-  if (showRules) return <RulesOverlay title="SD APPRAISAL" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
-    "Write 5 distinct paragraphs about how others perceive you.",
-    "Total time: 15 Minutes (Proctored).",
-    "Sections: Parents, Teachers, Friends, Self, and Future Goals.",
-    "Be honest and balanced. Avoid coached templates."
-  ]} />;
+  if (showRules) return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <RulesScreen 
+        title="SD Lab" 
+        onBack={onComplete}
+        onStart={() => { setShowRules(false); speak("Test beginning."); }}
+        rules={[
+          "Write 5 distinct paragraphs about how others perceive you.",
+          "Total time: 15 Minutes (Proctored).",
+          "Sections: Parents, Teachers, Friends, Self, and Future Goals.",
+          "Be honest and balanced. Avoid coached templates."
+        ]} 
+      />
+    </div>
+  );
 
   if (isFinished) return <PdfMilestone title="SD Component" onComplete={onComplete} count={5} />;
 
