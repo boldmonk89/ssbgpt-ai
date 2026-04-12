@@ -99,8 +99,32 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
       margin-top: 48px;
       padding-top: 16px;
       border-top: 1px solid #ddd;
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    
+    .signature-area {
+      text-align: left;
+    }
+    
+    .signature-line {
+      width: 150px;
+      border-bottom: 1px solid #1a1a2e;
+      margin-bottom: 4px;
+      height: 30px;
+    }
+    
+    .signature-label {
       font-size: 10px;
+      color: #1a1a2e;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .footer-meta {
+      text-align: right;
+      font-size: 9px;
       color: #aaa;
       letter-spacing: 0.1em;
     }
@@ -121,7 +145,14 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
   <div class="separator"></div>
   ${convertMarkdownToHtml(content)}
   <div class="footer">
-    SSBGPT — 15 OLQ Framework — Confidential Assessment Report
+    <div class="signature-area">
+      <div class="signature-line"></div>
+      <div class="signature-label">Clinical Examiner Signature</div>
+      <div style="font-size: 8px; color: #888; margin-top: 2px;">Psychomotor Synthesis Hub — Verified</div>
+    </div>
+    <div class="footer-meta">
+      SSBGPT — 15 OLQ Framework — Confidential Assessment Narrative
+    </div>
   </div>
 </body>
 </html>`;

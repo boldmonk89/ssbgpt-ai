@@ -34,16 +34,16 @@
     --success: 155 65% 32%;
     --success-foreground: 220 20% 93%;
 
-    --gold: 43 55% 58%;
+    --gold: 38 48% 54%; /* Matte Gold / Champagne */
     --gold-foreground: 220 65% 3%;
 
-    --border: 215 40% 16%;
-    --input: 215 40% 16%;
+    --border: 215 40% 12%; 
+    --input: 215 40% 12%;
     --ring: 215 65% 45%;
 
-    --radius: 0.875rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 220 55% 5%;
+    --sidebar-background: 220 55% 4%;
     --sidebar-foreground: 220 20% 93%;
     --sidebar-primary: 43 55% 58%;
     --sidebar-primary-foreground: 220 65% 3%;
@@ -69,8 +69,9 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Playfair Display', serif;
-    font-weight: 900;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    font-style: normal;
+    letter-spacing: -0.01em;
   }
 
   h1 { @apply text-3xl md:text-5xl leading-tight; }

@@ -49,45 +49,57 @@ export default function PracticeLabPage() {
   };
 
   return (
-    <div className="space-y-6 scroll-reveal pb-24 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div className="gold-border-left">
-          <h1 className="text-4xl font-black tracking-tight text-white uppercase italic">SSB PRACTICE LAB</h1>
-          <p className="text-muted-foreground font-body text-xs mt-1 uppercase tracking-widest">Select Individual component for Focused Practice</p>
+    <div className="space-y-4 scroll-reveal pb-24 max-w-6xl mx-auto">
+      <div className="flex items-center justify-between px-2">
+        <div className="flex items-center gap-4">
+          {mode !== 'DASHBOARD' && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setMode('DASHBOARD')}
+              className="h-10 w-10 rounded-full hover:bg-white/10"
+            >
+              <ChevronLeft className="h-6 w-6 text-white" />
+            </Button>
+          )}
+          <div className="border-l-2 border-gold pl-4">
+            <h1 className="text-2xl font-bold tracking-tight text-white uppercase font-sans">SSB PRACTICE LAB</h1>
+            <p className="text-muted-foreground font-body text-[10px] uppercase tracking-[0.2em] opacity-60">Clinical Assessment Environment</p>
+          </div>
         </div>
       </div>
 
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
         {mode === 'DASHBOARD' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <DashboardCard 
               title="TAT Lab" 
               icon={Eye} 
-              desc="Thematic Apperception Test. 12 Slides viewing only." 
+              desc="Thematic Apperception Test. 12 Slides." 
               onClick={() => setMode('TAT')} 
             />
             <DashboardCard 
               title="WAT Lab" 
               icon={Zap} 
-              desc="Word Association Test. 60 words, 15s per word." 
+              desc="Word Association Test. 60 words." 
               onClick={() => setMode('WAT')} 
             />
             <DashboardCard 
               title="SRT Lab" 
               icon={Shield} 
-              desc="Situation Reaction Test. 60 situations, paged view." 
+              desc="Situation Reaction Test. 60 situations." 
               onClick={() => setMode('SRT')} 
             />
             <DashboardCard 
               title="SD Lab" 
               icon={FileText} 
-              desc="Self Description. 15 minutes reflection." 
+              desc="Self Description Appraisal." 
               onClick={() => setMode('SD')} 
             />
             <DashboardCard 
-              title="Final Analysis" 
+              title="Synthesis Engine" 
               icon={BrainCircuit} 
-              desc="View cross-match clinical report after tests." 
+              desc="Psychological Narrative Synthesis." 
               onClick={() => setMode('ANALYSIS')} 
               accent
             />
@@ -122,15 +134,39 @@ function DashboardCard({ title, icon: Icon, desc, onClick, accent = false }: { t
       className={`glass-card p-4 cursor-pointer transition-all border-white/5 active:scale-95 flex flex-col items-center text-center space-y-2 ${accent ? 'bg-gold/5 border-gold/20' : 'hover:bg-white/5'}`}
     >
       <div className={`p-2 rounded-xl ${accent ? 'bg-gold/10 text-gold' : 'bg-white/5 text-white/40'}`}>
-        <Icon className="h-6 w-6" />
+        <Icon className="h-5 w-5" />
       </div>
-      <h3 className={`text-lg font-black italic uppercase ${accent ? 'text-gold' : 'text-white'}`}>{title}</h3>
-      <p className="text-[10px] text-muted-foreground leading-tight">{desc}</p>
+      <h3 className={`text-base font-bold uppercase tracking-tight ${accent ? 'text-gold' : 'text-white'}`}>{title}</h3>
+      <p className="text-[9px] text-muted-foreground leading-tight uppercase tracking-widest opacity-60">{desc}</p>
+    </div>
+  );
+}
+
+function RulesOverlay({ title, rules, onStart }: { title: string, rules: string[], onStart: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[200] bg-black backdrop-blur-3xl flex items-center justify-center p-6">
+      <div className="max-w-2xl w-full space-y-8 text-center scroll-reveal">
+        <h2 className="text-4xl font-bold tracking-[0.2em] text-white uppercase border-b border-white/10 pb-4">{title} RULES</h2>
+        <ul className="space-y-4 text-left max-w-lg mx-auto">
+          {rules.map((rule, i) => (
+            <li key={i} className="flex items-start gap-3 text-white/80">
+              <span className="text-gold font-bold">•</span>
+              <p className="text-lg leading-relaxed font-sans">{rule}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="pt-8">
+           <Button onClick={onStart} size="xl" className="w-full h-16 bg-white text-black font-bold text-xl rounded-none hover:bg-gold transition-colors">
+             START WRITING
+           </Button>
+        </div>
+      </div>
     </div>
   );
 }
 
 function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onComplete: () => void, tatPool: string[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
+  const [showRules, setShowRules] = useState(true);
   const [index, setIndex] = useState(0);
   const [isViewing, setIsViewing] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30);
@@ -138,7 +174,7 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isPaused && !isUploadPhase) {
+    if (!isPaused && !isUploadPhase && !showRules) {
       timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -166,31 +202,36 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
     return () => clearInterval(timer);
   }, [isViewing, index, isPaused, isUploadPhase]);
 
+  if (showRules) return <RulesOverlay title="TAT" onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+    "The picture will appear on the screen for 30 sec (Do not write during this time)",
+    "For the next 4 minutes the screen will go blank. Write your story during these 4 minutes.",
+    "Keep writing material ready before you proceed."
+  ]} />;
+
   if (isUploadPhase) return <PdfMilestone title="TAT Story Set" onComplete={onComplete} count={12} />;
 
   return (
-    <div className="space-y-6">
-       <div className="flex items-center justify-between glass-card p-4 border-none bg-white/5">
-         <div className="flex items-center gap-6">
-            <span className="text-2xl font-black text-white italic">TAT SCENE {index + 1} / 12</span>
-         </div>
-         <div className="flex items-center gap-4 bg-black/40 px-6 py-3 rounded-2xl border border-white/10">
-           <Clock className="h-5 w-5 text-gold" />
-           <span className="text-3xl font-mono font-black">{Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}</span>
-         </div>
+    <div className="space-y-4">
+       <div className="flex items-center justify-between glass-card p-3 border-none bg-white/5">
+          <span className="text-xl font-bold text-white uppercase tracking-tight">SCENE {index + 1} / 12</span>
+          <div className="flex items-center gap-2 opacity-0">
+            <Clock className="h-4 w-4" />
+            <span className="text-xl font-mono">{timeLeft}s</span>
+          </div>
        </div>
 
-       <div className="relative aspect-[16/9] w-full rounded-[2rem] overflow-hidden border border-white/10 bg-black flex items-center justify-center">
+       <div className="relative max-h-[65vh] w-full rounded-2xl overflow-hidden border border-white/5 bg-black flex items-center justify-center">
           {isViewing ? (
              index < 11 ? (
-               <img src={tatPool[index]} className="w-full h-full object-contain animate-in fade-in duration-500" />
+               <img src={tatPool[index]} className="max-h-[65vh] w-full object-contain animate-in fade-in duration-500" />
              ) : (
                <div className="absolute inset-0 bg-white" />
              )
           ) : (
-            <div className="flex flex-col items-center text-center space-y-6">
-               <Pencil className="h-16 w-16 text-gold opacity-50" />
-               <h2 className="text-5xl font-black italic uppercase text-white">RECORD STORY</h2>
+            <div className="flex flex-col items-center text-center space-y-4 py-20">
+               <Pencil className="h-10 w-10 text-gold/40" />
+               <h2 className="text-3xl font-bold uppercase text-white tracking-widest">START WRITING</h2>
+               <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-relaxed">Focus on Hero's thoughts and ultimate resolution.</p>
             </div>
           )}
        </div>
@@ -199,13 +240,14 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
 }
 
 function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onComplete: () => void, watPool: any[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
+  const [showRules, setShowRules] = useState(true);
   const [index, setIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
   const [isUploadPhase, setIsUploadPhase] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isPaused && !isUploadPhase) {
+    if (!isPaused && !isUploadPhase && !showRules) {
       timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -224,20 +266,27 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
     return () => clearInterval(timer);
   }, [index, isPaused, isUploadPhase]);
 
+  if (showRules) return <RulesOverlay title="WAT" onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+    "60 words will be displayed sequentially.",
+    "Each word will stay on screen for 15 seconds.",
+    "Write your first thought/sentence during this time.",
+    "Do not pause or wait. Respond instinctively."
+  ]} />;
+
   if (isUploadPhase) return <PdfMilestone title="WAT Sentence Set" onComplete={onComplete} count={60} />;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
        <div className="flex items-center justify-between px-2">
-         <span className="text-2xl font-black text-white italic">WORD {index + 1} / 60</span>
-         <div className="flex items-center gap-3 bg-white/5 p-4 rounded-xl border border-white/10">
-            <Clock className="h-4 w-4 text-gold" />
-            <span className="text-xl font-mono font-black text-white">{timeLeft}s</span>
+         <span className="text-sm font-bold text-white uppercase tracking-widest opacity-60">WORD {index + 1} / 60</span>
+         <div className="flex items-center gap-2 opacity-0">
+            <Clock className="h-3 w-3" />
+            <span className="text-sm font-mono">{timeLeft}s</span>
          </div>
        </div>
 
-       <div className="glass-card h-[400px] flex items-center justify-center bg-black/60 rounded-[3rem] border border-white/5">
-          <h2 className="text-9xl font-serif italic text-white text-center animate-in fade-in duration-300">
+       <div className="glass-card h-[300px] flex items-center justify-center bg-black/60 rounded-[2rem] border border-white/5">
+          <h2 className="text-6xl font-sans font-bold text-white text-center animate-in fade-in duration-300 uppercase tracking-tighter">
             {watPool[index]?.word.toLowerCase() || '---'}
           </h2>
        </div>
@@ -246,13 +295,14 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
 }
 
 function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onComplete: () => void, srtPool: any[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
+  const [showRules, setShowRules] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [timeLeft, setTimeLeft] = useState(2700);
   const [isUploadPhase, setIsUploadPhase] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isPaused && !isUploadPhase) {
+    if (!isPaused && !isUploadPhase && !showRules) {
       timer = setInterval(() => setTimeLeft(prev => Math.max(0, prev - 1)), 1000);
     }
     return () => clearInterval(timer);
@@ -261,15 +311,22 @@ function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onCo
   const pageSize = 15;
   const currentSituations = srtPool.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
+  if (showRules) return <RulesOverlay title="SRT" onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+    "60 situations will be displayed in pages.",
+    "Total time: 45 Minutes for all 60 situations.",
+    "Write brief, logical and action-oriented responses.",
+    "Focus on what you will actually DO in that situation."
+  ]} />;
+
   if (isUploadPhase) return <PdfMilestone title="SRT Response Sheet" onComplete={onComplete} count={60} />;
 
   return (
-    <div className="space-y-6">
-       <div className="flex items-center justify-between glass-card bg-black/40 border-none p-6">
-          <h2 className="text-3xl font-black uppercase italic text-white font-serif">SRT SITUATIONS</h2>
-          <div className="flex items-center gap-4 bg-white/5 px-6 py-2 rounded-2xl border border-white/10">
-             <Clock className="h-5 w-5 text-gold" />
-             <span className="text-3xl font-mono font-black text-white">
+    <div className="space-y-4">
+       <div className="flex items-center justify-between glass-card bg-black/40 border-none p-4">
+          <h2 className="text-xl font-bold uppercase text-white font-sans tracking-tight">SRT SITUATIONS</h2>
+          <div className="flex items-center gap-2 opacity-0">
+             <Clock className="h-4 w-4" />
+             <span className="text-xl font-mono">
                 {Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}
              </span>
           </div>
@@ -307,30 +364,38 @@ function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onCo
 }
 
 function SdLabStep({ onComplete, onUpdateAttempted, isPaused }: { onComplete: () => void, onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
+  const [showRules, setShowRules] = useState(true);
   const [timeLeft, setTimeLeft] = useState(900);
   const [isUploadPhase, setIsUploadPhase] = useState(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isPaused && !isUploadPhase) {
+    if (!isPaused && !isUploadPhase && !showRules) {
       timer = setInterval(() => setTimeLeft(prev => Math.max(0, prev - 1)), 1000);
     }
     return () => clearInterval(timer);
   }, [isPaused, isUploadPhase]);
 
+  if (showRules) return <RulesOverlay title="SD" onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+    "Write 5 paragraphs about what others think of you.",
+    "Total time: 15 Minutes.",
+    "Cover: Parents, Teachers, Friends, Self, and Goals.",
+    "Be honest and balanced in your appraisal."
+  ]} />;
+
   if (isUploadPhase) return <PdfMilestone title="SD Component" onComplete={onComplete} count={5} />;
 
   return (
-    <div className="max-w-4xl mx-auto py-10 space-y-8">
-       <div className="glass-card p-16 text-center bg-black border-gold/40 border-t-8 space-y-6">
-          <h2 className="text-5xl font-black text-white italic uppercase tracking-tighter">SD REFLECTION</h2>
-          <div className="inline-flex items-center gap-4 bg-white/5 px-10 py-5 rounded-3xl border border-white/10">
-             <Clock className="h-8 w-8 text-gold animate-pulse" />
-             <span className="text-5xl font-mono font-black italic text-white tracking-widest">
+    <div className="max-w-2xl mx-auto py-6 space-y-6">
+       <div className="glass-card p-10 text-center bg-black border-gold/20 border-t-4 space-y-4">
+          <h2 className="text-2xl font-bold text-white uppercase tracking-tight">SD APPRAISAL</h2>
+          <div className="inline-flex items-center gap-3 opacity-0">
+             <Clock className="h-5 w-5" />
+             <span className="text-2xl font-mono">
                 {Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}
              </span>
           </div>
-          <Button size="xl" variant="gold" onClick={() => setIsUploadPhase(true)} className="w-full h-20 text-xl font-black uppercase">
+          <Button size="xl" variant="gold" onClick={() => setIsUploadPhase(true)} className="w-full h-16 text-lg font-bold uppercase rounded-none">
              SUBMIT REFLECTION
           </Button>
        </div>

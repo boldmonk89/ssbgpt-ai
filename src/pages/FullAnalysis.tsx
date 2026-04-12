@@ -54,9 +54,9 @@ export default function FullAnalysisPage() {
 
   return (
     <div className="space-y-6 scroll-reveal pb-20 font-serif">
-      <div className="gold-border-left">
-        <h1 className="text-3xl font-heading font-black tracking-tight">SSB Psychological Examination</h1>
-        <p className="text-muted-foreground font-body text-sm mt-1">Real SSB Pattern — Strict Timers — Mansa-Vacha-Karma Verification</p>
+      <div className="border-l-2 border-gold pl-4">
+        <h1 className="text-2xl font-bold tracking-tight text-white uppercase font-sans">SSB Psychological Examination</h1>
+        <p className="text-muted-foreground font-body text-[10px] mt-1 uppercase tracking-widest opacity-60">Mansa-Vacha-Karma Verification Matrix</p>
       </div>
 
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md py-4 border-b border-border/30">
@@ -261,8 +261,8 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="glass-card space-y-6 flex flex-col items-center">
       <div className="flex justify-between w-full px-2">
-        <span className="text-xs font-heading font-bold text-gold">SCENE {index + 1} / {totalSlides}</span>
-        <div className="flex items-center gap-2 text-gold">
+        <span className="text-xs font-bold text-white uppercase tracking-widest opacity-60">SCENE {index + 1} / {totalSlides}</span>
+        <div className="flex items-center gap-2 text-gold opacity-0">
           <Clock className="h-4 w-4" />
           <span className="text-sm font-mono font-bold">{formatTime(timeLeft)}</span>
         </div>
@@ -364,7 +364,7 @@ function WatStep({ onComplete }: { onComplete: () => void }) {
       <div className="absolute top-4 left-4">
         <span className="text-xs font-heading font-bold text-gold/60 uppercase tracking-widest">WAT Sequence</span>
       </div>
-      <div className="absolute top-4 right-4 flex items-center gap-2 text-gold font-mono font-bold">
+      <div className="absolute top-4 right-4 flex items-center gap-2 text-gold font-mono font-bold opacity-0">
         <Clock className="h-4 w-4" />
         <span>0:{timeLeft < 10 ? '0' : ''}{timeLeft}</span>
       </div>
@@ -443,7 +443,7 @@ function SrtStep({ onComplete }: { onComplete: () => void }) {
           <Zap className="h-5 w-5 text-gold" />
           <h2 className="text-lg font-heading font-bold">Situation Reaction Test</h2>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-black/40 rounded-xl border border-gold/20 text-gold font-mono font-bold">
+        <div className="flex items-center gap-2 px-4 py-2 bg-black/40 rounded-xl border border-gold/20 text-gold font-mono font-bold opacity-0">
           <Timer className="h-4 w-4 animate-pulse" />
           <span>{formatTime(timeLeft)}</span>
         </div>
@@ -518,7 +518,7 @@ function SdStep({ onComplete }: { onComplete: () => void }) {
           <Shield className="h-5 w-5 text-gold" />
           <h2 className="text-lg font-heading font-bold">Self Description</h2>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-black/40 rounded-xl border border-gold/20 text-gold font-mono font-bold">
+        <div className="flex items-center gap-2 px-4 py-2 bg-black/40 rounded-xl border border-gold/20 text-gold font-mono font-bold opacity-0">
           <Timer className="h-4 w-4" />
           <span>{formatTime(timeLeft)}</span>
         </div>
@@ -589,8 +589,8 @@ function FinalAnalysisStep({ stats }: { stats: any }) {
         <div className="glass-card p-12 bg-black/40 border-gold/40 border-t-8 shadow-2xl space-y-6">
            <BrainCircuit className="h-16 w-16 text-gold mx-auto animate-pulse" />
            <div className="space-y-2">
-              <h2 className="text-3xl font-heading font-black text-white italic tracking-tighter uppercase font-serif">Execute Matrix Analysis</h2>
-              <p className="text-muted-foreground uppercase tracking-[0.4em] text-[10px] font-black">Connecting with Psychomotor Engine...</p>
+              <h2 className="text-2xl font-bold text-white tracking-tight uppercase font-sans">Execute Synthesis Engine</h2>
+              <p className="text-muted-foreground uppercase tracking-[0.4em] text-[9px] font-bold opacity-60">Connecting with Psychomotor Clinical Hub...</p>
            </div>
            <Button onClick={handleGenerate} size="xl" className="w-full h-16 text-xl font-black tracking-widest bg-gold text-black shadow-2xl uppercase">
               GENERATE PSYCH CLINICAL REPORT

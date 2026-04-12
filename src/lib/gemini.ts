@@ -304,8 +304,8 @@ For each situation-response:
 4. **Improvement**: Better response if needed.
 5. **Score**: Out of 10.
 
-Then **Batch Summary**:
-- OLQ patterns, weaknesses, top improvements, overall rating.
+Then **Synthesis Summary**:
+- OLQ patterns, weaknesses, top improvements, overall evaluation.
 - No markdown tables. Keep concise and actionable. No repetitive preamble.`;
 }
 
@@ -383,10 +383,10 @@ WAT Analysis: ${watSummary || 'Not available'}
 SRT Analysis: ${srtSummary || 'Not available'}
 SD Analysis: ${sdSummary || 'Not available'}
 
-Generate a DEEP clinical report:
+Generate a DEEP CLINICAL NARRATIVE:
 
-## 1. Executive Summary & Identity Match Score
-Overall psychological profile in 5-6 lines. Give an overall alignment percentage (0-100%) between PIQ claims and test evidence.
+## 1. Professional Synthesis & Identity Match Score
+Overall psychological profile in 5-6 lines. Give an overall alignment percentage (0-100%) between life-history claims and test evidence.
 
 ## 2. Mansa-Vacha-Karma (Cross-Match Matrix)
 Analyze consistency between:
