@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -38,9 +38,7 @@ export default function FullAnalysisPage() {
   const [sdData, setSdData] = useState<string | null>(null);
 
   useEffect(() => {
-    // Shuffling on mount for this session
-    setWatPool(shuffle(WAT_WORDS).slice(0, 60));
-    setSrtPool(shuffle(SRT_SITUATIONS).slice(0, 60));
+    // Session markers established on mount
   }, []);
 
   const nextStep = () => {
