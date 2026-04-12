@@ -233,6 +233,7 @@ export default function Interview() {
           </button>
         </div>
           
+        <div className="glass-card shadow-lg border-t-2 border-t-gold/30 p-6 md:p-8">
           {/* Mode A */}
           {activeTab === 'A' && (
             <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-500">
@@ -397,8 +398,6 @@ export default function Interview() {
               ) : null}
             </div>
           )}
-
-
         </div>
       </div>
     </PageTransition>

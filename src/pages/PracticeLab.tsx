@@ -472,7 +472,7 @@ function SdLabStep({ onComplete, onUpdateAttempted }: { onComplete: () => void, 
                 onFocus={() => { setFilled(f => Math.min(5, f + 1)); onUpdateAttempted(filled + 1); }}
               />
             </div>
-            <p className="text-[9px] text-muted-foreground mt-4 italic opacity-0 group-hover:opacity-100 transition-opacity">Calibration Hint: Actions > Adjectives</p>
+            <p className="text-[9px] text-muted-foreground mt-4 italic opacity-0 group-hover:opacity-100 transition-opacity">Calibration Hint: Actions over Adjectives</p>
           </div>
         ))}
         <div className="glass-card p-10 flex flex-col items-center justify-center text-center space-y-6 border-dashed border-2 border-gold/20">
@@ -524,13 +524,13 @@ function FinalAnalysisStep({ stats }: { stats: any }) {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-8">
         {[
-          { label: 'Completion', val: `${completionRate}%`, desc: `You attempted ${totalAttempted} items`, icon: Shield },
-          { label: 'Authenticity', val: 'High', desc: 'No coaching clichés detected', icon: Zap },
-          { label: 'Flow Index', val: stats.srtAttempted > 30 ? 'Strong' : 'Steady', desc: 'Speed of decision marking', icon: Play },
-          { label: 'Potential', val: 'Officer', desc: 'Predicted recommendation level', icon: UserCircle },
+          { label: 'Completion', val: `${completionRate}%`, desc: `You attempted ${totalAttempted} items`, Icon: Shield },
+          { label: 'Authenticity', val: 'High', desc: 'No coaching clichés detected', Icon: Zap },
+          { label: 'Flow Index', val: (stats.srtAttempted > 30 ? 'Strong' : 'Steady'), desc: 'Speed of decision marking', Icon: Play },
+          { label: 'Potential', val: 'Officer', desc: 'Predicted recommendation level', Icon: UserCircle },
         ].map((item, i) => (
           <div key={i} className="glass-card-subtle p-8 hover:scale-105 transition-all cursor-default border-gold/10 hover:border-gold/40">
-            <item.icon className="h-8 w-8 mx-auto mb-4 text-gold" />
+            <item.Icon className="h-8 w-8 mx-auto mb-4 text-gold" />
             <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-2">{item.label}</p>
             <p className="text-3xl font-heading font-black text-gold">{item.val}</p>
             <p className="text-[10px] text-muted-foreground/50 mt-4 leading-relaxed">{item.desc}</p>
