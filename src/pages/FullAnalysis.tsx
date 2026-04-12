@@ -8,7 +8,7 @@ import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
 import { buildFullReportPrompt, callGemini, callGeminiMultiPart, fileToBase64 } from '@/lib/gemini';
-import { ChevronLeft, BrainCircuit } from 'lucide-react';
+import { ChevronLeft, BrainCircuit, Maximize2 } from 'lucide-react';
 
 // We'll shuffle these pools to pick the test sets
 const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
@@ -50,20 +50,41 @@ export default function FullAnalysisPage() {
     }
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+    }
+  };
+
   return (
     <div className="space-y-6 scroll-reveal pb-20 font-serif">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-8 px-4 pt-4">
         <div className="border-l-2 border-gold pl-4">
-          <h1 className="text-2xl font-bold tracking-tight text-white uppercase font-sans">SSB Psychological Examination</h1>
-          <p className="text-muted-foreground font-body text-[10px] mt-1 uppercase tracking-widest opacity-60">Mansa-Vacha-Karma Verification Matrix</p>
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white uppercase font-sans">Psychological Examination</h1>
+          <p className="text-muted-foreground font-body text-[10px] mt-1 uppercase tracking-widest opacity-60">Baseline Synthesis Matrix</p>
         </div>
-        <Button 
-          variant="ghost" 
-          onClick={() => window.location.href = '/dashboard'}
-          className="glass-button-gold px-6 h-10 text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
-        >
-          <ChevronLeft className="h-4 w-4" /> RETURN TO DASHBOARD
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            onClick={toggleFullscreen}
+            className="glass-button-gold w-10 h-10 p-0 flex items-center justify-center"
+            title="Toggle Fullscreen"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              if (step === 'INSTRUCTIONS') window.location.href = '/dashboard';
+              else setStep('INSTRUCTIONS');
+            }}
+            className="glass-button-gold px-6 h-10 text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" /> {step === 'INSTRUCTIONS' ? 'RETURN TO DASHBOARD' : 'CANCEL TEST'}
+          </Button>
+        </div>
       </div>
 
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md py-4 border-b border-border/30">
@@ -245,9 +266,6 @@ function TatStep({ onComplete }: { onComplete: (data: string) => void }) {
   const totalSlides = 12;
 
   useEffect(() => {
-    // Automatic Fullscreen for TAT
-    try { document.documentElement.requestFullscreen(); } catch (e) {}
-    
     let timer: NodeJS.Timeout;
     if (!isFinished) {
       timer = setInterval(() => {

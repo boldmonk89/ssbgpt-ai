@@ -52,22 +52,42 @@ export default function PracticeLabPage() {
     setExamStats({ [key]: value });
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+    }
+  };
+
   return (
     <div className="space-y-4 scroll-reveal pb-24 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between px-2 mb-6">
+      <div className="flex items-center justify-between px-2 mb-6 pt-4">
         <div className="flex items-center gap-4">
           <div className="border-l-2 border-gold pl-4">
             <h1 className="text-xl font-bold tracking-tight text-white uppercase font-sans">SSB PRACTICE LAB</h1>
-            <p className="text-muted-foreground font-body text-[10px] uppercase tracking-[0.2em] opacity-60">Clinical Assessment Environment</p>
+            <p className="text-muted-foreground font-body text-[10px] uppercase tracking-[0.2em] opacity-60 italic-none">Clinical Assessment Environment</p>
           </div>
         </div>
-        <Button 
-          variant="ghost" 
-          onClick={() => setMode('DASHBOARD')}
-          className="glass-button-gold px-6 h-10 text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
-        >
-          <ChevronLeft className="h-4 w-4" /> {mode === 'DASHBOARD' ? 'BACK TO HOME' : 'EXIT TO DASHBOARD'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            onClick={toggleFullscreen}
+            className="glass-button-gold w-10 h-10 p-0 flex items-center justify-center"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              if (mode === 'DASHBOARD') window.location.href = '/dashboard';
+              else setMode('DASHBOARD');
+            }}
+            className="glass-button-gold px-6 h-10 text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" /> {mode === 'DASHBOARD' ? 'BACK TO HOME' : 'EXIT TO DASHBOARD'}
+          </Button>
+        </div>
       </div>
 
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
