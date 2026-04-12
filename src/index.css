@@ -68,20 +68,20 @@
   }
 
   h1, h2, h3 {
-    @apply uppercase tracking-[0.15em] text-gold;
+    @apply tracking-[0.02em] text-foreground;
     font-family: 'Playfair Display', serif;
     font-weight: 700;
   }
 
   h4, h5, h6 {
-    @apply uppercase tracking-[0.05em] text-foreground/80;
+    @apply tracking-[0.01em] text-foreground/80;
     font-family: 'Playfair Display', serif;
     font-weight: 600;
   }
 
-  h1 { @apply text-4xl md:text-6xl leading-tight; }
-  h2 { @apply text-3xl md:text-5xl leading-snug; }
-  h3 { @apply text-xl md:text-3xl font-bold; }
+  h1 { @apply text-4xl md:text-7xl leading-tight; }
+  h2 { @apply text-3xl md:text-5xl leading-snug font-semibold; }
+  h3 { @apply text-xl md:text-3xl font-medium text-gold; }
 }
 
 @layer utilities {

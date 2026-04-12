@@ -296,8 +296,7 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
 
        <div className="absolute top-6 right-8 flex items-center gap-4">
           <div className="flex flex-col items-end">
-             <span className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Scene {index + 1} / 12</span>
-             <span className="text-4xl font-mono text-white/90">{timeLeft}s</span>
+             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Scene {index + 1} / 12</span>
           </div>
        </div>
 
@@ -313,7 +312,7 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
                <div className="h-20 w-20 rounded-full border-2 border-white/5 flex items-center justify-center animate-pulse">
                  <Pencil className="h-8 w-8 text-white/20" />
                </div>
-               <h2 className="text-5xl font-black uppercase text-white tracking-[0.4em] font-heading">Begin Writing</h2>
+               <h2 className="text-4xl font-heading font-black text-white tracking-[0.4em]">Begin Writing</h2>
                <p className="text-xs text-white/30 uppercase tracking-[0.5em] font-sans">Focus — Action — Resolution</p>
             </div>
           )}
@@ -379,13 +378,12 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
 
        <div className="absolute top-6 right-8 flex items-center gap-4">
           <div className="flex flex-col items-end">
-             <span className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Word {index + 1} / 60</span>
-             <span className="text-4xl font-mono text-white/90">{timeLeft}s</span>
+             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Word {index + 1} / 60</span>
           </div>
        </div>
 
        <div className="text-center space-y-2">
-          <h2 className="text-7xl md:text-9xl font-heading font-black text-white uppercase tracking-tighter animate-in zoom-in-90 fade-in duration-300">
+          <h2 className="text-4xl md:text-6xl font-heading font-black text-white tracking-tight animate-in zoom-in-90 fade-in duration-300">
             {watPool[index]?.word.toLowerCase() || '---'}
           </h2>
           <div className="h-1 w-24 bg-gold mx-auto mt-8 blur-[1px] opacity-50" />
@@ -529,38 +527,42 @@ function SdLabStep({ onComplete, onUpdateAttempted, isPaused }: { onComplete: ()
   ];
 
   return (
-    <div className="max-w-4xl mx-auto py-6 space-y-8 animate-in fade-in duration-700">
+    <div className="max-w-4xl mx-auto py-10 space-y-12 animate-in fade-in duration-1000">
        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Self Description Appraisal</h2>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold">Clinical Mansa-Vacha Matching</p>
+          <h1 className="text-3xl md:text-5xl">Self Description Appraisal</h1>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.4em] font-bold">Clinical Mansa-Vacha Matching</p>
        </div>
 
-       <div className="space-y-6">
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {SECTIONS.map((section) => (
-            <div key={section.id} className="glass-card-subtle p-0 overflow-hidden border-white/5 focus-within:border-gold/30 transition-all">
-               <div className="bg-white/[0.03] px-4 py-2 border-b border-white/5">
-                  <span className="text-[10px] font-black text-gold uppercase tracking-widest">{section.label}</span>
-               </div>
-               <textarea
-                 className="w-full bg-transparent p-4 text-sm font-body min-h-[120px] focus:outline-none placeholder:text-white/10"
-                 placeholder={section.placeholder}
-                 value={(responses as any)[section.id]}
-                 onChange={(e) => setResponses({ ...responses, [section.id]: e.target.value })}
-               />
+            <div key={section.id} className="glass-card-subtle p-6 border-white/5 flex flex-col gap-3">
+               <h3 className="text-xs font-bold text-gold uppercase tracking-widest">{section.label}</h3>
+               <p className="text-[11px] text-white/40 leading-relaxed italic">
+                 Observe and prepare this section on your sheet. Focus on authenticity and balanced self-reflection.
+               </p>
             </div>
           ))}
+          <div className="glass-card bg-gold/5 border-gold/20 flex flex-col items-center justify-center p-8 text-center gap-4">
+             <Pencil className="h-8 w-8 text-gold/40" />
+             <h3 className="text-sm font-bold text-white uppercase">Proctored Session Active</h3>
+             <p className="text-[10px] text-muted-foreground tracking-widest">Writing period: 15 Minutes</p>
+          </div>
        </div>
 
-       <div className="pt-6">
+       <div className="max-w-xl mx-auto">
           <Button 
             size="xl" 
             variant="gold" 
             onClick={() => setIsFinished(true)} 
-            className="w-full h-16 text-lg font-bold uppercase rounded-none shadow-2xl"
+            className="w-full h-20 text-xl font-bold rounded-none shadow-2xl"
           >
-             FINALIZE REFLECTION ORAL PIQ
+             FINISH & UPLOAD PDF
           </Button>
-          <p className="text-center text-[9px] text-muted-foreground mt-4 uppercase tracking-widest opacity-40">Timer is active in the background. 15 Minutes total.</p>
+          <div className="mt-8 flex items-center justify-center gap-6 opacity-40">
+             <div className="h-px w-10 bg-white/20" />
+             <span className="text-[10px] uppercase tracking-widest font-mono">{Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60} REMAINING</span>
+             <div className="h-px w-10 bg-white/20" />
+          </div>
        </div>
     </div>
   );

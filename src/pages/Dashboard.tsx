@@ -121,9 +121,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Main headline — Playfair Display with gold italic highlights */}
-          <h1 className="leading-tight mb-4">
+          <h1 className="leading-tight mb-4 tracking-tight">
             Most SSB Candidates Fail For<br />
-            <span className="text-white drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]">Predictable Reasons</span>
+            <span className="text-gold">Predictable Reasons.</span>
           </h1>
 
           {/* Subtitle */}
