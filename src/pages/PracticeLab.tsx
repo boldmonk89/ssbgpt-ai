@@ -67,7 +67,7 @@ export default function PracticeLabPage() {
             </Button>
           )}
           <div className="border-l-2 border-gold pl-4">
-            <h1 className="text-2xl font-bold tracking-tight text-white uppercase font-sans">SSB PRACTICE LAB</h1>
+            <h1 className="text-lg font-bold tracking-tight text-white uppercase font-sans">SSB PRACTICE LAB</h1>
             <p className="text-muted-foreground font-body text-[10px] uppercase tracking-[0.2em] opacity-60">Clinical Assessment Environment</p>
           </div>
         </div>
@@ -162,7 +162,7 @@ function RulesOverlay({ title, rules, onStart, onBack }: { title: string, rules:
         </Button>
         <div className="max-w-xl w-full space-y-8 text-center scroll-reveal">
           <div className="space-y-1">
-            <h2 className="text-5xl font-bold tracking-[0.25em] text-white uppercase">{title}</h2>
+            <h2 className="text-3xl font-black text-white tracking-[0.25em] uppercase font-sans">{title}</h2>
             <p className="text-[10px] text-gold uppercase tracking-[0.4em] font-bold">Standardized Rules of Engagement</p>
           </div>
           <div className="h-px w-full bg-white/10" />
@@ -538,7 +538,7 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
   if (!analysisResult && !loading) return (
      <div className="glass-card p-20 text-center space-y-8 border-gold/40 border-t-8 bg-black/60 backdrop-blur-3xl">
         <BrainCircuit className="h-16 w-16 text-gold mx-auto" />
-        <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase">Generate Lab Matrix</h2>
+        <h2 className="text-2xl font-black text-white tracking-tighter uppercase">Generate Lab Matrix</h2>
         <Button onClick={handleGenerate} size="xl" className="w-full max-w-sm h-16 bg-gold text-black uppercase">
            START AI ANALYSIS
         </Button>
@@ -548,7 +548,7 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
   if (loading) return (
     <div className="space-y-10 pt-10 text-center max-w-5xl mx-auto">
        <FlaskConical className="h-16 w-16 text-gold mx-auto animate-pulse" />
-       <h2 className="text-4xl font-black tracking-widest text-white italic uppercase">CALIBRATING NEURAL PROFILE...</h2>
+       <h2 className="text-2xl font-black tracking-widest text-white uppercase">CALIBRATING NEURAL PROFILE...</h2>
        <SkeletonAnalysis />
     </div>
   );
@@ -556,7 +556,7 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
   return (
     <div className="glass-card p-10 text-center space-y-8 bg-black/40">
       <CheckCircle className="h-12 w-12 text-gold mx-auto" />
-      <h2 className="text-4xl font-black tracking-tighter text-white uppercase italic font-serif">EXAMINATION VERIFIED</h2>
+      <h2 className="text-2xl font-black tracking-tighter text-white uppercase font-sans">EXAMINATION VERIFIED</h2>
       <div className="max-w-4xl mx-auto prose prose-invert text-left bg-white/5 p-8 rounded-2xl border-l-4 border-gold shadow-2xl">
          <div className="text-white/80 font-body whitespace-pre-wrap leading-relaxed text-sm">
             {analysisResult}

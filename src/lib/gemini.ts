@@ -180,7 +180,7 @@ If valid, provide a structured analysis:
    - Rate the candidate's story (out of 10)
    - Which specific OLQs need improvement?
 
-Always respond in a structured, helpful, encouraging tone suitable for SSB aspirants. No unnecessary repetition.`;
+Always respond in a strictly professional, clinical tone. Avoid any generic praise like "Good start" or "Excellent story". Focus on cold, evidence-based psychological patterns. Be brutally honest about weaknesses. No unnecessary repetition.`;
 }
 
 export function buildTatPdfPrompt(): string {
@@ -214,7 +214,7 @@ Otherwise, perform analysis:
 ...
 Overall WAT Rating (Realistic Rating: DO NOT defaults to Excellent. Rate strictly).
 
-Keep analysis concise. Focus on actionable corrections.`;
+Keep analysis concise and data-driven. Avoid soft adjectives. Focus on cold, actionable corrections.`;
 }
 
 export function buildWatPdfPrompt(): string {
@@ -306,6 +306,7 @@ For each situation-response:
 
 Then **Synthesis Summary**:
 - OLQ patterns, weaknesses, top improvements, overall evaluation.
+- DO NOT USE GENERIC ADJECTIVES (e.g., "Good", "Fine"). Use clinical descriptors.
 - No markdown tables. Keep concise and actionable. No repetitive preamble.`;
 }
 
@@ -345,7 +346,7 @@ Provide analysis:
 5. **Rewritten Paragraph (Ideal Version)**: 80-120 words. Action-oriented, using calibration style. 
 6. **Score**: X/10 with justification.
 
-Be CRISP, direct, and actionable. No generic preamble.`;
+Be strictly professional, clinical, and data-focused. No generic praise or encouraging preamble. Provide objective truth about the candidate's alignment.`;
 }
 
 export function buildSdFromPdfPrompt(): string {
@@ -417,7 +418,7 @@ Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For
 ## 8. 30-Day Action Plan
 Ranked list of 5 specific things to do to close the gap between claims and actual personality.
 
-Be brutally honest, constructive, and direct. The candidate needs TRUTH, not comfort.`;
+Be brutally honest, clinical, and data-driven. The candidate needs the COLD TRUTH, not comfort or generic encouragement. Avoid all soft adjectives.`;
 }
 
 export function buildFullPdfAnalysisPrompt(): string {
