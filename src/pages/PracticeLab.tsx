@@ -142,23 +142,36 @@ function DashboardCard({ title, icon: Icon, desc, onClick, accent = false }: { t
   );
 }
 
-function RulesOverlay({ title, rules, onStart }: { title: string, rules: string[], onStart: () => void }) {
+function RulesOverlay({ title, rules, onStart, onBack }: { title: string, rules: string[], onStart: () => void, onBack: () => void }) {
   return (
-    <div className="fixed inset-0 z-[200] bg-black backdrop-blur-3xl flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full space-y-8 text-center scroll-reveal">
-        <h2 className="text-4xl font-bold tracking-[0.2em] text-white uppercase border-b border-white/10 pb-4">{title} RULES</h2>
-        <ul className="space-y-4 text-left max-w-lg mx-auto">
-          {rules.map((rule, i) => (
-            <li key={i} className="flex items-start gap-3 text-white/80">
-              <span className="text-gold font-bold">•</span>
-              <p className="text-lg leading-relaxed font-sans">{rule}</p>
-            </li>
-          ))}
-        </ul>
-        <div className="pt-8">
-           <Button onClick={onStart} size="xl" className="w-full h-16 bg-white text-black font-bold text-xl rounded-none hover:bg-gold transition-colors">
-             START WRITING
-           </Button>
+    <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-3xl overflow-y-auto">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 py-20 relative">
+        <Button 
+          variant="ghost" 
+          onClick={onBack}
+          className="absolute top-6 left-6 text-white/40 hover:text-white uppercase tracking-widest text-[10px] items-center gap-2"
+        >
+          <ChevronLeft className="h-4 w-4" /> Return to Dashboard
+        </Button>
+        <div className="max-w-xl w-full space-y-8 text-center scroll-reveal">
+          <div className="space-y-1">
+            <h2 className="text-5xl font-bold tracking-[0.25em] text-white uppercase">{title}</h2>
+            <p className="text-[10px] text-gold uppercase tracking-[0.4em] font-bold">Standardized Rules of Engagement</p>
+          </div>
+          <div className="h-px w-full bg-white/10" />
+          <ul className="space-y-5 text-left max-w-lg mx-auto">
+            {rules.map((rule, i) => (
+              <li key={i} className="flex items-start gap-4 text-white/90">
+                <div className="h-2 w-2 rounded-full bg-gold mt-2.5 shrink-0" />
+                <p className="text-base leading-relaxed font-sans font-medium tracking-tight">{rule}</p>
+              </li>
+            ))}
+          </ul>
+          <div className="pt-10">
+             <Button onClick={onStart} size="xl" className="w-full h-16 bg-white text-black font-bold text-lg tracking-[0.2em] rounded-none hover:bg-gold transition-colors shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+               INITIATE SESSION
+             </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -202,7 +215,7 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
     return () => clearInterval(timer);
   }, [isViewing, index, isPaused, isUploadPhase]);
 
-  if (showRules) return <RulesOverlay title="TAT" onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+  if (showRules) return <RulesOverlay title="TAT" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
     "The picture will appear on the screen for 30 sec (Do not write during this time)",
     "For the next 4 minutes the screen will go blank. Write your story during these 4 minutes.",
     "Keep writing material ready before you proceed."
@@ -266,7 +279,7 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
     return () => clearInterval(timer);
   }, [index, isPaused, isUploadPhase]);
 
-  if (showRules) return <RulesOverlay title="WAT" onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+  if (showRules) return <RulesOverlay title="WAT" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
     "60 words will be displayed sequentially.",
     "Each word will stay on screen for 15 seconds.",
     "Write your first thought/sentence during this time.",
@@ -311,7 +324,7 @@ function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onCo
   const pageSize = 15;
   const currentSituations = srtPool.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
-  if (showRules) return <RulesOverlay title="SRT" onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+  if (showRules) return <RulesOverlay title="SRT" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
     "60 situations will be displayed in pages.",
     "Total time: 45 Minutes for all 60 situations.",
     "Write brief, logical and action-oriented responses.",
@@ -332,12 +345,13 @@ function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onCo
           </div>
        </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+       <div className="grid grid-cols-1 gap-4">
           {currentSituations.map((srt, i) => (
-            <div key={i} className="glass-card bg-white/5 border-white/5 p-6 h-36 flex flex-col justify-between">
-               <div className="flex gap-4">
-                  <span className="text-xs font-black text-gold/30">{currentPage * pageSize + i + 1}.</span>
-                  <p className="text-[10px] leading-relaxed italic text-white/80 line-clamp-5">
+            <div key={i} className="glass-card bg-white/5 border-white/10 p-5 h-24 flex items-center">
+               <div className="flex gap-6 items-center w-full">
+                  <span className="text-[10px] font-bold text-gold/40 shrink-0">SIT {currentPage * pageSize + i + 1}</span>
+                  <div className="h-8 w-px bg-white/10 shrink-0" />
+                  <p className="text-sm font-medium leading-relaxed text-white/90 line-clamp-2">
                     {srt.situation}
                   </p>
                </div>
@@ -376,7 +390,7 @@ function SdLabStep({ onComplete, onUpdateAttempted, isPaused }: { onComplete: ()
     return () => clearInterval(timer);
   }, [isPaused, isUploadPhase]);
 
-  if (showRules) return <RulesOverlay title="SD" onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+  if (showRules) return <RulesOverlay title="SD" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
     "Write 5 paragraphs about what others think of you.",
     "Total time: 15 Minutes.",
     "Cover: Parents, Teachers, Friends, Self, and Goals.",
@@ -407,20 +421,40 @@ function PdfMilestone({ title, onComplete, count }: { title: string, onComplete:
   const [isUploaded, setIsUploaded] = useState(false);
 
   return (
-    <div className="max-w-xl mx-auto py-10 animate-in zoom-in-95">
-       <div className="glass-card p-12 text-center space-y-8 border-success/30 border-t-4 bg-success/5">
-          <FileText className="h-12 w-12 text-success mx-auto" />
-          <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Component Complete</h2>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{title} — {count} Items Recorded</p>
+    <div className="max-w-2xl mx-auto py-10 animate-in slide-in-from-bottom-4 duration-500">
+       <div className="glass-card p-10 bg-black/40 border-gold/10 border-t-4 border-t-gold space-y-8">
+          <div className="text-center space-y-2">
+             <h2 className="text-3xl font-bold text-white uppercase tracking-tight font-sans">Verification Required</h2>
+             <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-bold">{title} • Record Count: {count}</p>
+          </div>
+
           <div 
             onClick={() => setIsUploaded(!isUploaded)}
-            className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 transition-all ${isUploaded ? 'border-success bg-white/5' : 'border-white/10 hover:border-success/40'}`}
+            className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
           >
-             {isUploaded ? <CheckCircle className="h-10 w-10 text-success mx-auto" /> : <Upload className="h-10 w-10 text-success/60 mx-auto" />}
+             {isUploaded ? (
+               <div className="space-y-4 text-center">
+                 <CheckCircle className="h-8 w-8 text-gold mx-auto" />
+                 <p className="text-xs font-bold text-gold uppercase tracking-widest">Document Secured & Verified</p>
+               </div>
+             ) : (
+               <div className="space-y-4 text-center">
+                 <Upload className="h-8 w-8 text-white/40 mx-auto" />
+                 <p className="text-xs font-bold text-white/40 uppercase tracking-widest">Click to Initiate Submission</p>
+                 <p className="text-[9px] text-muted-foreground/60 uppercase">PDF • JPG • PNG (Max 10MB)</p>
+               </div>
+             )}
           </div>
-          <Button disabled={!isUploaded} onClick={onComplete} size="xl" className="w-full h-16 bg-success text-white">
-            CONFIRM UPLOAD
-          </Button>
+          
+          <div className="pt-4 border-t border-white/5 space-y-4">
+             <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold px-1">
+                <span>Psychomotor Lab Status:</span>
+                <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'READY FOR SYNTHESIS' : 'PENDING UPLOAD'}</span>
+             </div>
+             <Button disabled={!isUploaded} onClick={onComplete} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
+                FINALIZE COMPONENT
+             </Button>
+          </div>
        </div>
     </div>
   );

@@ -136,54 +136,42 @@ function PiqStep({ onComplete }: { onComplete: () => void }) {
   const [isUploaded, setIsUploaded] = useState(false);
 
   return (
-    <div className="glass-card stagger-children p-10 text-center space-y-8">
-      <div className="mx-auto h-20 w-20 rounded-3xl bg-gold/10 border border-gold/20 flex items-center justify-center">
-        <UserCircle className="h-10 w-10 text-gold" />
-      </div>
-      
-      <div className="space-y-2">
-        <h2 className="text-2xl font-heading font-bold">Step 1: Universal Context</h2>
-        <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-          Upload your PIQ (Personal Information Questionnaire) form. This helps our AI psychologists establish your baseline life-history profile.
-        </p>
-      </div>
-
-      <div className="flex flex-col items-center gap-4">
-        {!isUploaded ? (
-          <div className="w-full max-w-sm border-2 border-dashed border-gold/30 rounded-2xl p-8 hover:border-gold/60 transition-colors bg-gold/5 group">
-            <Upload className="h-8 w-8 text-gold mx-auto mb-4 group-hover:scale-110 transition-transform" />
-            <p className="text-xs font-bold text-gold uppercase tracking-widest mb-1">Click to Upload PIQ PDF</p>
-            <p className="text-[10px] text-muted-foreground">Supports PDF, JPG, PNG — Maximum 5MB</p>
-            <input 
-              type="file" 
-              className="absolute inset-0 opacity-0 cursor-pointer" 
-              onChange={() => {
-                setIsUploaded(true);
-                toast.success('PIQ uploaded successfully');
-              }}
-            />
+    <div className="max-w-2xl mx-auto py-10 animate-in slide-in-from-bottom-4 duration-500">
+       <div className="glass-card p-10 bg-black/40 border-gold/10 border-t-4 border-t-gold space-y-8">
+          <div className="text-center space-y-2">
+             <h2 className="text-3xl font-bold text-white uppercase tracking-tight font-sans">Baseline Profile Intake</h2>
+             <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-bold">Step 1: Universal Life-History Context (PIQ)</p>
           </div>
-        ) : (
-          <div className="w-full max-w-sm rounded-2xl p-6 bg-success/10 border border-success/30 flex items-center gap-4">
-             <div className="h-10 w-10 rounded-full bg-success/20 flex items-center justify-center">
-               <CheckCircle className="h-5 w-5 text-success" />
-             </div>
-             <div className="text-left">
-               <p className="text-sm font-bold text-success">PIQ Data Captured</p>
-               <p className="text-[10px] text-muted-foreground">baseline_profile.pdf (Ready for analysis)</p>
-             </div>
-          </div>
-        )}
-      </div>
 
-      <Button 
-        disabled={!isUploaded} 
-        onClick={onComplete} 
-        size="lg"
-        className="w-full max-w-xs"
-      >
-        Proceed to TAT Test
-      </Button>
+          <div 
+            onClick={() => setIsUploaded(!isUploaded)}
+            className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 relative ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
+          >
+             {!isUploaded && <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={() => setIsUploaded(true)} />}
+             {isUploaded ? (
+               <div className="space-y-4 text-center">
+                 <CheckCircle className="h-8 w-8 text-gold mx-auto" />
+                 <p className="text-xs font-bold text-gold uppercase tracking-widest">PIQ Authenticated & Secured</p>
+               </div>
+             ) : (
+               <div className="space-y-4 text-center">
+                 <Upload className="h-8 w-8 text-white/40 mx-auto" />
+                 <p className="text-xs font-bold text-white/40 uppercase tracking-widest">Click to Upload PIQ Form</p>
+                 <p className="text-[9px] text-muted-foreground/60 uppercase">PDF • JPG • PNG (Max 5MB)</p>
+               </div>
+             )}
+          </div>
+          
+          <div className="pt-4 border-t border-white/5 space-y-4">
+             <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold px-1">
+                <span>Clinical Intake Status:</span>
+                <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'RECORD CAPTURED' : 'AWAITING UPLOAD'}</span>
+             </div>
+             <Button disabled={!isUploaded} onClick={onComplete} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
+                PROCEED TO PSYCH TESTS
+             </Button>
+          </div>
+       </div>
     </div>
   );
 }
@@ -242,19 +230,11 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
 
   if (isFinished) {
     return (
-      <div className="glass-card text-center py-12 space-y-6">
-        <div className="h-16 w-16 bg-success/20 rounded-full flex items-center justify-center mx-auto">
-          <CheckCircle className="h-8 w-8 text-success" />
-        </div>
-        <h2 className="text-2xl font-heading font-bold">TAT Completed</h2>
-        <p className="text-muted-foreground">Upload your TAT stories (1-12) as a PDF or high-quality image.</p>
-        <div className="flex flex-col items-center gap-4">
-          <Button variant="outline" className="w-full max-w-sm border-dashed border-2 py-8">
-            <Upload className="mr-2 h-4 w-4" /> Upload TAT PDF
-          </Button>
-          <Button onClick={onComplete} className="w-full max-w-sm">Continue to WAT</Button>
-        </div>
-      </div>
+      <MilestoneOverlay 
+        title="TAT Session Complete" 
+        meta="12 Slides Synthesized" 
+        onComplete={onComplete} 
+      />
     );
   }
 
@@ -343,19 +323,11 @@ function WatStep({ onComplete }: { onComplete: () => void }) {
 
   if (isFinished) {
     return (
-      <div className="glass-card text-center py-12 space-y-6">
-        <div className="h-16 w-16 bg-success/20 rounded-full flex items-center justify-center mx-auto">
-          <CheckCircle className="h-8 w-8 text-success" />
-        </div>
-        <h2 className="text-2xl font-heading font-bold">WAT Completed</h2>
-        <p className="text-muted-foreground">Upload your 60 sentences as a PDF.</p>
-        <div className="flex flex-col items-center gap-4">
-          <Button variant="outline" className="w-full max-w-sm border-dashed border-2 py-8">
-            <Upload className="mr-2 h-4 w-4" /> Upload WAT PDF
-          </Button>
-          <Button onClick={onComplete} className="w-full max-w-sm">Continue to SRT</Button>
-        </div>
-      </div>
+      <MilestoneOverlay 
+        title="WAT Word Block Complete" 
+        meta="60 Items Processed" 
+        onComplete={onComplete} 
+      />
     );
   }
 
@@ -423,16 +395,11 @@ function SrtStep({ onComplete }: { onComplete: () => void }) {
 
   if (isFinished) {
     return (
-      <div className="glass-card text-center py-12 space-y-6">
-        <h2 className="text-2xl font-heading font-bold">Time Up!</h2>
-        <p className="text-muted-foreground">The 45-minute SRT block has ended. Upload your responses now.</p>
-        <div className="flex flex-col items-center gap-4">
-          <Button variant="outline" className="w-full max-w-sm border-dashed border-2 py-8">
-            <Upload className="mr-2 h-4 w-4" /> Upload SRT PDF
-          </Button>
-          <Button onClick={onComplete} className="w-full max-w-sm">Continue to SD</Button>
-        </div>
-      </div>
+      <MilestoneOverlay 
+        title="SRT Block Complete" 
+        meta="60 Scenarios Evaluated" 
+        onComplete={onComplete} 
+      />
     );
   }
 
@@ -449,12 +416,13 @@ function SrtStep({ onComplete }: { onComplete: () => void }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="grid grid-cols-1 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
         {SRT_SITUATIONS.slice(0, 60).map((srt, i) => (
-          <div key={srt.id} className="glass-card-subtle p-4 border-l-2 border-gold/40 hover:border-gold transition-colors">
-            <div className="flex gap-4">
-              <span className="text-[10px] font-heading font-black text-gold/40 mt-1">{i + 1}</span>
-              <p className="text-xs leading-relaxed font-body italic text-muted-foreground/90">{srt.situation}</p>
+          <div key={srt.id} className="glass-card-subtle p-5 h-24 flex items-center border-l-2 border-gold/40 hover:border-gold transition-colors">
+            <div className="flex gap-6 items-center w-full">
+              <span className="text-[10px] font-bold text-gold/40 shrink-0">{i + 1}</span>
+              <div className="h-8 w-px bg-white/10 shrink-0" />
+              <p className="text-xs leading-relaxed font-body text-muted-foreground/90 line-clamp-2">{srt.situation}</p>
             </div>
           </div>
         ))}
@@ -498,16 +466,11 @@ function SdStep({ onComplete }: { onComplete: () => void }) {
 
   if (isFinished) {
     return (
-      <div className="glass-card text-center py-12 space-y-6">
-        <h2 className="text-2xl font-heading font-bold">SD Completed</h2>
-        <p className="text-muted-foreground">Upload your final SD response PDF.</p>
-        <div className="flex flex-col items-center gap-4">
-          <Button variant="outline" className="w-full max-w-sm border-dashed border-2 py-8">
-            <Upload className="mr-2 h-4 w-4" /> Upload SD PDF
-          </Button>
-          <Button onClick={onComplete} className="w-full max-w-sm">Get Clinical Report</Button>
-        </div>
-      </div>
+      <MilestoneOverlay 
+        title="SD Reflection Complete" 
+        meta="Psychological Baseline Established" 
+        onComplete={onComplete} 
+      />
     );
   }
 
@@ -689,6 +652,47 @@ function FinalAnalysisStep({ stats }: { stats: any }) {
           SHARE WITH MENTOR
         </Button>
       </div>
+    </div>
+  );
+}
+function MilestoneOverlay({ title, meta, onComplete }: { title: string, meta: string, onComplete: () => void }) {
+  const [isUploaded, setIsUploaded] = useState(false);
+
+  return (
+    <div className="max-w-2xl mx-auto py-10 animate-in slide-in-from-bottom-4 duration-500">
+       <div className="glass-card p-10 bg-black/40 border-gold/10 border-t-4 border-t-gold space-y-8">
+          <div className="text-center space-y-2">
+             <h2 className="text-3xl font-bold text-white uppercase tracking-tight font-sans">Verification Required</h2>
+             <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground font-bold">{title} • {meta}</p>
+          </div>
+
+          <div 
+            onClick={() => setIsUploaded(!isUploaded)}
+            className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
+          >
+             {isUploaded ? (
+               <div className="space-y-4 text-center">
+                 <CheckCircle className="h-8 w-8 text-gold mx-auto" />
+                 <p className="text-xs font-bold text-gold uppercase tracking-widest">Document Secured & Verified</p>
+               </div>
+             ) : (
+               <div className="space-y-4 text-center">
+                 <Upload className="h-8 w-8 text-white/40 mx-auto" />
+                 <p className="text-xs font-bold text-white/40 uppercase tracking-widest">Click to Initiate Submission</p>
+               </div>
+             )}
+          </div>
+          
+          <div className="pt-4 border-t border-white/5 space-y-4">
+             <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold px-1">
+                <span>Psychomotor Lab Status:</span>
+                <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'READY FOR SYNTHESIS' : 'PENDING UPLOAD'}</span>
+             </div>
+             <Button disabled={!isUploaded} onClick={onComplete} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
+                FINALIZE COMPONENT
+             </Button>
+          </div>
+       </div>
     </div>
   );
 }
