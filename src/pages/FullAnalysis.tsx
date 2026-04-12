@@ -79,6 +79,9 @@ export default function FullAnalysisPage() {
 }
 
 function InstructionsSection({ onStart }: { onStart: () => void }) {
+  const [checked, setChecked] = useState({ paper: false, quiet: false, time: false });
+  const allChecked = checked.paper && checked.quiet && checked.time;
+
   return (
     <div className="glass-card stagger-children p-8">
       <div className="flex items-center gap-3 mb-6">
@@ -86,44 +89,69 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
           <Shield className="h-6 w-6 text-gold" />
         </div>
         <div>
-          <h2 className="text-xl font-heading font-bold">Standard SSB Procedure</h2>
-          <p className="text-xs text-muted-foreground">Follow instructions carefullly. Timers are absolute.</p>
+          <h2 className="text-xl font-heading font-bold uppercase tracking-tight">Standard SSB Procedure</h2>
+          <p className="text-xs text-muted-foreground uppercase tracking-widest text-[10px]">Follow instructions carefullly. Timers are absolute.</p>
         </div>
       </div>
       
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="glass-card-subtle">
-            <h3 className="text-sm font-heading font-bold text-gold mb-2">TAT (12 Pictures)</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">30 seconds to view picture, 4 minutes to write. Auto-shuffles every slide.</p>
+          <div className="glass-card-subtle p-5 border-l border-white/5">
+            <h3 className="text-xs font-heading font-bold text-gold mb-2 uppercase tracking-widest">TAT (12 Pictures)</h3>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">30 seconds to view picture, 4 minutes to write. Auto-shuffles every slide.</p>
           </div>
-          <div className="glass-card-subtle">
-            <h3 className="text-sm font-heading font-bold text-gold mb-2">WAT (60 Words)</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">15 seconds per word. Flashes automatically. Break after every 15 words.</p>
+          <div className="glass-card-subtle p-5 border-l border-white/5">
+            <h3 className="text-xs font-heading font-bold text-gold mb-2 uppercase tracking-widest">WAT (60 Words)</h3>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">15 seconds per word. Flashes automatically. Break after every 15 words.</p>
           </div>
-          <div className="glass-card-subtle">
-            <h3 className="text-sm font-heading font-bold text-gold mb-2">SRT (60 Scenarios)</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">45 minutes total for 60 situations. Write responses instinctively.</p>
+          <div className="glass-card-subtle p-5 border-l border-white/5">
+            <h3 className="text-xs font-heading font-bold text-gold mb-2 uppercase tracking-widest">SRT (60 Scenarios)</h3>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">45 minutes total for 60 situations. Write responses instinctively.</p>
           </div>
-          <div className="glass-card-subtle">
-            <h3 className="text-sm font-heading font-bold text-gold mb-2">SD (5 Paragraphs)</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">15 minutes for 5 paragraphs under standard headings.</p>
+          <div className="glass-card-subtle p-5 border-l border-white/5">
+            <h3 className="text-xs font-heading font-bold text-gold mb-2 uppercase tracking-widest">SD (5 Paragraphs)</h3>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">15 minutes for 5 paragraphs under standard headings.</p>
           </div>
+        </div>
+
+        <div className="p-5 border-t border-white/10 space-y-6">
+           <h3 className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold text-center">Mandatory Environment Verification</h3>
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {[
+                { id: 'paper', label: 'Pen & Paper' },
+                { id: 'quiet', label: 'Isolated Space' },
+                { id: 'time', label: '2-Hour Slot' }
+              ].map((item) => (
+                <label key={item.id} className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all group">
+                   <input 
+                     type="checkbox" 
+                     checked={checked[item.id as keyof typeof checked]}
+                     onChange={() => setChecked(prev => ({ ...prev, [item.id]: !prev[item.id as keyof typeof checked] }))}
+                     className="h-4 w-4 appearance-none rounded border-gold border-2 bg-transparent checked:bg-gold transition-all cursor-pointer"
+                   />
+                   <span className="text-[9px] text-white/60 uppercase font-bold group-hover:text-gold">{item.label}</span>
+                </label>
+              ))}
+           </div>
         </div>
 
         <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/5">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
-            <p className="text-[11px] text-destructive leading-relaxed">
-              WARNING: This is a continuous examination. Ensure you have 2+ hours and a pen/paper ready. You must upload your PDFs at each milestone to receive the final Clinical Report.
+            <p className="text-[11px] text-destructive leading-relaxed font-bold uppercase tracking-tight">
+              WARNING: This is a continuous clinical examination. Ensure you stay committed to the timeline.
             </p>
           </div>
         </div>
 
         <Button 
+          disabled={!allChecked}
           size="xl" 
-          onClick={onStart} 
-          className="w-full h-20 text-xl font-heading font-black tracking-tighter shadow-2xl transition-all bg-gold hover:bg-gold/90 text-background"
+          onClick={() => {
+            toast.info("Clinical examination initiated. Good luck, candidate.", { icon: "🖋️" });
+            onStart();
+          }} 
+          className="w-full h-20 text-xl font-heading font-black tracking-tighter shadow-2xl transition-all bg-gold hover:bg-gold/90 text-background disabled:opacity-20"
         >
           START FULL PSYCH ANALYSIS
         </Button>
@@ -688,7 +716,15 @@ function MilestoneOverlay({ title, meta, onComplete }: { title: string, meta: st
                 <span>Psychomotor Lab Status:</span>
                 <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'READY FOR SYNTHESIS' : 'PENDING UPLOAD'}</span>
              </div>
-             <Button disabled={!isUploaded} onClick={onComplete} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
+             <Button 
+               disabled={!isUploaded} 
+               onClick={() => {
+                 toast.success("Document verified. Clinical record anchored.", { icon: "🛡️" });
+                 onComplete();
+               }} 
+               size="xl" 
+               className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl"
+             >
                 FINALIZE COMPONENT
              </Button>
           </div>

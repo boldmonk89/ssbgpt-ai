@@ -45,6 +45,10 @@ export default function PracticeLabPage() {
   }, []);
 
   const updateStats = (key: string, value: number) => {
+    toast.info("Clinical baseline anchored — Response pattern recording active.", { 
+      icon: "🛡️",
+      className: "font-sans uppercase text-[10px] tracking-widest font-bold"
+    });
     setExamStats({ [key]: value });
   };
 
@@ -143,6 +147,9 @@ function DashboardCard({ title, icon: Icon, desc, onClick, accent = false }: { t
 }
 
 function RulesOverlay({ title, rules, onStart, onBack }: { title: string, rules: string[], onStart: () => void, onBack: () => void }) {
+  const [checked, setChecked] = useState({ paper: false, quiet: false, time: false });
+  const allChecked = checked.paper && checked.quiet && checked.time;
+
   return (
     <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-3xl overflow-y-auto">
       <div className="min-h-screen flex flex-col items-center justify-center p-6 py-32 relative">
@@ -167,8 +174,38 @@ function RulesOverlay({ title, rules, onStart, onBack }: { title: string, rules:
               </li>
             ))}
           </ul>
-          <div className="pt-10">
-             <Button onClick={onStart} size="xl" className="w-full h-16 bg-white text-black font-bold text-lg tracking-[0.2em] rounded-none hover:bg-gold transition-colors shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+
+          <div className="space-y-4 pt-6 border-t border-white/10">
+             <h3 className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold text-center">Mandatory Environment Verification</h3>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {[
+                  { id: 'paper', label: 'Pen & Paper' },
+                  { id: 'quiet', label: 'Isolated Space' },
+                  { id: 'time', label: 'Full Slot Ready' }
+                ].map((item) => (
+                  <label key={item.id} className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all group">
+                     <input 
+                       type="checkbox" 
+                       checked={checked[item.id as keyof typeof checked]}
+                       onChange={() => setChecked(prev => ({ ...prev, [item.id]: !prev[item.id as keyof typeof checked] }))}
+                       className="h-4 w-4 appearance-none rounded border-gold border-2 bg-transparent checked:bg-gold transition-all cursor-pointer"
+                     />
+                     <span className="text-[9px] text-white/60 uppercase font-bold group-hover:text-gold">{item.label}</span>
+                  </label>
+                ))}
+             </div>
+          </div>
+
+          <div className="pt-6">
+             <Button 
+               disabled={!allChecked}
+               onClick={() => {
+                 toast.info("Clinical session initiated. Record all responses clearly.", { icon: "🖋️" });
+                 onStart();
+               }} 
+               size="xl" 
+               className="w-full h-16 bg-white text-black font-bold text-lg tracking-[0.2em] rounded-none hover:bg-gold transition-colors shadow-[0_0_30px_rgba(255,255,255,0.1)] disabled:opacity-20"
+             >
                INITIATE SESSION
              </Button>
           </div>
@@ -451,7 +488,18 @@ function PdfMilestone({ title, onComplete, count }: { title: string, onComplete:
                 <span>Psychomotor Lab Status:</span>
                 <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'READY FOR SYNTHESIS' : 'PENDING UPLOAD'}</span>
              </div>
-             <Button disabled={!isUploaded} onClick={onComplete} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
+             <Button 
+               disabled={!isUploaded} 
+               onClick={() => {
+                 toast.success("Document record verified. Profiler synchronizing.", { 
+                   icon: "🛡️",
+                   className: "font-sans uppercase text-[10px] tracking-widest font-bold"
+                 });
+                 onComplete();
+               }} 
+               size="xl" 
+               className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl"
+             >
                 FINALIZE COMPONENT
              </Button>
           </div>

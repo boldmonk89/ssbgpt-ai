@@ -1,8 +1,8 @@
 import { Instagram, Send } from 'lucide-react';
 import founderImg from '@/assets/founder.jpg';
-import telegramQr from '@/assets/telegram-qr.png';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { Button } from '@/components/ui/button';
+import ClinicalSeal from '@/components/ClinicalSeal';
 
 export default function Footer() {
   return (
@@ -71,6 +71,11 @@ export default function Footer() {
               </div>
             </a>
           </Button>
+        </div>
+
+        {/* Clinical Integrity Seal */}
+        <div className="flex justify-center mb-16 border-y border-white/5 py-10 bg-white/[0.02]">
+           <ClinicalSeal />
         </div>
 
         {/* Bottom Bar */}

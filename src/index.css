@@ -434,4 +434,23 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: hsl(var(--border) / 0.8); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
+
+  /* ── Psychomotor Pulse Animations ── */
+  @keyframes ping-slow {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  @keyframes ping-slower {
+    0% { transform: scale(0.6); opacity: 0.3; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+
+  .animate-ping-slow {
+    animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .animate-ping-slower {
+    animation: ping-slower 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
 }
