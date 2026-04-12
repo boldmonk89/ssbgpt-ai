@@ -7,7 +7,8 @@ import { Timer, FileText, Share2, Shield, Upload, Clock, AlertTriangle, CheckCir
 import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
-import { buildFullReportPrompt, callGemini } from '@/lib/gemini';
+import { buildFullReportPrompt, callGemini, callGeminiMultiPart, fileToBase64 } from '@/lib/gemini';
+import { ChevronLeft, BrainCircuit } from 'lucide-react';
 
 // We'll shuffle these pools to pick the test sets
 const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
@@ -30,12 +31,11 @@ export default function FullAnalysisPage() {
   const { examStats, setExamStats } = useAppStore();
   const [step, setStep] = useState<TestStep>('INSTRUCTIONS');
   const [progress, setProgress] = useState(0);
-  const [piqFile, setPiqFile] = useState<File | null>(null);
-
-  // States for shuffling
-  const [tatPool, setTatPool] = useState<any[]>([]);
-  const [watPool, setWatPool] = useState<any[]>([]);
-  const [srtPool, setSrtPool] = useState<any[]>([]);
+  const [piqData, setPiqData] = useState<string | null>(null);
+  const [tatData, setTatData] = useState<string | null>(null);
+  const [watData, setWatData] = useState<string | null>(null);
+  const [srtData, setSrtData] = useState<string | null>(null);
+  const [sdData, setSdData] = useState<string | null>(null);
 
   useEffect(() => {
     // Shuffling on mount for this session
@@ -54,9 +54,18 @@ export default function FullAnalysisPage() {
 
   return (
     <div className="space-y-6 scroll-reveal pb-20 font-serif">
-      <div className="border-l-2 border-gold pl-4">
-        <h1 className="text-2xl font-bold tracking-tight text-white uppercase font-sans">SSB Psychological Examination</h1>
-        <p className="text-muted-foreground font-body text-[10px] mt-1 uppercase tracking-widest opacity-60">Mansa-Vacha-Karma Verification Matrix</p>
+      <div className="flex justify-between items-center mb-6">
+        <div className="border-l-2 border-gold pl-4">
+          <h1 className="text-2xl font-bold tracking-tight text-white uppercase font-sans">SSB Psychological Examination</h1>
+          <p className="text-muted-foreground font-body text-[10px] mt-1 uppercase tracking-widest opacity-60">Mansa-Vacha-Karma Verification Matrix</p>
+        </div>
+        <Button 
+          variant="ghost" 
+          onClick={() => window.location.href = '/dashboard'}
+          className="glass-button-gold px-6 h-10 text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
+        >
+          <ChevronLeft className="h-4 w-4" /> RETURN TO DASHBOARD
+        </Button>
       </div>
 
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md py-4 border-b border-border/30">
@@ -68,12 +77,12 @@ export default function FullAnalysisPage() {
       </div>
 
       {step === 'INSTRUCTIONS' && <InstructionsSection onStart={nextStep} />}
-      {step === 'PIQ' && <PiqStep onComplete={nextStep} />}
-      {step === 'TAT' && <TatStep onComplete={nextStep} />}
-      {step === 'WAT' && <WatStep onComplete={nextStep} />}
-      {step === 'SRT' && <SrtStep onComplete={nextStep} />}
-      {step === 'SD' && <SdStep onComplete={nextStep} />}
-      {step === 'ANALYSIS' && <FinalAnalysisStep stats={examStats} />}
+      {step === 'PIQ' && <PiqStep onComplete={(data) => { setPiqData(data); nextStep(); }} />}
+      {step === 'TAT' && <TatStep onComplete={(data) => { setTatData(data); nextStep(); }} />}
+      {step === 'WAT' && <WatStep onComplete={(data) => { setWatData(data); nextStep(); }} />}
+      {step === 'SRT' && <SrtStep onComplete={(data) => { setSrtData(data); nextStep(); }} />}
+      {step === 'SD' && <SdStep onComplete={(data) => { setSdData(data); nextStep(); }} />}
+      {step === 'ANALYSIS' && <FinalAnalysisStep stats={examStats} piq={piqData} tat={tatData} wat={watData} srt={srtData} sd={sdData} />}
     </div>
   );
 }
@@ -160,8 +169,20 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
   );
 }
 
-function PiqStep({ onComplete }: { onComplete: () => void }) {
+function PiqStep({ onComplete }: { onComplete: (data: string) => void }) {
   const [isUploaded, setIsUploaded] = useState(false);
+  const [data, setData] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const b64 = await fileToBase64(file);
+      setData(b64);
+      setIsUploaded(true);
+      toast.success("PIQ Baseline Anchored");
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto py-10 animate-in slide-in-from-bottom-4 duration-500">
@@ -172,10 +193,15 @@ function PiqStep({ onComplete }: { onComplete: () => void }) {
           </div>
 
           <div 
-            onClick={() => setIsUploaded(!isUploaded)}
+            onClick={() => fileInputRef.current?.click()}
             className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 relative ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
           >
-             {!isUploaded && <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={() => setIsUploaded(true)} />}
+             <input 
+               type="file" 
+               ref={fileInputRef}
+               className="hidden" 
+               onChange={handleFileChange} 
+             />
              {isUploaded ? (
                <div className="space-y-4 text-center">
                  <CheckCircle className="h-8 w-8 text-gold mx-auto" />
@@ -195,7 +221,7 @@ function PiqStep({ onComplete }: { onComplete: () => void }) {
                 <span>Clinical Intake Status:</span>
                 <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'RECORD CAPTURED' : 'AWAITING UPLOAD'}</span>
              </div>
-             <Button disabled={!isUploaded} onClick={onComplete} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
+             <Button disabled={!isUploaded} onClick={() => data && onComplete(data)} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
                 PROCEED TO PSYCH TESTS
              </Button>
           </div>
@@ -204,7 +230,7 @@ function PiqStep({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-function TatStep({ onComplete }: { onComplete: () => void }) {
+function TatStep({ onComplete }: { onComplete: (data: string) => void }) {
   const [index, setIndex] = useState(0);
   const [isViewing, setIsViewing] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30);
@@ -221,6 +247,9 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
   const totalSlides = 12;
 
   useEffect(() => {
+    // Automatic Fullscreen for TAT
+    try { document.documentElement.requestFullscreen(); } catch (e) {}
+    
     let timer: NodeJS.Timeout;
     if (!isFinished) {
       timer = setInterval(() => {
@@ -261,7 +290,7 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
       <MilestoneOverlay 
         title="TAT Session Complete" 
         meta="12 Slides Synthesized" 
-        onComplete={onComplete} 
+        onUpload={onComplete} 
       />
     );
   }
@@ -313,7 +342,7 @@ function TatStep({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-function WatStep({ onComplete }: { onComplete: () => void }) {
+function WatStep({ onComplete }: { onComplete: (data: string) => void }) {
   const [index, setIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
   const [showWord, setShowWord] = useState(true); 
@@ -354,7 +383,7 @@ function WatStep({ onComplete }: { onComplete: () => void }) {
       <MilestoneOverlay 
         title="WAT Word Block Complete" 
         meta="60 Items Processed" 
-        onComplete={onComplete} 
+        onUpload={onComplete} 
       />
     );
   }
@@ -398,7 +427,7 @@ function WatStep({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-function SrtStep({ onComplete }: { onComplete: () => void }) {
+function SrtStep({ onComplete }: { onComplete: (data: string) => void }) {
   const [timeLeft, setTimeLeft] = useState(2700); 
   const [isFinished, setIsFinished] = useState(false);
 
@@ -426,7 +455,7 @@ function SrtStep({ onComplete }: { onComplete: () => void }) {
       <MilestoneOverlay 
         title="SRT Block Complete" 
         meta="60 Scenarios Evaluated" 
-        onComplete={onComplete} 
+        onUpload={onComplete} 
       />
     );
   }
@@ -456,12 +485,12 @@ function SrtStep({ onComplete }: { onComplete: () => void }) {
         ))}
       </div>
 
-      <Button onClick={onComplete} variant="gold" className="w-full">Finished Writing? Continue to SD</Button>
+      <Button onClick={() => setIsFinished(true)} variant="gold" className="w-full h-14 uppercase tracking-widest font-black">Finished Writing? Continue to SD</Button>
     </div>
   );
 }
 
-function SdStep({ onComplete }: { onComplete: () => void }) {
+function SdStep({ onComplete }: { onComplete: (data: string) => void }) {
   const [timeLeft, setTimeLeft] = useState(900); 
   const [isFinished, setIsFinished] = useState(false);
 
@@ -497,7 +526,7 @@ function SdStep({ onComplete }: { onComplete: () => void }) {
       <MilestoneOverlay 
         title="SD Reflection Complete" 
         meta="Psychological Baseline Established" 
-        onComplete={onComplete} 
+        onUpload={onComplete} 
       />
     );
   }
@@ -525,7 +554,7 @@ function SdStep({ onComplete }: { onComplete: () => void }) {
         ))}
       </div>
 
-      <Button onClick={onComplete} variant="gold" className="w-full">Finished Analysis? Proceed to Final Report</Button>
+      <Button onClick={() => setIsFinished(true)} variant="gold" className="w-full h-14 uppercase tracking-widest font-black">Finished Analysis? Proceed to Final Report</Button>
     </div>
   );
 }
@@ -548,15 +577,16 @@ const mockOlqData = [
   { subject: 'Stamina', A: 70, fullMark: 100 },
 ];
 
-function FinalAnalysisStep({ stats }: { stats: any }) {
+function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq: string | null, tat: string | null, wat: string | null, srt: string | null, sd: string | null }) {
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
 
   const handleGenerate = async () => {
-    if (stats.tatAttempted + stats.watAttempted + stats.srtAttempted + stats.sdAttempted === 0) {
-      setAnalysisResult("⚠️ You haven't attempted any tests yet. Please complete some sessions before generating a matrix report.");
+    if (!piq) {
+      toast.error("PIQ Baseline MISSING. Please re-upload PIQ for clinical synthesis.");
       return;
     }
+    
     setLoading(true);
     try {
       const prompt = buildFullReportPrompt(
@@ -566,10 +596,20 @@ function FinalAnalysisStep({ stats }: { stats: any }) {
         "45 Minute SRT block synthesized into 15-per-page responses.",
         "SD composite evaluated against standard SSB descriptors."
       );
-      const res = await callGemini(prompt + "\n\nIMPORTANT: This is the FULL PSYCH REPORT. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. DO NOT use markdown bolding (**) in your response.");
-      setAnalysisResult(res.replace(/\*\*/g, ''));
+      
+      const files = [
+        { base64: piq, mimeType: 'image/jpeg' },
+        ...(tat ? [{ base64: tat, mimeType: 'image/jpeg' }] : []),
+        ...(wat ? [{ base64: wat, mimeType: 'image/jpeg' }] : []),
+        ...(srt ? [{ base64: srt, mimeType: 'image/jpeg' }] : []),
+        ...(sd ? [{ base64: sd, mimeType: 'image/jpeg' }] : []),
+      ];
+
+      const res = await callGeminiMultiPart(prompt + "\n\nIMPORTANT: Use the provided actual response sheets for analysis. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. DO NOT use markdown bolding (**) in your response. Output plain text report.", files);
+      setAnalysisResult(res.replace(/\*\*/g, '').replace(/\*/g, ''));
     } catch (e: any) {
-      toast.error("Deep Matrix synthesis failed");
+      toast.error("Deep Matrix synthesis failed or Timeout");
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -581,11 +621,12 @@ function FinalAnalysisStep({ stats }: { stats: any }) {
            <BrainCircuit className="h-16 w-16 text-gold mx-auto animate-pulse" />
            <div className="space-y-2">
               <h2 className="text-2xl font-bold text-white tracking-tight uppercase font-sans">Execute Synthesis Engine</h2>
-              <p className="text-muted-foreground uppercase tracking-[0.4em] text-[9px] font-bold opacity-60">Connecting with Psychomotor Clinical Hub...</p>
+              <p className="text-muted-foreground uppercase tracking-[0.4em] text-[10px] font-bold opacity-60">Connecting with Psychomotor Clinical Hub...</p>
            </div>
            <Button onClick={handleGenerate} size="xl" className="w-full h-16 text-xl font-black tracking-widest bg-gold text-black shadow-2xl uppercase">
               GENERATE PSYCH CLINICAL REPORT
            </Button>
+           <p className="text-[10px] text-white/30 uppercase tracking-widest italic">Multi-Document Evidence Matching Enabled</p>
         </div>
      </div>
   );
@@ -594,19 +635,26 @@ function FinalAnalysisStep({ stats }: { stats: any }) {
     <div className="space-y-6">
        <div className="text-center space-y-2 mb-8">
          <h2 className="text-2xl font-heading font-bold animate-pulse">Synthesizing Personality...</h2>
-         <p className="text-xs text-muted-foreground uppercase tracking-widest">Applying Mansa-Vacha-Karma Verification Matrix</p>
+         <p className="text-xs text-muted-foreground uppercase tracking-widest text-[10px]">Applying Mansa-Vacha-Karma Verification Matrix</p>
        </div>
        <SkeletonAnalysis />
     </div>
   );
 
   return (
-    <div className="glass-card text-center py-12 space-y-6 stagger-children min-h-screen">
-      <div className="relative inline-block">
-        <div className="absolute inset-0 bg-gold/20 blur-xl rounded-full animate-pulse" />
-        <CheckCircle className="h-20 w-20 text-gold relative z-10" />
+    <div className="glass-card stagger-children min-h-screen p-8 space-y-8">
+      <div className="flex flex-col items-center text-center space-y-4 mb-8">
+        <div className="relative inline-block">
+          <div className="absolute inset-0 bg-gold/20 blur-xl rounded-full animate-pulse" />
+          <CheckCircle className="h-16 w-16 text-gold relative z-10" />
+        </div>
+        <h2 className="text-4xl font-heading font-black tracking-tight uppercase">Psychological Dossier Finalized</h2>
+        <p className="text-muted-foreground text-[10px] tracking-[0.4em] uppercase font-bold opacity-60">Mansa-Vacha-Karma Profile Integrated</p>
       </div>
-      <h2 className="text-3xl font-heading font-black tracking-tight">Examination Complete</h2>
+
+      <div className="prose prose-invert max-w-none text-left whitespace-pre-wrap font-body text-sm leading-relaxed border-t border-white/5 pt-8">
+        {analysisResult}
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-8">
         {[
@@ -683,8 +731,20 @@ function FinalAnalysisStep({ stats }: { stats: any }) {
     </div>
   );
 }
-function MilestoneOverlay({ title, meta, onComplete }: { title: string, meta: string, onComplete: () => void }) {
+function MilestoneOverlay({ title, meta, onUpload }: { title: string, meta: string, onUpload: (data: string) => void }) {
   const [isUploaded, setIsUploaded] = useState(false);
+  const [data, setData] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const b64 = await fileToBase64(file);
+      setData(b64);
+      setIsUploaded(true);
+      toast.success(`${title} Anchored Successfully`);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto py-10 animate-in slide-in-from-bottom-4 duration-500">
@@ -695,9 +755,15 @@ function MilestoneOverlay({ title, meta, onComplete }: { title: string, meta: st
           </div>
 
           <div 
-            onClick={() => setIsUploaded(!isUploaded)}
-            className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
+            onClick={() => fileInputRef.current?.click()}
+            className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 relative ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
           >
+             <input 
+               type="file" 
+               ref={fileInputRef}
+               className="hidden" 
+               onChange={handleFileChange} 
+             />
              {isUploaded ? (
                <div className="space-y-4 text-center">
                  <CheckCircle className="h-8 w-8 text-gold mx-auto" />
@@ -719,8 +785,10 @@ function MilestoneOverlay({ title, meta, onComplete }: { title: string, meta: st
              <Button 
                disabled={!isUploaded} 
                onClick={() => {
-                 toast.success("Document verified. Clinical record anchored.", { icon: "🛡️" });
-                 onComplete();
+                 if (data) {
+                    toast.success("Document verified. Clinical record anchored.", { icon: "🛡️" });
+                    onUpload(data);
+                 }
                }} 
                size="xl" 
                className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl"

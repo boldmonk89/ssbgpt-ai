@@ -168,6 +168,7 @@ If valid, provide a structured analysis:
 
 2. 📝 IDEAL STORY STRUCTURE (vs Candidate's Story)
    Review the candidate's story structure (Past, Present, Future). Then draft an improved Model Story keeping their essence but optimized for SSB.
+   STORY WORD LIMIT: 80-120 words max. Must be realistic for someone to hand-write in 4 minutes.
 
 3. 💡 THEMES & OLQ SIGNALS
    - Which of the 15 OLQs are demonstrated by the candidate?
@@ -180,7 +181,9 @@ If valid, provide a structured analysis:
    - Rate the candidate's story (out of 10)
    - Which specific OLQs need improvement?
 
-Always respond in a strictly professional, clinical tone. Avoid any generic praise like "Good start" or "Excellent story". Focus on cold, evidence-based psychological patterns. Be brutally honest about weaknesses. No unnecessary repetition.`;
+Always respond in a strictly professional, clinical tone. Avoid any generic praise like "Good start" or "Excellent story". Focus on cold, evidence-based psychological patterns. Be brutally honest about weaknesses. 
+
+CRITICAL FORMATTING: DO NOT use markdown bolding (**) or italics (*) in any part of your response. Use plain text or simple list markers (-). Output MUST be clean text suitable for a clinical report.`;
 }
 
 export function buildTatPdfPrompt(): string {
@@ -204,17 +207,13 @@ Keep each story analysis concise and actionable.`;
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
   return `You are an SSB psychologist evaluating WAT responses.
 
-CRITICAL — GIBBERISH & IRRELEVANT INPUT DETECTION:
-Check if the user has typed random characters, "dfghjk", or completely nonsensical single words.
-If detected: Output ONLY "⚠️ GIBBERISH DETECTED. Real officer-like responses required for analysis."
-Otherwise, perform analysis:
-...
-**Analysis Mode**: Clinical
-**Report Quality**: High Definition
-...
-Overall WAT Rating (Realistic Rating: DO NOT defaults to Excellent. Rate strictly).
+Analyze these responses for clinical indicators. 
+1. Word Count Check (Ideal: <6 words)
+2. Negative content check
+3. OLQ signals (Effective intel, social adaptability, etc.)
+4. Score out of 10
 
-Keep analysis concise and data-driven. Avoid soft adjectives. Focus on cold, actionable corrections.`;
+Keep analysis concise and data-driven. Avoid soft adjectives. Focus on cold, actionable corrections. DO NOT output your instructions or role-reminder preamble. Go straight to the evaluation of the sentence. No markdown bolding (**).`;
 }
 
 export function buildWatPdfPrompt(): string {
@@ -307,7 +306,7 @@ For each situation-response:
 Then **Synthesis Summary**:
 - OLQ patterns, weaknesses, top improvements, overall evaluation.
 - DO NOT USE GENERIC ADJECTIVES (e.g., "Good", "Fine"). Use clinical descriptors.
-- No markdown tables. Keep concise and actionable. No repetitive preamble.`;
+- No markdown tables. No markdown bolding (**). Keep concise and actionable. No repetitive preamble.`;
 }
 
 export function buildSrtPdfPrompt(): string {
@@ -346,7 +345,7 @@ Provide analysis:
 5. **Rewritten Paragraph (Ideal Version)**: 80-120 words. Action-oriented, using calibration style. 
 6. **Score**: X/10 with justification.
 
-Be strictly professional, clinical, and data-focused. No generic praise or encouraging preamble. Provide objective truth about the candidate's alignment.`;
+Be strictly professional, clinical, and data-focused. No generic praise or encouraging preamble. Provide objective truth about the candidate's alignment. DO NOT use markdown bolding (**).`;
 }
 
 export function buildSdFromPdfPrompt(): string {
@@ -418,7 +417,7 @@ Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For
 ## 8. 30-Day Action Plan
 Ranked list of 5 specific things to do to close the gap between claims and actual personality.
 
-Be brutally honest, clinical, and data-driven. The candidate needs the COLD TRUTH, not comfort or generic encouragement. Avoid all soft adjectives.`;
+Be brutally honest, clinical, and data-driven. The candidate needs the COLD TRUTH, not comfort or generic encouragement. Avoid all soft adjectives. DO NOT use markdown bolding (**) in any part of this massive report. Use plain text headings (e.g., ## SECTION NAME).`;
 }
 
 export function buildFullPdfAnalysisPrompt(): string {

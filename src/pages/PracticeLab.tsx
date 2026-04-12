@@ -54,23 +54,20 @@ export default function PracticeLabPage() {
 
   return (
     <div className="space-y-4 scroll-reveal pb-24 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between px-2">
+      <div className="flex items-center justify-between px-2 mb-6">
         <div className="flex items-center gap-4">
-          {mode !== 'DASHBOARD' && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setMode('DASHBOARD')}
-              className="h-10 w-10 rounded-full hover:bg-white/10"
-            >
-              <ChevronLeft className="h-6 w-6 text-white" />
-            </Button>
-          )}
           <div className="border-l-2 border-gold pl-4">
-            <h1 className="text-lg font-bold tracking-tight text-white uppercase font-sans">SSB PRACTICE LAB</h1>
+            <h1 className="text-xl font-bold tracking-tight text-white uppercase font-sans">SSB PRACTICE LAB</h1>
             <p className="text-muted-foreground font-body text-[10px] uppercase tracking-[0.2em] opacity-60">Clinical Assessment Environment</p>
           </div>
         </div>
+        <Button 
+          variant="ghost" 
+          onClick={() => setMode('DASHBOARD')}
+          className="glass-button-gold px-6 h-10 text-[10px] font-black tracking-widest uppercase flex items-center gap-2"
+        >
+          <ChevronLeft className="h-4 w-4" /> {mode === 'DASHBOARD' ? 'BACK TO HOME' : 'EXIT TO DASHBOARD'}
+        </Button>
       </div>
 
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -417,38 +414,82 @@ function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onCo
 function SdLabStep({ onComplete, onUpdateAttempted, isPaused }: { onComplete: () => void, onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
   const [showRules, setShowRules] = useState(true);
   const [timeLeft, setTimeLeft] = useState(900);
-  const [isUploadPhase, setIsUploadPhase] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
+  const [responses, setResponses] = useState({
+    parents: '',
+    teachers: '',
+    friends: '',
+    self: '',
+    goals: ''
+  });
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (!isPaused && !isUploadPhase && !showRules) {
-      timer = setInterval(() => setTimeLeft(prev => Math.max(0, prev - 1)), 1000);
+    if (!isPaused && !showRules && !isFinished) {
+      timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev === 180) toast.info("3 Minutes Remaining", { icon: "⏳" });
+          if (prev <= 0) {
+            setIsFinished(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
     return () => clearInterval(timer);
-  }, [isPaused, isUploadPhase]);
+  }, [isPaused, showRules, isFinished]);
 
-  if (showRules) return <RulesOverlay title="SD" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
-    "Write 5 paragraphs about what others think of you.",
-    "Total time: 15 Minutes.",
-    "Cover: Parents, Teachers, Friends, Self, and Goals.",
-    "Be honest and balanced in your appraisal."
+  if (showRules) return <RulesOverlay title="SD APPRAISAL" onBack={() => onComplete()} onStart={() => { setShowRules(false); speak("Test beginning."); }} rules={[
+    "Write 5 distinct paragraphs about how others perceive you.",
+    "Total time: 15 Minutes (Proctored).",
+    "Sections: Parents, Teachers, Friends, Self, and Future Goals.",
+    "Be honest and balanced. Avoid coached templates."
   ]} />;
 
-  if (isUploadPhase) return <PdfMilestone title="SD Component" onComplete={onComplete} count={5} />;
+  if (isFinished) return <PdfMilestone title="SD Component" onComplete={onComplete} count={5} />;
+
+  const SECTIONS = [
+    { id: 'parents', label: '1. What your Parents think of you', placeholder: 'Write about their trust, expectations, and your role at home...' },
+    { id: 'teachers', label: '2. What your Teachers think of you', placeholder: 'Focus on academic discipline, participation, and reliability...' },
+    { id: 'friends', label: '3. What your Friends think of you', placeholder: 'Mention loyalty, dependability, and how you behave in a group...' },
+    { id: 'self', label: '4. What YOU think of yourself', placeholder: 'Your honest self-assessment, strengths and areas of conviction...' },
+    { id: 'goals', label: '5. Qualities you wish to develop', placeholder: 'Specific traits you are currently working to improve...' },
+  ];
 
   return (
-    <div className="max-w-2xl mx-auto py-6 space-y-6">
-       <div className="glass-card p-10 text-center bg-black border-gold/20 border-t-4 space-y-4">
-          <h2 className="text-2xl font-bold text-white uppercase tracking-tight">SD APPRAISAL</h2>
-          <div className="inline-flex items-center gap-3 opacity-0">
-             <Clock className="h-5 w-5" />
-             <span className="text-2xl font-mono">
-                {Math.floor(timeLeft/60)}:{timeLeft%60 < 10 ? '0' : ''}{timeLeft%60}
-             </span>
-          </div>
-          <Button size="xl" variant="gold" onClick={() => setIsUploadPhase(true)} className="w-full h-16 text-lg font-bold uppercase rounded-none">
-             SUBMIT REFLECTION
+    <div className="max-w-4xl mx-auto py-6 space-y-8 animate-in fade-in duration-700">
+       <div className="text-center space-y-2">
+          <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Self Description Appraisal</h2>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold">Clinical Mansa-Vacha Matching</p>
+       </div>
+
+       <div className="space-y-6">
+          {SECTIONS.map((section) => (
+            <div key={section.id} className="glass-card-subtle p-0 overflow-hidden border-white/5 focus-within:border-gold/30 transition-all">
+               <div className="bg-white/[0.03] px-4 py-2 border-b border-white/5">
+                  <span className="text-[10px] font-black text-gold uppercase tracking-widest">{section.label}</span>
+               </div>
+               <textarea
+                 className="w-full bg-transparent p-4 text-sm font-body min-h-[120px] focus:outline-none placeholder:text-white/10"
+                 placeholder={section.placeholder}
+                 value={(responses as any)[section.id]}
+                 onChange={(e) => setResponses({ ...responses, [section.id]: e.target.value })}
+               />
+            </div>
+          ))}
+       </div>
+
+       <div className="pt-6">
+          <Button 
+            size="xl" 
+            variant="gold" 
+            onClick={() => setIsFinished(true)} 
+            className="w-full h-16 text-lg font-bold uppercase rounded-none shadow-2xl"
+          >
+             FINALIZE REFLECTION ORAL PIQ
           </Button>
+          <p className="text-center text-[9px] text-muted-foreground mt-4 uppercase tracking-widest opacity-40">Timer is active in the background. 15 Minutes total.</p>
        </div>
     </div>
   );
