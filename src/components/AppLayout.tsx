@@ -55,8 +55,8 @@ function SplashScreen() {
       <img src={splashImg} alt="Your Future" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px]" />
       <div className="relative z-10 flex flex-col items-center text-center animate-in slide-in-from-bottom-5 fade-in duration-1000">
-        <h1 className="text-4xl md:text-6xl font-heading font-bold text-white tracking-widest drop-shadow-2xl">THIS IS YOU</h1>
-        <h2 className="text-2xl md:text-3xl font-heading font-medium text-gold tracking-widest drop-shadow-2xl mt-1 uppercase">Earn the Camouflage</h2>
+        <h1 className="text-4xl md:text-7xl font-heading font-black text-gold tracking-[0.25em] drop-shadow-2xl">THIS IS YOU</h1>
+        <h2 className="text-2xl md:text-4xl font-heading font-medium text-white tracking-[0.3em] drop-shadow-2xl mt-4 uppercase opacity-90">Earn the Camouflage</h2>
         
         <div className="mt-12 w-64 h-1 bg-white/10 rounded-full overflow-hidden relative">
           <div 
@@ -122,7 +122,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           }}>
             {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
-          <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
+          <span className="font-heading font-black text-sm tracking-[0.2em] text-gold uppercase">SSB GPT</span>
         </div>
         <div className="flex items-center gap-2">
           <InstallHeaderButton />
@@ -203,7 +203,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           background: 'linear-gradient(180deg, hsl(var(--card) / 0.4) 0%, transparent 100%)',
           backdropFilter: 'blur(16px)',
         }}>
-          <span className="font-heading font-bold text-sm tracking-wider text-gold">AI PSYCH ANALYSIS</span>
+          <span className="font-heading font-black text-sm tracking-[0.2em] text-gold uppercase">AI PSYCH ANALYSIS</span>
           <div className="flex items-center gap-3">
             <InstallHeaderButton />
           </div>

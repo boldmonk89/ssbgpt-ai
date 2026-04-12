@@ -62,7 +62,7 @@ export default function FullAnalysisPage() {
     <div className="space-y-6 scroll-reveal pb-20 font-serif">
       <div className="flex justify-between items-center mb-8 px-4 pt-4">
         <div className="border-l-2 border-gold pl-4">
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white uppercase font-sans">Psychological Examination</h1>
+          <h1 className="text-xl md:text-2xl">Psychological Examination</h1>
           <p className="text-muted-foreground font-body text-[10px] mt-1 uppercase tracking-widest opacity-60">Baseline Synthesis Matrix</p>
         </div>
         <div className="flex items-center gap-3">
@@ -481,7 +481,7 @@ function SrtStep({ onComplete }: { onComplete: (data: string) => void }) {
       <div className="glass-card-subtle flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Zap className="h-5 w-5 text-gold" />
-          <h2 className="text-lg font-heading font-bold">Situation Reaction Test</h2>
+          <h1 className="text-2xl md:text-3xl mb-2">Situation Reaction Test</h1>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-black/40 rounded-xl border border-gold/20 text-gold font-mono font-bold opacity-0">
           <Timer className="h-4 w-4 animate-pulse" />

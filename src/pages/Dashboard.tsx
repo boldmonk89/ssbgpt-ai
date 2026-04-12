@@ -121,12 +121,9 @@ export default function DashboardPage() {
           </div>
 
           {/* Main headline — Playfair Display with gold italic highlights */}
-          <h1 className="font-heading font-bold text-3xl md:text-5xl lg:text-6xl text-foreground mb-4 leading-tight">
-            Most SSB Candidates<br />
-            Fail For{' '}
-            <span className="font-highlight italic text-gold">Predictable</span>
-            <br />
-            <span className="font-highlight italic text-gold">Reasons.</span>
+          <h1 className="leading-tight mb-4">
+            Most SSB Candidates Fail For<br />
+            <span className="text-white drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]">Predictable Reasons</span>
           </h1>
 
           {/* Subtitle */}
@@ -160,7 +157,7 @@ export default function DashboardPage() {
 
       {/* Section Title */}
       <div className="gold-border-left">
-        <h2 className="text-xl md:text-2xl font-heading font-bold">Analyse Your Tests</h2>
+        <h2 className="text-xl md:text-2xl">Analyse Your Tests</h2>
       </div>
 
       {/* Test Cards */}
@@ -242,7 +239,7 @@ export default function DashboardPage() {
 
       {/* SSB Mentor Resources Section */}
       <div className="gold-border-left">
-        <h2 className="text-xl md:text-2xl font-heading font-bold">SSB Prep Resources</h2>
+        <h2 className="text-xl md:text-2xl">SSB Prep Resources</h2>
       </div>
 
       <div className="glass-card liquid-card">

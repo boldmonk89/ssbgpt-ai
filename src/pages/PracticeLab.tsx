@@ -285,27 +285,36 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
   if (isUploadPhase) return <PdfMilestone title="TAT Story Set" onComplete={onComplete} count={12} />;
 
   return (
-    <div className="space-y-4">
-       <div className="flex items-center justify-between glass-card p-3 border-none bg-white/5">
-          <span className="text-xl font-bold text-white uppercase tracking-tight">SCENE {index + 1} / 12</span>
-          <div className="flex items-center gap-2 opacity-0">
-            <Clock className="h-4 w-4" />
-            <span className="text-xl font-mono">{timeLeft}s</span>
+    <div className="fixed inset-0 z-[500] bg-black flex flex-col items-center justify-center animate-in fade-in duration-1000">
+       <Button 
+         variant="ghost" 
+         onClick={onComplete}
+         className="absolute top-6 left-6 text-white/20 hover:text-white uppercase tracking-widest text-[8px]"
+       >
+         Abort Session
+       </Button>
+
+       <div className="absolute top-6 right-8 flex items-center gap-4">
+          <div className="flex flex-col items-end">
+             <span className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Scene {index + 1} / 12</span>
+             <span className="text-4xl font-mono text-white/90">{timeLeft}s</span>
           </div>
        </div>
 
-       <div className="relative max-h-[65vh] w-full rounded-2xl overflow-hidden border border-white/5 bg-black flex items-center justify-center">
+       <div className="w-full h-full flex items-center justify-center p-4">
           {isViewing ? (
              index < 11 ? (
-               <img src={tatPool[index]} className="max-h-[65vh] w-full object-contain animate-in fade-in duration-500" />
+               <img src={tatPool[index]} className="max-h-screen max-w-full object-contain shadow-2xl animate-in zoom-in-95 duration-[2000ms]" />
              ) : (
-               <div className="absolute inset-0 bg-white" />
+               <div className="w-full h-full bg-white transition-colors duration-1000" />
              )
           ) : (
-            <div className="flex flex-col items-center text-center space-y-4 py-20">
-               <Pencil className="h-10 w-10 text-gold/40" />
-               <h2 className="text-3xl font-bold uppercase text-white tracking-widest">START WRITING</h2>
-               <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-relaxed">Focus on Hero's thoughts and ultimate resolution.</p>
+            <div className="flex flex-col items-center text-center space-y-6">
+               <div className="h-20 w-20 rounded-full border-2 border-white/5 flex items-center justify-center animate-pulse">
+                 <Pencil className="h-8 w-8 text-white/20" />
+               </div>
+               <h2 className="text-5xl font-black uppercase text-white tracking-[0.4em] font-heading">Begin Writing</h2>
+               <p className="text-xs text-white/30 uppercase tracking-[0.5em] font-sans">Focus — Action — Resolution</p>
             </div>
           )}
        </div>
@@ -359,19 +368,27 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
   if (isUploadPhase) return <PdfMilestone title="WAT Sentence Set" onComplete={onComplete} count={60} />;
 
   return (
-    <div className="space-y-4">
-       <div className="flex items-center justify-between px-2">
-         <span className="text-sm font-bold text-white uppercase tracking-widest opacity-60">WORD {index + 1} / 60</span>
-         <div className="flex items-center gap-2 opacity-0">
-            <Clock className="h-3 w-3" />
-            <span className="text-sm font-mono">{timeLeft}s</span>
-         </div>
+    <div className="fixed inset-0 z-[500] bg-black flex flex-col items-center justify-center animate-in fade-in duration-1000">
+       <Button 
+         variant="ghost" 
+         onClick={onComplete}
+         className="absolute top-6 left-6 text-white/20 hover:text-white uppercase tracking-widest text-[8px]"
+       >
+         Abort Session
+       </Button>
+
+       <div className="absolute top-6 right-8 flex items-center gap-4">
+          <div className="flex flex-col items-end">
+             <span className="text-[10px] font-black text-gold uppercase tracking-[0.2em]">Word {index + 1} / 60</span>
+             <span className="text-4xl font-mono text-white/90">{timeLeft}s</span>
+          </div>
        </div>
 
-       <div className="glass-card h-[300px] flex items-center justify-center bg-black/60 rounded-[2rem] border border-white/5">
-          <h2 className="text-6xl font-sans font-bold text-white text-center animate-in fade-in duration-300 uppercase tracking-tighter">
+       <div className="text-center space-y-2">
+          <h2 className="text-7xl md:text-9xl font-heading font-black text-white uppercase tracking-tighter animate-in zoom-in-90 fade-in duration-300">
             {watPool[index]?.word.toLowerCase() || '---'}
           </h2>
+          <div className="h-1 w-24 bg-gold mx-auto mt-8 blur-[1px] opacity-50" />
        </div>
     </div>
   );
