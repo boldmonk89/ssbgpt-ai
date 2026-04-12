@@ -78,8 +78,6 @@ export interface ExamStats {
 }
 
 interface AppState {
-  isAuthenticated: boolean;
-  setAuthenticated: (val: boolean) => void;
   userPhone: string;
   setUserPhone: (val: string) => void;
 
@@ -128,7 +126,6 @@ const SD_TYPES = [
 ];
 
 const initialState = {
-  isAuthenticated: false,
   userPhone: '',
   examStats: {
     tatAttempted: 0,
@@ -153,7 +150,6 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       ...initialState,
-      setAuthenticated: (val) => set({ isAuthenticated: val }),
       setUserPhone: (val) => set({ userPhone: val }),
       setExamStats: (stats) => set((s) => ({ examStats: { ...s.examStats, ...stats } })),
       setPiqContext: (ctx) => set({ piqContext: ctx }),
