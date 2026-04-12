@@ -15,7 +15,16 @@ import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
 import { ExportPdfButton } from '@/components/ExportPdfButton';
-import { buildFullReportPrompt, callGemini } from '@/lib/gemini';
+import { 
+  buildFullReportPrompt, 
+  callGemini, 
+  callGeminiMultiPart, 
+  fileToBase64,
+  buildTatPdfPrompt,
+  buildWatPdfPrompt,
+  buildSrtPdfPrompt,
+  buildSdFromPdfPrompt
+} from '@/lib/gemini';
 
 // Shuffling utility
 const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
@@ -576,7 +585,35 @@ function SdLabStep({ onComplete, onUpdateAttempted, isPaused }: { onComplete: ()
 }
 
 function PdfMilestone({ title, onComplete, count }: { title: string, onComplete: () => void, count: number }) {
-  const [isUploaded, setIsUploaded] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const { 
+    setTatSummary, setWatSummary, setSrtSummary, setSdSummary,
+    tatSummary, watSummary, srtSummary, sdSummary 
+  } = useAppStore();
+
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const base64 = await fileToBase64(file);
+      let prompt = '';
+      let setSummary: (s: string) => void = () => {};
+
+      if (title.includes('TAT')) { prompt = buildTatPdfPrompt(); setSummary = setTatSummary; }
+      else if (title.includes('WAT')) { prompt = buildWatPdfPrompt(); setSummary = setWatSummary; }
+      else if (title.includes('SRT')) { prompt = buildSrtPdfPrompt(); setSummary = setSrtSummary; }
+      else if (title.includes('SD')) { prompt = buildSdFromPdfPrompt(); setSummary = setSdSummary; }
+
+      const result = await callGeminiMultiPart(prompt, [{ base64, mimeType: 'application/pdf' }]);
+      setSummary(result);
+      setFileName(file.name);
+      toast.success(`${title} Analysis Completed`, { icon: "✅" });
+    } catch (err: any) {
+      toast.error(err.message || 'Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto py-10 animate-in slide-in-from-bottom-4 duration-500">
@@ -587,19 +624,33 @@ function PdfMilestone({ title, onComplete, count }: { title: string, onComplete:
           </div>
 
           <div 
-            onClick={() => setIsUploaded(!isUploaded)}
-            className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
+            onClick={() => !isUploading && document.getElementById('lab-pdf-upload')?.click()}
+            className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 ${fileName ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
           >
-             {isUploaded ? (
+             <input 
+               id="lab-pdf-upload" 
+               type="file" 
+               accept="application/pdf" 
+               className="hidden" 
+               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}
+             />
+             {isUploading ? (
+               <div className="space-y-4 text-center">
+                 <FlaskConical className="h-8 w-8 text-gold mx-auto animate-spin" />
+                 <p className="text-xs font-bold text-gold uppercase tracking-widest italic">AI Analyzing Document...</p>
+                 <p className="text-[9px] text-muted-foreground/60 uppercase">Extracting clinical markers & matching patterns</p>
+               </div>
+             ) : fileName ? (
                <div className="space-y-4 text-center">
                  <CheckCircle className="h-8 w-8 text-gold mx-auto" />
-                 <p className="text-xs font-bold text-gold uppercase tracking-widest">Document Secured & Verified</p>
+                 <p className="text-xs font-bold text-gold uppercase tracking-widest">{fileName}</p>
+                 <p className="text-[9px] text-gold/60 uppercase">Document Secured & Verified</p>
                </div>
              ) : (
                <div className="space-y-4 text-center">
                  <Upload className="h-8 w-8 text-white/40 mx-auto" />
                  <p className="text-xs font-bold text-white/40 uppercase tracking-widest">Click to Initiate Submission</p>
-                 <p className="text-[9px] text-muted-foreground/60 uppercase">PDF • JPG • PNG (Max 10MB)</p>
+                 <p className="text-[9px] text-muted-foreground/60 uppercase">PDF • CLINICAL RECORD (Max 10MB)</p>
                </div>
              )}
           </div>
@@ -607,10 +658,10 @@ function PdfMilestone({ title, onComplete, count }: { title: string, onComplete:
           <div className="pt-4 border-t border-white/5 space-y-4">
              <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold px-1">
                 <span>Psychomotor Lab Status:</span>
-                <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'READY FOR SYNTHESIS' : 'PENDING UPLOAD'}</span>
+                <span className={fileName ? 'text-gold' : 'text-white/20'}>{fileName ? 'READY FOR SYNTHESIS' : 'PENDING UPLOAD'}</span>
              </div>
              <Button 
-               disabled={!isUploaded} 
+               disabled={!fileName || isUploading} 
                onClick={() => {
                  toast.success("Document record verified. Profiler synchronizing.", { 
                    icon: "🛡️",
@@ -633,21 +684,25 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
 
+  const { 
+    piqContext, tatSummary, watSummary, srtSummary, sdSummary 
+  } = useAppStore();
+
   const handleGenerate = async () => {
-    if (stats.tatAttempted + stats.watAttempted + stats.srtAttempted + stats.sdAttempted === 0) {
-      setAnalysisResult("⚠️ You haven't attempted any tests yet. Please complete some sessions before generating a matrix report.");
+    if (stats.tatAttempted + stats.watAttempted + stats.srtAttempted + stats.sdAttempted === 0 && !tatSummary && !watSummary && !srtSummary && !sdSummary) {
+      setAnalysisResult("⚠️ You haven't attempted any tests or uploaded any records yet. Please complete some sessions before generating a matrix report.");
       return;
     }
     setLoading(true);
     try {
       const prompt = buildFullReportPrompt(
-        { note: "Lab mode session completed." },
-        `User attempted ${stats.tatAttempted} TAT items.`,
-        `User attempted ${stats.watAttempted} WAT items.`,
-        `User attempted ${stats.srtAttempted} SRT items.`,
-        `SD completed across ${stats.sdAttempted} dimensions.`
+        piqContext,
+        tatSummary || `User attempted ${stats.tatAttempted} TAT items.`,
+        watSummary || `User attempted ${stats.watAttempted} WAT items.`,
+        srtSummary || `User attempted ${stats.srtAttempted} SRT items.`,
+        sdSummary || `SD completed across ${stats.sdAttempted} dimensions.`
       );
-      const res = await callGemini(prompt + "\n\nAnalyze the attempted counts and provide a strictly clinical and professional assessment. DO NOT use markdown bolding (**) or italics (*) in your response. No asterisks should be used.");
+      const res = await callGemini(prompt + "\n\nAnalyze the provided test summaries and/or attempt counts to provide a strictly clinical assessment. No asterisks should be used.");
       setAnalysisResult(res.replace(/\*/g, ''));
     } catch (e: any) {
       toast.error("Analysis generation failed");
