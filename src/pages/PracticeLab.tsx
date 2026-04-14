@@ -289,7 +289,8 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
           "The picture will appear on the screen for 30 sec.",
           "Observe details and formulate Hero's objective.",
           "Write your story during the blank slide interval.",
-          "Keep writing material ready before you proceed."
+          "Keep writing material ready before you proceed.",
+          "NOTE: Pictures reshuffle hoti h. Aapko kisi bhi test me same picture same sequence me nahi milegi."
         ]} 
       />
     </div>

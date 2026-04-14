@@ -78,6 +78,7 @@ RULES:
 6. Show cooperation — involve group members
 7. Solution should be REALISTIC — no superhero actions
 8. Address ALL problems mentioned, not just the main one
+9. HINGLISH SUPPORT: If the user communicates in Hinglish (Hindi + English), respond in clear, professional Hinglish. Use Roman script for Hindi words.
 
 OUTPUT FORMAT:
 GPE Solution for: [Brief situation summary]
@@ -110,7 +111,8 @@ If the user also submits their own solution, analyze it:
 - What they did well
 - What they missed
 - Specific improvements
-- Score out of 10`;
+- Score out of 10
+- Respond in Hinglish if the solution was in Hinglish!`;
 
 const SYSTEM_PROMPT_LECTURETTE = `You are an SSB GTO expert specializing in Lecturette practice for Indian defence selection.
 
@@ -218,6 +220,81 @@ The group (8-10 candidates) must cross a series of obstacles while carrying a he
 - Practice climbing walls, jumping over barriers
 - Work on grip strength with dead hangs (3 sets of 30 seconds)
 - Practice team coordination games`;
+
+const HGT_THEORY = `## Half Group Task (HGT)
+
+On completion of the GOR, 30 minute break is normally given for the candidates to relax and recover after the physical exertion. During this time the GTOs also have their breakfast. HGT is the first task in the confirmatory series and the purpose of the confirmatory series is to resolve all the queries that the GTO may have formed on each candidate. 
+
+Thus, in this task the group is broken down into two smaller sub-groups and assigned one single obstacle similar to the one that was tackled in the PGT in such a way that while one sub-group is tackling the obstacle the other sub-group is not allowed to watch. 
+
+**Rules & Guidelines:**
+- Rules will be same as PGT except group rule, because there is only one obstacle to be tackled in this. 
+- The sub-groups can be formed in any way depending upon the nature of query that the GTO may have in mind. 
+- The GTO will ask one subgroup to stay back after the briefing and other sub-group to sit at a distance so that they cannot see. 
+- The time normally allowed for this task is 20 minutes for each subgroup. 
+- Since the group is small even the milder and weaker candidates will get adequate opportunity to take part in this task. 
+
+The concept of cantilever will be used once again in this task. Hence, it is important for you to learn this concept well.
+
+**What is Seen through this Activity?**
+- Your ability to grasp the rules and conditions of tackling the obstacles.
+- Are you logical in your approach?
+- Do you have practical work sense?
+- Are you able to use the resources appropriately?
+- Are you able to contribute to the group functioning?
+- Are you able to cooperate and work as a team member?
+- Are you able to overcome the frustration and difficulties faced during the task?
+- Power of expression and communication.
+- Initiative and leadership.
+
+**How to Approach HGT?**
+- Be a constructive member of the group.
+- Try and lead the group or support the leader proactively.
+- Wait till all the members have crossed and be helpful wherever required.
+- Do not give up easily. Keep striving and motivating your team members.
+- Once a path has been chosen do not divert the group to another approach.
+- Be helpful and do not criticize anyone.
+`;
+
+const FGT_THEORY = `## Final Group Task (FGT)
+
+This is the only task of the final series. In this task the entire group is called back to perform one task similar to the progressive group task with similar rules. 
+
+**Structure & Difficulty:**
+- The difficulty level of this task will be somewhat like PGT 2. 
+- This task offers the GTO a final look at the candidates and normally the candidates who have performed well in the entire GTO test will be in the forefront. 
+- Participation will be very high. Hence make sure you do not lag behind and give out your ideas even if others do not implement it. 
+
+**Key Strategy:**
+- Do not wait for too long; this task moves very fast.
+- Even though you may be exhausted, you must be active and participate with enthusiasm.
+
+**Debriefing:**
+At the end of all the tasks, the GTO conducts a debriefing session. In this he will counsel you about various aspects of selection and allow you to ask questions.
+- Do not pose any silly questions.
+- Restrict yourself to professional questions related to the service and the job.
+- Be sensible and professional.
+`;
+
+const PGT_THEORY = `## Progressive Group Task (PGT)
+
+PGT is the first task on the GTO ground. It consists of four obstacles of increasing difficulty. The group must cross these obstacles as a team using helping material like planks, ballis, and ropes.
+
+**The Four Stages:**
+1. **PGT 1**: Relatively easy, focuses on basic cantilever and simple bridging.
+2. **PGT 2**: Slightly more complex, requires better coordination.
+3. **PGT 3**: Challenging, often involves load management and complex levers.
+4. **PGT 4**: High difficulty, tests your presence of mind and teamwork under pressure.
+
+**Golden Rules of PGT:**
+- **Group Rule**: The whole group must cross together with the load.
+- **Color Rule**: 
+  - **White**: In-bound for both candidates and helping material.
+  - **Yellow/Black**: In-bound for candidates, but helping material cannot touch it.
+  - **Red**: Out-of-bound for both.
+- **Distance Rule**: Cannot jump a distance more than 4-5 feet.
+- **Rule of Rigidity**: Helping materials (plank/balli) cannot be tied together to increase length.
+`;
 
 export default function GTOPage() {
   const [activeTab, setActiveTab] = useState('gd');
@@ -795,31 +872,115 @@ export default function GTOPage() {
           {lecUserAnalysis && <AnalysisOutput content={lecUserAnalysis} title="Your Lecturette — AI Review" />}
         </TabsContent>
 
-        {/* More Tab — Snake Race + Coming Soon */}
-        <TabsContent value="more" className="mt-6 space-y-4">
+        {/* More Tab — PGT, HGT, FGT & Snake Race */}
+        <TabsContent value="more" className="mt-6 space-y-6">
+          {/* PGT Gallery Section */}
+          <div className="glass-card">
+            <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">PGT Structures & Analysis</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              {Array.from({ length: 18 }, (_, i) => (
+                <div key={i} className="group relative aspect-video rounded-xl overflow-hidden border border-border/40 bg-black/40 hover:border-gold/50 transition-all cursor-pointer shadow-lg" 
+                  onClick={() => window.open(`/images/gto/pgt/Screenshot 2026-04-14 ${[153426, 153432, 153435, 153442, 153446, 153451, 153457, 153501, 153506, 153509, 153514, 153518, 153524, 153527, 153531, 153536, 153540, 153544][i]}.png`, '_blank')}>
+                  <img 
+                    src={`/images/gto/pgt/Screenshot 2026-04-14 ${[153426, 153432, 153435, 153442, 153446, 153451, 153457, 153501, 153506, 153509, 153514, 153518, 153524, 153527, 153531, 153536, 153540, 153544][i]}.png`} 
+                    alt={`PGT Structure ${i + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2 px-3">
+                    <span className="text-[10px] font-heading font-black text-white/80 uppercase">Picture {i + 1}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <AnalysisOutput content={PGT_THEORY} title="Progressive Group Task Theory" />
+          </div>
+
+          {/* HGT Section */}
+          <div className="glass-card">
+            <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Half Group Task</h3>
+            <AnalysisOutput content={HGT_THEORY} title="HGT Theory & Psychology" />
+          </div>
+
+          {/* FGT Section */}
+          <div className="glass-card">
+            <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Final Group Task</h3>
+            <AnalysisOutput content={FGT_THEORY} title="FGT Final Looks" />
+          </div>
+
           {/* Snake Race Tips */}
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Snake Race / Group Obstacles</h3>
             <AnalysisOutput content={SNAKE_RACE_TIPS} title="Snake Race Tips & Strategy" />
           </div>
 
-          {/* Coming Soon */}
-          <div className="glass-card text-center py-8">
-            <Clock className="h-10 w-10 text-gold/40 mx-auto mb-4" />
-            <h3 className="font-heading font-bold text-lg text-foreground mb-2">More GTO Tasks — Coming Soon</h3>
-            <p className="font-body text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-              PGT (Progressive Group Task), HGT (Half Group Task), Individual Obstacles, Command Task, and Final Group Task practice modules are being built.
+          {/* Practice GTO Solution */}
+          <div className="glass-card bg-gold/5 border-gold/20">
+            <div className="flex items-center gap-3 mb-6">
+              <Sword className="h-6 w-6 text-gold" />
+              <h3 className="font-heading font-bold text-lg text-white">Practice PGT/HGT Solution</h3>
+            </div>
+            <p className="text-sm text-muted-foreground font-body leading-relaxed mb-6">
+              Upload a picture of any PGT/HGT structure or obstacle, and describe your solution (in English or Hinglish). AI will analyze your logic and provide a professional feedback in Hinglish if you prefer.
             </p>
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {['PGT', 'HGT', 'Individual Obstacles', 'Command Task', 'FGT'].map((task) => (
-                <span key={task} className="px-3 py-1.5 rounded-full text-xs font-heading font-semibold border border-border/40 text-muted-foreground" style={{
-                  background: 'hsl(var(--muted) / 0.3)',
-                }}>
-                  {task}
-                </span>
-              ))}
+            <div className="space-y-4">
+               {/* Reusing GPE logic for custom PGT/HGT practice */}
+               <label className="glass-card-subtle flex flex-col items-center justify-center py-6 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl">
+                <input type="file" accept="image/*" className="hidden" onChange={handleGpeImageUpload} />
+                {gpeImage ? (
+                  <div className="space-y-3 text-center">
+                    <img src={gpeImage} alt="GTO Structure" className="max-h-48 rounded-lg mx-auto shadow-lg" />
+                    <p className="text-xs text-gold">Click to change structure image</p>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-muted-foreground/40 mb-2" />
+                    <p className="text-sm text-muted-foreground font-body">Upload Structure Picture</p>
+                  </>
+                )}
+              </label>
+
+              <Textarea
+                placeholder="Type your solution logic here... (e.g., 'Maine balli ko support A pe phansaya aur plank ko support B pe cantilever banaya...')"
+                value={gpeUserSolution}
+                onChange={(e) => setGpeUserSolution(e.target.value)}
+                className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
+              />
+
+              <button
+                onClick={async () => {
+                  if (!gpeImage) { toast.error('Please upload a structure image'); return; }
+                  if (!gpeUserSolution.trim()) { toast.error('Please enter your solution'); return; }
+                  setGpeUserLoading(true);
+                  setGpeUserAnalysis('');
+                  try {
+                    const result = await callGemini(
+                      `You are an SSB GTO expert. Analyze the candidate's solution for the PGT/HGT obstacle shown in the image.
+                      
+                      RULES:
+                      1. Check for Color Rule, Distance Rule, and Cantilever logic.
+                      2. If the user writes in Hinglish, respond in Hinglish with Roman script.
+                      3. provide practical improvements.
+                      4. Be professional but encouraging.
+                      
+                      The candidate's solution: "${gpeUserSolution.trim()}"`,
+                      gpeImage
+                    );
+                    setGpeUserAnalysis(result);
+                  } catch (err: any) {
+                    toast.error(err.message || 'Failed to analyze solution');
+                  } finally {
+                    setGpeUserLoading(false);
+                  }
+                }}
+                disabled={gpeUserLoading || !gpeImage || !gpeUserSolution.trim()}
+                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm"
+              >
+                {gpeUserLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
+                {gpeUserLoading ? 'Analyzing Solution...' : 'Analyze My GTO Logic (Hinglish Supported)'}
+              </button>
             </div>
           </div>
+          {gpeUserAnalysis && <AnalysisOutput content={gpeUserAnalysis} title="GTO Logic Analysis" />}
         </TabsContent>
       </Tabs>
     </div>

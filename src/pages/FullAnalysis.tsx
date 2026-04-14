@@ -128,7 +128,7 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="glass-card-subtle p-5 border-l border-white/5">
             <h3 className="text-xs font-heading font-bold text-gold mb-2 uppercase tracking-widest">TAT (12 Pictures)</h3>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">30 seconds to view picture, 4 minutes to write. Auto-shuffles every slide.</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">30 seconds to view picture, 4 minutes to write. Auto-shuffles every slide. <b>NOTE: Pictures reshuffle hoti h, sequence same nahi milegi.</b></p>
           </div>
           <div className="glass-card-subtle p-5 border-l border-white/5">
             <h3 className="text-xs font-heading font-bold text-gold mb-2 uppercase tracking-widest">WAT (60 Words)</h3>
