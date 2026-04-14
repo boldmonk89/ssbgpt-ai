@@ -282,76 +282,7 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* SSB Mentor Resources Section */}
-      <motion.div variants={itemVariants} className="gold-border-left">
-        <h2 className="text-xl md:text-2xl">SSB Prep Resources</h2>
-      </motion.div>
 
-      <div className="glass-card liquid-card">
-        {/* Desktop: side by side. Mobile: stacked */}
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
-          {/* Left: Description */}
-          <div className="flex-1 min-w-0">
-            <p className="font-body text-xs tracking-[0.15em] uppercase text-gold mb-3">Recommended</p>
-            <h3 className="font-heading font-bold text-xl md:text-2xl text-foreground mb-2">
-              Want Full SSB Practice, Notes & Guidance?
-            </h3>
-            <p className="font-body text-sm text-muted-foreground leading-relaxed mb-5">
-              Combined efforts of <strong className="text-foreground">Recommended Candidates, Ex-NDA cadets & Retired GTOs</strong> — everything you need to crack SSB in one place.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-              {[
-                { icon: BookOpen, title: '3 Ebooks', desc: 'SSB Blueprint, Test of You & TAT-100 — covering psychology, GTO, interview & mindset' },
-                { icon: FileText, title: '80 Real TAT Stories', desc: 'Written by recommended candidates — learn officer-like thinking patterns' },
-                { icon: GraduationCap, title: 'CSSS & OPAM Module', desc: 'Interactive practice for the new Stage 1 cognitive screening process' },
-                { icon: Users, title: 'Google Drive Resources', desc: 'PGT notes, OIR sets, lecturette topics, interview questions, WAT/SRT practice & more' },
-              ].map((item, i) => {
-                const Icon = item.icon;
-                return (
-                  <div key={i} className="flex items-start gap-3 p-3 rounded-xl" style={{
-                    background: 'hsl(var(--muted) / 0.3)',
-                    border: '1px solid hsl(var(--border) / 0.3)',
-                  }}>
-                    <Icon className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-body font-semibold text-sm text-foreground">{item.title}</p>
-                      <p className="font-body text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <p className="font-body text-xs text-muted-foreground mb-4">
-              Lifetime access, instant delivery — by real SSB achievers, not textbook theory.
-            </p>
-            <a
-              href="https://ssbmentor.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass-button-gold inline-flex items-center gap-2 text-sm"
-            >
-              Visit SSB Mentor
-            </a>
-          </div>
-
-          {/* Right: Video */}
-          <div className="w-full md:w-[220px] lg:w-[260px] flex-shrink-0">
-            <div className="rounded-xl overflow-hidden border border-border/30">
-              <video
-                src="/ssbmentor-preview.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full"
-                style={{ aspectRatio: '9/16', objectFit: 'cover' }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
 
       <Footer />
     </motion.div>
