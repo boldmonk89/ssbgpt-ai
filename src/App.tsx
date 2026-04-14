@@ -73,16 +73,19 @@ class GlobalErrorBoundary extends React.Component<{ children: React.ReactNode },
   }
 }
 
+import { ThemeProvider } from "next-themes";
+
 const App = () => {
   return (
     <GlobalErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="*" element={
-                <AppLayout>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="*" element={
+                  <AppLayout>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                       <Route path="/"              element={<DashboardPage />} />
@@ -104,9 +107,10 @@ const App = () => {
                 </AppLayout>
               } />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
     </GlobalErrorBoundary>
   );
 };

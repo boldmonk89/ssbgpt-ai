@@ -14,6 +14,11 @@ export default function PIQPage() {
   const handleFileUpload = useCallback(async (file: File) => {
     setLoading(true);
     try {
+      // Strict format validation
+      if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+        throw new Error('Please upload an image or PDF file only.');
+      }
+
       const base64 = await fileToBase64(file);
       const verifyPrompt = buildVerifyDocumentPrompt('PIQ');
       const verification = await callGeminiMultiPart(verifyPrompt, [{ base64, mimeType: file.type || 'application/pdf' }]);

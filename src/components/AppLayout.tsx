@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Shield, ShieldAlert, FileText, MessageSquare, Zap, UserCircle, LayoutDashboard, Menu, X, BrainCircuit, Swords, History, Trash2, GitCompare, Users, FlaskConical, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
-import { InstallAppButton, useInstallPrompt } from '@/components/InstallAppButton';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Download } from 'lucide-react';
 import OfflineBanner from '@/components/OfflineBanner';
 import PageTransition from '@/components/PageTransition';
@@ -22,7 +22,7 @@ const navItems = [
   { to: '/gto', label: 'GTO', icon: Swords },
   { to: '/interview', label: 'Interview Practice', icon: Users },
   { to: '/ai-practice', label: 'AI Practice Sandbox', icon: BrainCircuit },
-  { to: '/full-analysis', label: 'Full Psych Test', icon: Shield },
+  { to: '/full-analysis', label: 'SSB GPT Analysis', icon: Shield },
   { to: '/practice-lab', label: 'SSB Practice Lab', icon: FlaskConical },
   { to: '/selection-boards', label: 'Selection Boards', icon: MapPin },
   { to: '/history', label: 'History', icon: History },
@@ -73,33 +73,7 @@ function SplashScreen() {
   );
 }
 
-function InstallHeaderButton() {
-  const { canInstall, isInstalled, isIOS, install } = useInstallPrompt();
-  const [showIOSGuide, setShowIOSGuide] = useState(false);
-
-  if (isInstalled) return null;
-  if (!canInstall && !isIOS) return null;
-
-  return (
-    <>
-      <button
-        onClick={isIOS ? () => setShowIOSGuide(true) : install}
-        className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-heading font-semibold rounded-xl text-gold transition-all active:scale-95"
-        style={{
-          background: 'linear-gradient(135deg, hsl(var(--gold) / 0.15) 0%, hsl(var(--gold) / 0.05) 100%)',
-          border: '1px solid hsl(var(--gold) / 0.3)',
-        }}
-      >
-        <span className="hidden xs:inline">Install App</span>
-      </button>
-      {showIOSGuide && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center" onClick={() => setShowIOSGuide(false)}>
-          <div className="absolute inset-0 bg-background/70 backdrop-blur-sm" />
-        </div>
-      )}
-    </>
-  );
-}
+// Removed InstallHeaderButton
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -126,7 +100,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <span className="font-heading font-black text-sm tracking-[0.2em] text-gold uppercase">SSB GPT</span>
         </div>
         <div className="flex items-center gap-2">
-          <InstallHeaderButton />
+          <ThemeToggle />
         </div>
       </header>
 
@@ -148,8 +122,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <img src={ssbgptLogo} alt="SSBGPT" width={40} height={40} className="h-full w-full object-cover" />
             </div>
             <div>
-              <h1 className="font-heading font-bold text-sm tracking-wider text-foreground">AI PSYCH</h1>
-              <p className="font-heading text-[10px] text-gold tracking-[0.2em]">ANALYSIS</p>
+              <h1 className="font-heading font-bold text-sm tracking-widest text-foreground">SSB GPT</h1>
+              <p className="font-heading text-[10px] text-gold tracking-[0.2em]">PRACTICE HUB</p>
             </div>
           </div>
         </div>
@@ -180,7 +154,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="gold-stripe mx-4" />
 
         <div className="p-4 space-y-3">
-          <InstallAppButton />
+          {/* Removed InstallAppButton */}
           <p className="text-[10px] font-body text-muted-foreground/40 px-3">15 OLQ Analysis Framework</p>
           <button
             onClick={() => { clearSession(); toast.success('Session cleared'); }}
@@ -204,9 +178,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           background: 'linear-gradient(180deg, hsl(var(--card) / 0.4) 0%, transparent 100%)',
           backdropFilter: 'blur(16px)',
         }}>
-          <span className="font-heading font-black text-sm tracking-[0.2em] text-gold uppercase">AI PSYCH ANALYSIS</span>
+          <span className="font-heading font-black text-sm tracking-[0.2em] text-gold uppercase">SSB GPT HUB</span>
           <div className="flex items-center gap-3">
-            <InstallHeaderButton />
+            <ThemeToggle />
           </div>
         </div>
         <div className="p-4 md:p-8 pt-6 md:pt-10 max-w-6xl mx-auto">

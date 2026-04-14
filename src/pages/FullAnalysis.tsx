@@ -183,7 +183,7 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
           }} 
           className="w-full h-20 text-xl font-heading font-black tracking-tighter shadow-2xl transition-all bg-gold hover:bg-gold/90 text-background disabled:opacity-20"
         >
-          START FULL PSYCH ANALYSIS
+          START SSB GPT ANALYSIS
         </Button>
       </div>
     </div>
@@ -192,17 +192,48 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
 
 function PiqStep({ onComplete }: { onComplete: (data: string) => void }) {
   const [isUploaded, setIsUploaded] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [data, setData] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<'image' | 'pdf'>('image');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+  const handleFileUpload = async (file: File) => {
+    setIsVerifying(true);
+    try {
+      // Strict format validation
+      if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+        throw new Error('Please upload an image or PDF file only.');
+      }
+
       const b64 = await fileToBase64(file);
+      
+      // Call Gemini for document verification
+      const verifyPrompt = buildVerifyDocumentPrompt('PIQ');
+      const verification = await callGeminiMultiPart(verifyPrompt, [{ 
+        base64: b64, 
+        mimeType: file.type || 'application/pdf' 
+      }]);
+
+      if (verification.includes('REJECTED')) {
+        toast.error(verification.replace('REJECTED:', '').trim(), { duration: 5000 });
+        return;
+      }
+
       setData(b64);
+      setFileType(file.type === 'application/pdf' ? 'pdf' : 'image');
       setIsUploaded(true);
-      toast.success("PIQ Baseline Anchored");
+      toast.success("PIQ Baseline Verified & Anchored", { icon: "🛡️" });
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Verification failed');
+    } finally {
+      setIsVerifying(false);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileUpload(file);
   };
 
   return (
@@ -214,35 +245,73 @@ function PiqStep({ onComplete }: { onComplete: (data: string) => void }) {
           </div>
 
           <div 
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
             onClick={() => fileInputRef.current?.click()}
-            className={`cursor-pointer rounded-none border border-white/10 p-12 transition-all flex flex-col items-center gap-4 relative ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 hover:bg-white/[0.08]'}`}
+            className={`cursor-pointer border-2 border-dashed p-12 transition-all flex flex-col items-center gap-4 relative min-h-[300px] justify-center ${isUploaded ? 'bg-gold/5 border-gold/40' : 'bg-white/5 border-white/10 hover:bg-white/[0.08] hover:border-gold/30'}`}
           >
              <input 
                type="file" 
                ref={fileInputRef}
                className="hidden" 
-               onChange={handleFileChange} 
+               accept="image/*,application/pdf"
+               onChange={(e) => {
+                 const file = e.target.files?.[0];
+                 if (file) handleFileUpload(file);
+                 e.target.value = '';
+               }} 
              />
-             {isUploaded ? (
+             
+             {isVerifying ? (
                <div className="space-y-4 text-center">
-                 <CheckCircle className="h-8 w-8 text-gold mx-auto" />
-                 <p className="text-xs font-bold text-gold uppercase tracking-widest">PIQ Authenticated & Secured</p>
+                 <div className="h-12 w-12 border-4 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" />
+                 <p className="text-xs font-bold text-gold uppercase tracking-widest animate-pulse">Verifying Document Authenticity...</p>
+               </div>
+             ) : isUploaded && data ? (
+               <div className="space-y-4 text-center w-full">
+                 {fileType === 'pdf' ? (
+                   <div className="flex flex-col items-center gap-3">
+                     <FileText className="h-16 w-16 text-gold" />
+                     <p className="font-heading font-semibold text-sm text-foreground">PIQ PDF Uploaded</p>
+                   </div>
+                 ) : (
+                   <img src={data} alt="PIQ Preview" className="max-h-[200px] mx-auto object-contain rounded-xl border border-gold/20" />
+                 )}
+                 <div className="flex flex-col items-center gap-2">
+                   <CheckCircle className="h-8 w-8 text-gold mx-auto" />
+                   <p className="text-xs font-bold text-gold uppercase tracking-widest">PIQ Authenticated & Secured</p>
+                   <p className="text-[10px] text-muted-foreground/60 uppercase">Click or Drag to Change</p>
+                 </div>
                </div>
              ) : (
                <div className="space-y-4 text-center">
-                 <Upload className="h-8 w-8 text-white/40 mx-auto" />
-                 <p className="text-xs font-bold text-white/40 uppercase tracking-widest">Click to Upload PIQ Form</p>
-                 <p className="text-[9px] text-muted-foreground/60 uppercase">PDF • JPG • PNG (Max 5MB)</p>
+                 <Upload className="h-12 w-12 text-white/40 mx-auto" />
+                 <div>
+                   <p className="text-sm font-bold text-white uppercase tracking-widest">Upload or Drop PIQ Form</p>
+                   <p className="text-xs text-muted-foreground/60 mt-1 uppercase">Images or PDF (Max 2-4 pages)</p>
+                 </div>
+                 <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <p className="text-[10px] text-gold/60 leading-relaxed font-medium">
+                      Ensure you upload both pages of the PIQ form for a cross-match analysis.
+                    </p>
+                 </div>
                </div>
              )}
           </div>
           
           <div className="pt-4 border-t border-white/5 space-y-4">
              <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold px-1">
-                <span>Report Intake Status:</span>
-                <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'RECORD CAPTURED' : 'AWAITING UPLOAD'}</span>
+                <span>Intake Pipeline Status:</span>
+                <span className={isUploaded ? 'text-gold' : 'text-white/20'}>
+                  {isVerifying ? 'VERIFYING...' : isUploaded ? 'RECORD VERIFIED' : 'AWAITING UPLOAD'}
+                </span>
              </div>
-             <Button disabled={!isUploaded} onClick={() => data && onComplete(data)} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
+             <Button 
+               disabled={!isUploaded || isVerifying} 
+               onClick={() => data && onComplete(data)} 
+               size="xl" 
+               className="w-full h-16 bg-gold text-black font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] transition-transform active:scale-95"
+             >
                 PROCEED TO PSYCH TESTS
              </Button>
           </div>
@@ -643,7 +712,7 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: Record<st
               <p className="text-muted-foreground uppercase tracking-[0.4em] text-[10px] font-bold opacity-60">Connecting with SSB Practice Hub...</p>
            </div>
            <Button onClick={handleGenerate} size="xl" className="w-full h-16 text-xl font-black tracking-widest bg-gold text-black shadow-2xl uppercase">
-              GENERATE PSYCH ANALYSIS REPORT
+              GENERATE SSB GPT REPORT
            </Button>
            <p className="text-[10px] text-white/30 uppercase tracking-widest italic">Multi-Document Evidence Matching Enabled</p>
         </div>

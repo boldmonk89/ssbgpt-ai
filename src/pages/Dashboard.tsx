@@ -271,13 +271,13 @@ export default function DashboardPage() {
         <div className="flex justify-center mb-3">
           <ClipboardList className="h-6 w-6 text-gold" />
         </div>
-        <h3 className="font-heading font-bold text-lg text-foreground mb-2">Full Psych Analysis</h3>
+        <h3 className="font-heading font-bold text-lg text-foreground mb-2">SSB GPT Analysis</h3>
         <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
           Upload a single PDF with all your tests, or combine individual test analyses into one comprehensive SSB assessment report with cross-test consistency check and 15 OLQ ratings.
         </p>
         <div className="flex justify-center mt-5">
           <button onClick={() => navigate('/full-analysis')} className="glass-button-gold flex items-center gap-2 text-sm">
-            Go to Full Analysis
+            Go to SSB GPT
           </button>
         </div>
       </motion.div>
