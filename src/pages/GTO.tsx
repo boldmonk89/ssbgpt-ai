@@ -550,7 +550,7 @@ export default function GTOPage() {
         {GTO_IMAGES.map((src, i) => (
           <div
             key={i}
-            className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
+            className="absolute inset-0 transition-opacity duration-[2s] ease-in-out"
             style={{
               opacity: currentImage === i ? 0.12 : 0,
               backgroundImage: `url(${src})`,

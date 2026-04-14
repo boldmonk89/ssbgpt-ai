@@ -317,7 +317,7 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
        <div className="w-full h-full flex items-center justify-center p-4">
           {isViewing ? (
              index < 11 ? (
-               <img src={tatPool[index]} className="max-h-screen max-w-full object-contain shadow-2xl animate-in zoom-in-95 duration-[2000ms]" />
+               <img src={tatPool[index]} className="max-h-screen max-w-full object-contain shadow-2xl animate-in zoom-in-95 duration-[2s]" />
              ) : (
                <div className="w-full h-full bg-white transition-colors duration-1000" />
              )
