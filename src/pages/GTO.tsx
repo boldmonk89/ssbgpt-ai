@@ -349,8 +349,6 @@ export default function GTOPage() {
   // States that depend on local file objects or blobs
   const [gpeImage, setGpeImage] = useState<string | null>(null);
   const [gpeImageName, setGpeImageName] = useState('');
-  const [lecUserAnalysis, setLecUserAnalysis] = useState('');
-  const [lecUserLoading, setLecUserLoading] = useState(false);
   // Video recording state
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
