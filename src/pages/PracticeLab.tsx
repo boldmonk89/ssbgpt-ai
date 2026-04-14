@@ -598,6 +598,11 @@ function PdfMilestone({ title, onComplete, count }: { title: string, onComplete:
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
     try {
+      // Strict format validation
+      if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+        throw new Error('Please upload an image or PDF file only.');
+      }
+      
       const base64 = await fileToBase64(file);
       let type: 'PIQ' | 'TAT' | 'WAT' | 'SRT' | 'SD' = 'TAT';
 
