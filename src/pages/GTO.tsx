@@ -4,7 +4,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { callGemini, callGeminiMultiPart, fileToBase64, getFileMimeType } from '@/lib/gemini';
-import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText } from 'lucide-react';
+import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText, Box } from 'lucide-react';
+import { GTOSimulator } from '@/components/gto/GTOSimulator';
 import { toast } from 'sonner';
 
 import gtoTask1 from '@/assets/gto/gto-task-1.jpg';
@@ -580,6 +581,9 @@ export default function GTOPage() {
           <TabsTrigger value="lecturette" className="rounded-lg font-heading font-semibold text-xs sm:text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
             <Mic className="h-4 w-4 mr-1" /> Lec
           </TabsTrigger>
+          <TabsTrigger value="3dlab" className="rounded-lg font-heading font-semibold text-xs sm:text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
+            <Box className="h-4 w-4 mr-1" /> 3D Lab
+          </TabsTrigger>
           <TabsTrigger value="more" className="rounded-lg font-heading font-semibold text-xs sm:text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
             <Sword className="h-4 w-4 mr-1" /> More
           </TabsTrigger>
@@ -740,6 +744,53 @@ export default function GTOPage() {
           )}
 
           {gpeUserAnalysis && <AnalysisOutput content={gpeUserAnalysis} title="Your GPE Solution — AI Review" />}
+        </TabsContent>
+
+        {/* 3D Lab Tab */}
+        <TabsContent value="3dlab" className="mt-6 space-y-4">
+          <div className="glass-card glow-gold">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-heading font-bold text-xl text-gold">PGT 3D Simulator</h3>
+                <p className="text-sm text-muted-foreground font-body">Practice Progressive Group Task logic in a real-time 3D environment.</p>
+              </div>
+              <div className="hidden sm:block px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-[10px] font-bold text-gold uppercase tracking-widest">
+                AI Powered Lab
+              </div>
+            </div>
+            
+            <GTOSimulator />
+
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="glass-card-subtle p-4 border-white/5">
+                <h4 className="font-heading font-bold text-sm mb-2 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  White Colors
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Both candidates and helping materials (Plank/Balli) can touch these structures. Common for start/finish lines.
+                </p>
+              </div>
+              <div className="glass-card-subtle p-4 border-white/5">
+                <h4 className="font-heading font-bold text-sm mb-2 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                  Yellow Colors
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Only candidates can touch these. Helping materials like planks or ballis MUST NOT rest on yellow areas.
+                </p>
+              </div>
+              <div className="glass-card-subtle p-4 border-white/5">
+                <h4 className="font-heading font-bold text-sm mb-2 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                  Red Colors
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Out-of-bound for everyone. Touching red color (or the ground) results in a penalty in the actual SSB.
+                </p>
+              </div>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Lecturette Tab */}
