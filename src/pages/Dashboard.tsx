@@ -34,8 +34,6 @@ import slide3 from '@/assets/slideshow/slide3.jpg';
 import slide4 from '@/assets/slideshow/slide4.jpg';
 import slide5 from '@/assets/slideshow/slide5.jpg';
 import slide6 from '@/assets/slideshow/slide6.jpg';
-import slide7 from '@/assets/slideshow/slide7.png';
-import slide8 from '@/assets/slideshow/slide8.png';
 
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import Footer from '@/components/Footer';
@@ -48,7 +46,7 @@ import logoGto from '@/assets/logos/logo-gto.png';
 
 
 
-const SLIDES = [slide1, slide2, slide3, slide4, slide5, slide6, slide7, slide8];
+const SLIDES = [slide1, slide2, slide3, slide4, slide5, slide6];
 
 const TEST_CARDS = [
   {

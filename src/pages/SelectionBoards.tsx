@@ -1,6 +1,11 @@
 import { Shield, MapPin, Home, Plane, Anchor, Crosshair, Search } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+
+import slide7 from '@/assets/slideshow/slide7.png';
+import slide8 from '@/assets/slideshow/slide8.png';
+
+const BOARD_IMAGES = [slide7, slide8];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -137,6 +142,14 @@ const BOARDS_DATA = {
 export default function SelectionBoards() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'army' | 'airforce' | 'navy'>('all');
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % BOARD_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const filteredArmy = BOARDS_DATA.army.filter(b => 
     (activeFilter === 'all' || activeFilter === 'army') &&
@@ -161,7 +174,24 @@ export default function SelectionBoards() {
       animate="visible"
       className="space-y-8 pb-20 scroll-reveal"
     >
-      <motion.div variants={itemVariants} className="glass-card glow-gold relative overflow-hidden">
+      <motion.div variants={itemVariants} className="glass-card glow-gold relative overflow-hidden min-h-[200px] flex items-center">
+        {/* Background slideshow */}
+        {BOARD_IMAGES.map((src, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 transition-opacity duration-[2s] ease-in-out"
+            style={{
+              opacity: currentImage === i ? 0.25 : 0,
+              backgroundImage: `url(${src})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 20%', // Shifted slightly to ensure faces are visible if portrait
+            }}
+          />
+        ))}
+        
+        {/* Overlay Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent z-0" />
+
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <Shield className="h-32 w-32 text-gold" />
         </div>
