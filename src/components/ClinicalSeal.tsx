@@ -14,9 +14,9 @@ export default function ClinicalSeal({ className = "" }: { className?: string })
       </div>
       
       <div className="text-center">
-         <p className="text-[10px] font-black text-gold uppercase tracking-[0.4em]">Clinical Compliance Verified</p>
+         <p className="text-[10px] font-black text-gold uppercase tracking-[0.4em]">Accuracy Verified</p>
          <p className="text-[8px] text-muted-foreground/60 uppercase tracking-[0.2em] mt-1">
-            SSBGPT Clinical Standards — Mansa-Vacha-Karma Verification Matrix
+            SSBGPT Standardized Analysis — Mansa-Vacha-Karma Verification Matrix
          </p>
       </div>
     </div>

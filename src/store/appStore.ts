@@ -111,6 +111,15 @@ interface AppState {
   setSrtSummary: (s: string) => void;
   sdSummary: string;
   setSdSummary: (s: string) => void;
+  tatFile: string | null;
+  setTatFile: (file: string | null) => void;
+  watFile: string | null;
+  setWatFile: (file: string | null) => void;
+  srtFile: string | null;
+  setSrtFile: (file: string | null) => void;
+  sdFile: string | null;
+  setSdFile: (file: string | null) => void;
+
   fullReport: string;
   setFullReport: (r: string) => void;
 
@@ -140,9 +149,13 @@ const initialState = {
   srtResponses: [] as SrtResponse[],
   sdParagraphs: SD_TYPES.map(t => ({ type: t, content: '', analysis: '' })),
   tatSummary: '',
+  tatFile: null,
   watSummary: '',
+  watFile: null,
   srtSummary: '',
+  srtFile: null,
   sdSummary: '',
+  sdFile: null,
   fullReport: '',
 };
 
@@ -167,9 +180,13 @@ export const useAppStore = create<AppState>()(
           sdParagraphs: s.sdParagraphs.map((p, i) => (i === index ? { ...p, ...para } : p)),
         })),
       setTatSummary: (s) => set({ tatSummary: s }),
+      setTatFile: (file) => set({ tatFile: file }),
       setWatSummary: (s) => set({ watSummary: s }),
+      setWatFile: (file) => set({ watFile: file }),
       setSrtSummary: (s) => set({ srtSummary: s }),
+      setSrtFile: (file) => set({ srtFile: file }),
       setSdSummary: (s) => set({ sdSummary: s }),
+      setSdFile: (file) => set({ sdFile: file }),
       setFullReport: (r) => set({ fullReport: r }),
       clearSession: () => {
         set(() => ({ ...initialState }));

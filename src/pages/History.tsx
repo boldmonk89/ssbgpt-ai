@@ -44,7 +44,7 @@ export default function HistoryPage() {
 
   const copyResult = (item: HistoryItem) => {
     navigator.clipboard.writeText(item.result);
-    toast.success('Record copied to clinical clipboard');
+    toast.success('Record copied to clipboard');
   };
 
   if (loading) {
@@ -59,7 +59,7 @@ export default function HistoryPage() {
   return (
     <div className="space-y-10 scroll-reveal pb-20">
       <div className="border-l-4 border-gold pl-6 py-2">
-        <h1 className="text-3xl font-black text-white uppercase tracking-tighter font-heading">Clinical Archive</h1>
+        <h1 className="text-3xl font-black text-white uppercase tracking-tighter font-heading">Report History</h1>
         <p className="text-muted-foreground font-body text-[10px] uppercase tracking-[0.4em] opacity-60">Candidate Dossier Database</p>
       </div>
 
@@ -110,7 +110,7 @@ export default function HistoryPage() {
                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-warning/60">
                            <ShieldCheck className="h-3 w-3" />
-                           <span className="text-[9px] font-bold uppercase tracking-widest">Clinical Synthesis Verified</span>
+                           <span className="text-[9px] font-bold uppercase tracking-widest">Report Analysis Verified</span>
                         </div>
                         <button 
                           onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}

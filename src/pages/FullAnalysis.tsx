@@ -169,7 +169,7 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
             <p className="text-[11px] text-destructive leading-relaxed font-bold uppercase tracking-tight">
-              WARNING: This is a continuous clinical examination. Ensure you stay committed to the timeline.
+              WARNING: This is a continuous professional session. Ensure you stay committed to the timeline.
             </p>
           </div>
         </div>
@@ -178,7 +178,7 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
           disabled={!allChecked}
           size="xl" 
           onClick={() => {
-            toast.info("Clinical examination initiated. Good luck, candidate.", { icon: "🖋️" });
+            toast.info("Professional examination started. Good luck, candidate.", { icon: "🖋️" });
             onStart();
           }} 
           className="w-full h-20 text-xl font-heading font-black tracking-tighter shadow-2xl transition-all bg-gold hover:bg-gold/90 text-background disabled:opacity-20"
@@ -239,7 +239,7 @@ function PiqStep({ onComplete }: { onComplete: (data: string) => void }) {
           
           <div className="pt-4 border-t border-white/5 space-y-4">
              <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-bold px-1">
-                <span>Clinical Intake Status:</span>
+                <span>Report Intake Status:</span>
                 <span className={isUploaded ? 'text-gold' : 'text-white/20'}>{isUploaded ? 'RECORD CAPTURED' : 'AWAITING UPLOAD'}</span>
              </div>
              <Button disabled={!isUploaded} onClick={() => data && onComplete(data)} size="xl" className="w-full h-16 bg-gold text-black font-bold uppercase tracking-widest rounded-none shadow-2xl">
@@ -601,7 +601,7 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq:
 
   const handleGenerate = async () => {
     if (!piq) {
-      toast.error("PIQ Baseline MISSING. Please re-upload PIQ for clinical synthesis.");
+      toast.error("PIQ Baseline MISSING. Please re-upload PIQ for analysis synthesis.");
       return;
     }
     
@@ -617,13 +617,13 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq:
       
       const files = [
         { base64: piq, mimeType: 'image/jpeg' },
-        ...(tat ? [{ base64: tat, mimeType: 'image/jpeg' }] : []),
-        ...(wat ? [{ base64: wat, mimeType: 'image/jpeg' }] : []),
-        ...(srt ? [{ base64: srt, mimeType: 'image/jpeg' }] : []),
-        ...(sd ? [{ base64: sd, mimeType: 'image/jpeg' }] : []),
+        ...(tat ? [{ base64: tat, mimeType: 'application/pdf' }] : []),
+        ...(wat ? [{ base64: wat, mimeType: 'application/pdf' }] : []),
+        ...(srt ? [{ base64: srt, mimeType: 'application/pdf' }] : []),
+        ...(sd ? [{ base64: sd, mimeType: 'application/pdf' }] : []),
       ];
 
-      const res = await callGeminiMultiPart(prompt + "\n\nIMPORTANT: Use the provided actual response sheets for analysis. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. DO NOT use markdown bolding (**) in your response. Output plain text report.", files);
+      const res = await callGeminiMultiPart(prompt + "\n\nIMPORTANT: Use the provided actual response sheets for analysis. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. The report MUST be CONCISE, structured with bullet points, and highly readable. DO NOT use markdown bolding (**) in your response. Output plain text report.", files);
       setAnalysisResult(res.replace(/\*/g, ''));
     } catch (e: any) {
       toast.error("Deep Matrix synthesis failed or Timeout");
@@ -639,10 +639,10 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq:
            <BrainCircuit className="h-16 w-16 text-gold mx-auto animate-pulse" />
            <div className="space-y-2">
               <h2 className="text-2xl font-bold text-white tracking-tight uppercase font-sans">Execute Synthesis Engine</h2>
-              <p className="text-muted-foreground uppercase tracking-[0.4em] text-[10px] font-bold opacity-60">Connecting with Psychomotor Clinical Hub...</p>
+              <p className="text-muted-foreground uppercase tracking-[0.4em] text-[10px] font-bold opacity-60">Connecting with SSB Practice Hub...</p>
            </div>
            <Button onClick={handleGenerate} size="xl" className="w-full h-16 text-xl font-black tracking-widest bg-gold text-black shadow-2xl uppercase">
-              GENERATE PSYCH CLINICAL REPORT
+              GENERATE PSYCH ANALYSIS REPORT
            </Button>
            <p className="text-[10px] text-white/30 uppercase tracking-widest italic">Multi-Document Evidence Matching Enabled</p>
         </div>
@@ -740,7 +740,7 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq:
 
       <div className="flex flex-col sm:flex-row gap-4 pt-6">
         <Button size="xl" className="flex-1 h-14 text-sm font-black tracking-widest bg-gold hover:bg-gold/90 text-background">
-          DOWNLOAD FULL CLINICAL REPORT
+          DOWNLOAD FULL ANALYSIS REPORT
         </Button>
         <Button size="xl" variant="outline" className="flex-1 h-14 text-sm font-black tracking-widest border-gold/30 text-gold hover:bg-gold/5">
           SHARE WITH MENTOR
@@ -751,16 +751,40 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq:
 }
 function MilestoneOverlay({ title, meta, onUpload }: { title: string, meta: string, onUpload: (data: string) => void }) {
   const [isUploaded, setIsUploaded] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [data, setData] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const b64 = await fileToBase64(file);
-      setData(b64);
-      setIsUploaded(true);
-      toast.success(`${title} Anchored Successfully`);
+      setIsVerifying(true);
+      try {
+        const b64 = await fileToBase64(file);
+        let type: 'PIQ' | 'TAT' | 'WAT' | 'SRT' | 'SD' = 'TAT';
+
+        if (title.includes('TAT')) type = 'TAT';
+        else if (title.includes('WAT')) type = 'WAT';
+        else if (title.includes('SRT')) type = 'SRT';
+        else if (title.includes('SD')) type = 'SD';
+        else if (title.includes('PIQ')) type = 'PIQ';
+
+        const verifyPrompt = buildVerifyDocumentPrompt(type);
+        const verification = await callGeminiMultiPart(verifyPrompt, [{ base64: b64, mimeType: file.type || 'application/pdf' }]);
+
+        if (verification.includes('REJECTED')) {
+          toast.error(verification.replace('REJECTED:', '').trim(), { duration: 5000 });
+          return;
+        }
+
+        setData(b64);
+        setIsUploaded(true);
+        toast.success(`${type} Document Verified & Anchored`, { icon: "🛡️" });
+      } catch (err: any) {
+        toast.error(err.message || 'Verification failed');
+      } finally {
+        setIsVerifying(false);
+      }
     }
   };
 
@@ -782,7 +806,12 @@ function MilestoneOverlay({ title, meta, onUpload }: { title: string, meta: stri
                className="hidden" 
                onChange={handleFileChange} 
              />
-             {isUploaded ? (
+             {isVerifying ? (
+               <div className="space-y-4 text-center">
+                 <FlaskConical className="h-8 w-8 text-gold mx-auto animate-spin" />
+                 <p className="text-xs font-bold text-gold uppercase tracking-widest italic">AI Verifying Document...</p>
+               </div>
+             ) : isUploaded ? (
                <div className="space-y-4 text-center">
                  <CheckCircle className="h-8 w-8 text-gold mx-auto" />
                  <p className="text-xs font-bold text-gold uppercase tracking-widest">Document Secured & Verified</p>
@@ -804,7 +833,7 @@ function MilestoneOverlay({ title, meta, onUpload }: { title: string, meta: stri
                disabled={!isUploaded} 
                onClick={() => {
                  if (data) {
-                    toast.success("Document verified. Clinical record anchored.", { icon: "🛡️" });
+                    toast.success("Document verified. Assessment record anchored.", { icon: "🛡️" });
                     onUpload(data);
                  }
                }} 

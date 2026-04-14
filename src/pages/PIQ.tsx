@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useAppStore } from '@/store/appStore';
-import { callGemini, buildPiqPrompt, fileToBase64 } from '@/lib/gemini';
+import { callGemini, buildPiqPrompt, fileToBase64, buildVerifyDocumentPrompt, callGeminiMultiPart } from '@/lib/gemini';
 import { LoadingCard } from '@/components/LoadingCard';
 import { Upload, User, CheckCircle, FileText } from 'lucide-react';
 import { toast } from 'sonner';
@@ -12,10 +12,26 @@ export default function PIQPage() {
   const [fileType, setFileType] = useState<'image' | 'pdf'>('image');
 
   const handleFileUpload = useCallback(async (file: File) => {
-    const base64 = await fileToBase64(file);
-    setFileData(base64);
-    setPiqImageUrl(base64);
-    setFileType(file.type === 'application/pdf' ? 'pdf' : 'image');
+    setLoading(true);
+    try {
+      const base64 = await fileToBase64(file);
+      const verifyPrompt = buildVerifyDocumentPrompt('PIQ');
+      const verification = await callGeminiMultiPart(verifyPrompt, [{ base64, mimeType: file.type || 'application/pdf' }]);
+
+      if (verification.includes('REJECTED')) {
+        toast.error(verification.replace('REJECTED:', '').trim(), { duration: 5000 });
+        return;
+      }
+
+      setFileData(base64);
+      setPiqImageUrl(base64);
+      setFileType(file.type === 'application/pdf' ? 'pdf' : 'image');
+      toast.success('PIQ Verified & Anchored', { icon: "🛡️" });
+    } catch (err: any) {
+      toast.error(err.message || 'Verification failed');
+    } finally {
+      setLoading(false);
+    }
   }, [setPiqImageUrl]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {

@@ -65,7 +65,7 @@ function SplashScreen() {
           />
         </div>
         <p className="mt-4 text-[10px] uppercase tracking-[0.4em] text-white/40 font-bold">
-           Initializing Clinical Environment... {progress}%
+           Initializing Practice Environment... {progress}%
         </p>
       </div>
     </div>

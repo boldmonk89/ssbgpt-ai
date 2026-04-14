@@ -148,15 +148,15 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
   ${convertMarkdownToHtml(content)}
   <div class="footer">
     <div class="signature-area">
-      <div style="height: 60px; margin-bottom: -10px;">
+      <div style="height: 60px; margin-bottom: 5px;">
         <img src="${signatureImg}" style="height: 100%; object-fit: contain;" />
       </div>
       <div class="signature-line"></div>
-      <div class="signature-label">Clinical Examiner Signature</div>
-      <div style="font-size: 8px; color: #888; margin-top: 2px;">Psychomotor Synthesis Hub — Verified</div>
+      <div class="signature-label">Assessor Signature</div>
+      <div style="font-size: 8px; color: #888; margin-top: 2px;">SSB Practice Hub — Verified Report</div>
     </div>
     <div class="footer-meta">
-      SSBGPT — 15 OLQ Framework — Confidential Assessment Narrative
+      SSBGPT — 15 OLQ Framework — Psychological Assessment Narrative
     </div>
   </div>
 </body>

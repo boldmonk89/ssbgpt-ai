@@ -181,9 +181,9 @@ If valid, provide a structured analysis:
    - Rate the candidate's story (out of 10)
    - Which specific OLQs need improvement?
 
-Always respond in a strictly professional, clinical tone. Avoid any generic praise like "Good start" or "Excellent story". Focus on cold, evidence-based psychological patterns. Be brutally honest about weaknesses. 
+Always respond in a strictly professional and direct tone. Avoid any generic praise like "Good start" or "Excellent story". Focus on evidence-based psychological patterns. Be brutally honest about weaknesses. Make the analysis CONCISE, punchy, and easy to read. Use short bullet points.
 
-CRITICAL FORMATTING: DO NOT use markdown bolding (**) or italics (*) in any part of your response. Use plain text or simple list markers (-). NO asterisks anywhere in the output. Output MUST be clean text suitable for a clinical report.`;
+CRITICAL FORMATTING: DO NOT use markdown bolding (**) or italics (*) in any part of your response. Use plain text or simple list markers (-). NO asterisks anywhere in the output. Output MUST be clean text suitable for a professional report.`;
 }
 
 export function buildTatPdfPrompt(): string {
@@ -213,14 +213,23 @@ export function buildWatPrompt(responses: { word: string; sentence: string }[]):
 ${formattedResponses}
 
 ### EVALUATION INSTRUCTIONS:
-1. **Clinical Markers**: Flag any aggression, deviant behavior, or coached cliches. 
-2. **Improved Model Sentences**: Rapid-fire better versions (8-10 words max each).
+1. **Key Traits**: Flag any aggression, deviant behavior, or coached cliches. 2. **Improved Model Sentences**: Rapid-fire better versions (8-10 words max each).
 3. **OLQ Rating**: Map shown qualities.
 4. **Final Score**: X/10.
 
+### STYLE & CALIBRATION (CRITICAL):
+- NO ADVICE/ORDERS: Never use "One should...", "Do...", or "Focus on...". sentences must be observational or action-based.
+- NO PREACHING/PHILOSOPHY: Avoid generic generic life lessons (e.g., "Compassion overcomes prejudices").
+- EXAMPLES:
+  * WORD: BASTARD
+  * BAD: "Focus on growth, not labels." (ORDER)
+  * BAD: "Circumstances do not define worth." (PHILOSOPHY)
+  * GOOD: "Legality defines social status." (OBSERVATIONAL)
+  * GOOD: "Hard work establishes one's identity." (ACTION/TRAIT)
+
 CRITICAL: 
 - Analyze ONLY the candidate data provided above. 
-- The AI must be concise — similar to a clinical note. 
+- The AI must be extremely concise — similar to a high-level summary. Use bullet points. 
 - NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
 }
 
@@ -228,8 +237,9 @@ export function buildWatPdfPrompt(): string {
   return `You are an SSB psychologist. This PDF/image contains handwritten WAT (Word Association Test) responses.
 
 First extract all word-sentence pairs. Then for each:
-1. Check word count (max 6), pronouns, positivity, observational quality
-2. Identify OLQ signals
+1. Check word count (max 6), pronouns, positivity, observational quality.
+2. Identify OLQ signals.
+3. Provide IMPROVED sentences that are strictly OBSERVATIONAL or ACTION-BASED. (NO advice, NO orders, NO preaching).
 
 Provide a summary table and batch analysis with OLQ coverage map, top improvements, and overall rating. Keep it concise and actionable.`;
 }
@@ -315,6 +325,7 @@ ${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse
 
 CRITICAL:
 - Analyze ONLY the Candidate Data provided above. DO NOT evaluate or mention the reference cases.
+- Provide a summary that is highly READABLE and CONCISE.
 - NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
 }
 
@@ -354,7 +365,7 @@ Provide analysis:
 5. **Rewritten Paragraph (Ideal Version)**: 80-120 words. Action-oriented, using calibration style. 
 6. **Score**: X/10 with justification.
 
-Be strictly professional, clinical, and data-focused. No generic praise or encouraging preamble. Provide objective truth about the candidate's alignment. DO NOT use markdown bolding (**).`;
+Be strictly professional and data-focused. No generic praise or encouraging preamble. Provide objective truth about the candidate's alignment. DO NOT use markdown bolding (**).`;
 }
 
 export function buildSdFromPdfPrompt(): string {
@@ -392,7 +403,7 @@ WAT Analysis: ${watSummary || 'Not available'}
 SRT Analysis: ${srtSummary || 'Not available'}
 SD Analysis: ${sdSummary || 'Not available'}
 
-Generate a DEEP CLINICAL NARRATIVE:
+Generate a DETAILED ANALYSIS REPORT:
 
 ## 1. Professional Synthesis & Identity Match Score
 Overall psychological profile in 5-6 lines. Give an overall alignment percentage (0-100%) between life-history claims and test evidence.
@@ -426,7 +437,7 @@ Top 5 questions the IO will DEFINITELY ask based on PIQ-Test contradictions. For
 ## 8. 30-Day Action Plan
 Ranked list of 5 specific things to do to close the gap between claims and actual personality.
 
-Be brutally honest, clinical, and data-driven. The candidate needs the COLD TRUTH, not comfort or generic encouragement. Avoid all soft adjectives. DO NOT use markdown bolding (**) or italics (*) in any part of this massive report. Use plain text headings (e.g., SECTION NAME). NO asterisks anywhere in the output.`;
+Be brutally honest and data-driven. The candidate needs the COLD TRUTH, not comfort or generic encouragement. Avoid all soft adjectives. DO NOT use markdown bolding (**) or italics (*) in any part of this massive report. Use plain text headings (e.g., SECTION NAME). NO asterisks anywhere in the output.`;
 }
 
 export function buildFullPdfAnalysisPrompt(): string {
@@ -572,3 +583,49 @@ Analyze ALL answers together and give:
 
 Be encouraging, structured, and exam-focused.`;
 }
+
+export function buildVerifyDocumentPrompt(type: 'PIQ' | 'TAT' | 'WAT' | 'SRT' | 'SD'): string {
+  const common = "\n\nYou are a document verification AI. Your ONLY job is to verify if the uploaded file is the CORRECT document for the specified test. DO NOT analyze the psychological content. Only check format, counts, and visual style.\n\nIF VALID: Respond ONLY with 'VALID: [Short confirmation]'.\nIF INVALID: Respond ONLY with 'REJECTED: [Specific reason why it is invalid]'.";
+
+  switch (type) {
+    case 'PIQ':
+      return `This must be a Personal Information Questionnaire (PIQ). 
+Verify if it matches one of these two formats:
+1. Type 1 (Official 107-A): Should be exactly 2 pages. Header contains "PERSONAL INFORMATION QUESTIONNAIRE", "CONFIDENTIAL", and "DIPR Questionnaire No. 107-A (Revised)".
+2. Type 2 (Target SSB): Should be exactly 3-4 pages. Header contains "TARGET SSB INTERVIEW" and "PERSONAL INFORMATION QUESTIONNAIRE".
+
+REJECT if it is any other form, a different number of pages, or irrelevant content.${common}`;
+    
+    case 'SRT':
+      return `This must be a handwritten or printed SRT (Situation Reaction Test) response sheet.
+REJECT if:
+- It does NOT contain exactly 60 numbered responses.
+- It contains any content other than situation-reaction pairs.
+- It is a different type of test (like TAT or WAT).${common}`;
+
+    case 'WAT':
+      return `This must be a handwritten or printed WAT (Word Association Test) response sheet.
+REJECT if:
+- It does NOT contain exactly 60 numbered word-sentence pairs.
+- It contains random text or irrelevant content.
+- It is a different type of test.${common}`;
+
+    case 'TAT':
+      return `This must be an SSB TAT (Thematic Apperception Test) response sheet or a valid TAT sketch.
+REJECT if the image is:
+- A photo of a screen, monitor, or tablet.
+- A photo of real people/scenes (photograph).
+- Unrelated to SSB TAT patterns.
+- Colorful/RGB images (not sketches).${common}`;
+
+    case 'SD':
+      return `This must be a Self Description (SD) response sheet.
+REJECT if:
+- It does NOT contain exactly 5 paragraphs corresponding to the 5 standard SSB headings (Parents, Teachers, Friends, Self, Qualities to develop).
+- The paragraphs are too short (less than 30 words each) or irrelevant.${common}`;
+
+    default:
+      return `Verify if this document is relevant to SSB psychological testing.${common}`;
+  }
+}
+
