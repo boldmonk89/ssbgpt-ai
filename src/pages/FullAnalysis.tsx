@@ -275,7 +275,16 @@ function PiqStep({ onComplete }: { onComplete: (data: string) => void }) {
                      <p className="font-heading font-semibold text-sm text-foreground">PIQ PDF Uploaded</p>
                    </div>
                  ) : (
-                   <img src={data} alt="PIQ Preview" className="max-h-[200px] mx-auto object-contain rounded-xl border border-gold/20" />
+                    <img 
+                      src={data} 
+                      alt="PIQ Preview" 
+                      className="max-h-[200px] mx-auto object-contain rounded-xl border border-gold/20" 
+                      onError={() => {
+                        toast.error("Corrupted preview data. Please re-upload.");
+                        setData(null);
+                        setIsUploaded(false);
+                      }}
+                    />
                  )}
                  <div className="flex flex-col items-center gap-2">
                    <CheckCircle className="h-8 w-8 text-gold mx-auto" />

@@ -98,7 +98,15 @@ export default function PIQPage() {
                   {!piqContext && <p className="text-xs text-muted-foreground font-body">Click to change</p>}
                 </div>
               ) : (
-                <img src={fileData} alt="PIQ" className="max-h-[400px] mx-auto object-contain rounded-xl" />
+                <img 
+                  src={fileData} 
+                  alt="PIQ" 
+                  className="max-h-[400px] mx-auto object-contain rounded-xl" 
+                  onError={() => {
+                    toast.error("Corrupted image data detected. Please re-upload.");
+                    handleClear();
+                  }}
+                />
               )}
               <div className="absolute top-2 right-2"><CheckCircle className="h-5 w-5 text-success" /></div>
             </div>

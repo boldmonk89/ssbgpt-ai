@@ -192,6 +192,22 @@ export const useAppStore = create<AppState>()(
         set(() => ({ ...initialState }));
       },
     }),
-    { name: 'ssb-psych-analyzer' }
+    { 
+      name: 'ssb-psych-analyzer',
+      storage: {
+        getItem: (name) => {
+          const str = sessionStorage.getItem(name);
+          return str ? JSON.parse(str) : null;
+        },
+        setItem: (name, value) => {
+          try {
+            sessionStorage.setItem(name, JSON.stringify(value));
+          } catch (e) {
+            console.error("Storage quota exceeded", e);
+          }
+        },
+        removeItem: (name) => sessionStorage.removeItem(name),
+      }
+    }
   )
 );
