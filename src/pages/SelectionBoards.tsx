@@ -1,5 +1,6 @@
-import { Shield, MapPin, Home, Plane, Anchor, Crosshair } from 'lucide-react';
+import { Shield, MapPin, Home, Plane, Anchor, Crosshair, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -134,12 +135,31 @@ const BOARDS_DATA = {
 };
 
 export default function SelectionBoards() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'army' | 'airforce' | 'navy'>('all');
+
+  const filteredArmy = BOARDS_DATA.army.filter(b => 
+    (activeFilter === 'all' || activeFilter === 'army') &&
+    (b.city.toLowerCase().includes(searchQuery.toLowerCase()) || 
+     b.boards.some(board => board.name.toLowerCase().includes(searchQuery.toLowerCase()) || board.code.toLowerCase().includes(searchQuery.toLowerCase())))
+  );
+
+  const filteredAirforce = BOARDS_DATA.airforce.filter(b => 
+    (activeFilter === 'all' || activeFilter === 'airforce') &&
+    (b.name.toLowerCase().includes(searchQuery.toLowerCase()) || b.unit.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const filteredNavy = BOARDS_DATA.navy.filter(b => 
+    (activeFilter === 'all' || activeFilter === 'navy') &&
+    (b.name.toLowerCase().includes(searchQuery.toLowerCase()) || b.unit.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <motion.div 
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="space-y-12 pb-20 scroll-reveal"
+      className="space-y-8 pb-20 scroll-reveal"
     >
       <motion.div variants={itemVariants} className="glass-card glow-gold relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10">
@@ -149,31 +169,58 @@ export default function SelectionBoards() {
           <h1 className="text-3xl md:text-4xl font-heading font-black mb-4 tracking-tight">
             <span className="shimmer-text">SSB SELECTION BOARDS</span>
           </h1>
-          <p className="text-muted-foreground font-body text-base max-w-2xl leading-relaxed">
+          <p className="text-muted-foreground font-body text-sm max-w-2xl leading-relaxed mb-6">
             Quick reference guide for Army, Air Force, and Navy Selection Boards across India, including addresses and stay options.
           </p>
+
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input 
+                type="text" 
+                placeholder="Search boards by city, code, or name..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-10 pl-10 pr-4 rounded-lg bg-background/50 border border-border/40 focus:border-gold/50 outline-none font-body text-sm transition-all"
+              />
+            </div>
+            <div className="flex p-1 rounded-lg bg-background/50 border border-border/40 w-fit">
+              {(['all', 'army', 'airforce', 'navy'] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setActiveFilter(f)}
+                  className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeFilter === f ? 'bg-gold/20 text-gold shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {f === 'all' ? 'All Units' : f}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </motion.div>
 
       {/* Army Boards */}
-      <motion.section variants={itemVariants} className="space-y-6">
-        <div className="flex items-center gap-3 px-2">
-          <div className="h-10 w-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
-            <Crosshair className="h-5 w-5 text-gold" />
+      {filteredArmy.length > 0 && (
+        <motion.section variants={itemVariants} className="space-y-6">
+          <div className="flex items-center gap-3 px-2">
+            <div className="h-10 w-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+              <Crosshair className="h-5 w-5 text-gold" />
+            </div>
+            <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Army Selection Boards</h2>
           </div>
-          <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Army Selection Boards</h2>
-        </div>
-        <motion.div 
-          variants={containerVariants}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          {BOARDS_DATA.army.map((board, i) => (
-            <motion.div 
-              key={i} 
-              variants={itemVariants}
-              whileHover={{ scale: 1.01, translateY: -4 }}
-              className="glass-card group transition-all duration-300 border-gold/10 hover:border-gold/30"
-            >
+          <motion.div 
+            variants={containerVariants}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          >
+            {filteredArmy.map((board, i) => (
+              <motion.div 
+                key={i} 
+                variants={itemVariants}
+                whileHover={{ scale: 1.01, translateY: -4 }}
+                className="glass-card group transition-all duration-300 border-gold/10 hover:border-gold/30"
+              >
               <div className="flex flex-wrap gap-2 mb-4">
                 {board.boards.map((b, idx) => (
                   <span key={idx} className="px-2 py-0.5 rounded-md bg-gold/10 text-gold text-[10px] font-bold border border-gold/20 uppercase tracking-tighter">
@@ -202,88 +249,103 @@ export default function SelectionBoards() {
           ))}
         </motion.div>
       </motion.section>
+      )}
 
       {/* Air Force Boards */}
-      <motion.section variants={itemVariants} className="space-y-6">
-        <div className="flex items-center gap-3 px-2">
-          <div className="h-10 w-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
-            <Plane className="h-5 w-5 text-sky-400" />
+      {filteredAirforce.length > 0 && (
+        <motion.section variants={itemVariants} className="space-y-6">
+          <div className="flex items-center gap-3 px-2">
+            <div className="h-10 w-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
+              <Plane className="h-5 w-5 text-sky-400" />
+            </div>
+            <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Air Force Selection Boards</h2>
           </div>
-          <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Air Force Selection Boards</h2>
-        </div>
-        <motion.div 
-          variants={containerVariants}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {BOARDS_DATA.airforce.map((board, i) => (
-            <motion.div 
-              key={i} 
-              variants={itemVariants}
-              whileHover={{ scale: 1.01, translateY: -4 }}
-              className="glass-card group transition-all duration-300 border-sky-500/10 hover:border-sky-500/30"
-            >
-              <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 text-[10px] font-black border border-sky-500/20 mb-3 inline-block uppercase tracking-widest">
-                {board.unit}
-              </span>
-              <h3 className="text-lg font-heading font-bold mb-4 group-hover:text-sky-300 transition-colors">{board.name}</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black mb-1.5">Establishment Address</p>
-                  <p className="text-xs font-body text-foreground/70 leading-relaxed font-medium">{board.address}</p>
-                </div>
-                <div className="p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 shadow-inner group-hover:bg-sky-500/10 transition-colors">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Home className="h-3.5 w-3.5 text-sky-400" />
-                    <p className="text-[10px] uppercase tracking-widest text-sky-400 font-bold">Stay Information</p>
+          <motion.div 
+            variants={containerVariants}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filteredAirforce.map((board, i) => (
+              <motion.div 
+                key={i} 
+                variants={itemVariants}
+                whileHover={{ scale: 1.01, translateY: -4 }}
+                className="glass-card group transition-all duration-300 border-sky-500/10 hover:border-sky-500/30"
+              >
+                <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 text-[10px] font-black border border-sky-500/20 mb-3 inline-block uppercase tracking-widest">
+                  {board.unit}
+                </span>
+                <h3 className="text-lg font-heading font-bold mb-4 group-hover:text-sky-300 transition-colors">{board.name}</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black mb-1.5">Establishment Address</p>
+                    <p className="text-xs font-body text-foreground/70 leading-relaxed font-medium">{board.address}</p>
                   </div>
-                  <p className="text-xs font-body text-muted-foreground leading-relaxed italic">{board.stay}</p>
+                  <div className="p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 shadow-inner group-hover:bg-sky-500/10 transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Home className="h-3.5 w-3.5 text-sky-400" />
+                      <p className="text-[10px] uppercase tracking-widest text-sky-400 font-bold">Stay Information</p>
+                    </div>
+                    <p className="text-xs font-body text-muted-foreground leading-relaxed italic">{board.stay}</p>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.section>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.section>
+      )}
 
       {/* Navy Boards */}
-      <motion.section variants={itemVariants} className="space-y-6">
-        <div className="flex items-center gap-3 px-2">
-          <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-            <Anchor className="h-5 w-5 text-emerald-400" />
+      {filteredNavy.length > 0 && (
+        <motion.section variants={itemVariants} className="space-y-6">
+          <div className="flex items-center gap-3 px-2">
+            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+              <Anchor className="h-5 w-5 text-emerald-400" />
+            </div>
+            <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Naval Selection Boards</h2>
           </div>
-          <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Naval Selection Boards</h2>
-        </div>
-        <motion.div 
-          variants={containerVariants}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {BOARDS_DATA.navy.map((board, i) => (
-            <motion.div 
-              key={i} 
-              variants={itemVariants}
-              whileHover={{ scale: 1.01, translateY: -4 }}
-              className="glass-card group transition-all duration-300 border-emerald-500/10 hover:border-emerald-500/30"
-            >
-              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-black border border-emerald-500/20 mb-3 inline-block uppercase tracking-widest">
-                {board.unit}
-              </span>
-              <h3 className="text-lg font-heading font-bold mb-4 group-hover:text-emerald-300 transition-colors">{board.name}</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black mb-1.5">Naval Base Address</p>
-                  <p className="text-xs font-body text-foreground/70 leading-relaxed font-medium">{board.address}</p>
-                </div>
-                <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 shadow-inner group-hover:bg-emerald-500/10 transition-colors">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Home className="h-3.5 w-3.5 text-emerald-400" />
-                    <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Stay & Logistics</p>
+          <motion.div 
+            variants={containerVariants}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filteredNavy.map((board, i) => (
+              <motion.div 
+                key={i} 
+                variants={itemVariants}
+                whileHover={{ scale: 1.01, translateY: -4 }}
+                className="glass-card group transition-all duration-300 border-emerald-500/10 hover:border-emerald-500/30"
+              >
+                <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-black border border-emerald-500/20 mb-3 inline-block uppercase tracking-widest">
+                  {board.unit}
+                </span>
+                <h3 className="text-lg font-heading font-bold mb-4 group-hover:text-emerald-300 transition-colors">{board.name}</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black mb-1.5">Naval Base Address</p>
+                    <p className="text-xs font-body text-foreground/70 leading-relaxed font-medium">{board.address}</p>
                   </div>
-                  <p className="text-xs font-body text-muted-foreground leading-relaxed italic">{board.stay}</p>
+                  <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 shadow-inner group-hover:bg-emerald-500/10 transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Home className="h-3.5 w-3.5 text-emerald-400" />
+                      <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Stay & Logistics</p>
+                    </div>
+                    <p className="text-xs font-body text-muted-foreground leading-relaxed italic">{board.stay}</p>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.section>
+      )}
+
+      {filteredArmy.length === 0 && filteredAirforce.length === 0 && filteredNavy.length === 0 && (
+        <motion.div variants={itemVariants} className="text-center py-20">
+          <div className="h-20 w-20 rounded-full bg-muted/20 flex items-center justify-center mx-auto mb-4 border border-border/40">
+            <Search className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+          <h3 className="text-xl font-heading font-bold text-foreground/80 mb-2">No Selection Boards Found</h3>
+          <p className="text-sm text-muted-foreground font-body">Try adjusting your search or the service filters.</p>
         </motion.div>
-      </motion.section>
+      )}
     </motion.div>
   );
 }
