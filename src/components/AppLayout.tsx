@@ -21,10 +21,10 @@ const navItems = [
   { to: '/sd', label: 'SD', icon: Shield },
   { to: '/gto', label: 'GTO', icon: Swords },
   { to: '/interview', label: 'Interview Practice', icon: Users },
-  { to: '/selection-boards', label: 'Selection Boards', icon: ShieldAlert },
   { to: '/ai-practice', label: 'AI Practice Sandbox', icon: BrainCircuit },
   { to: '/full-analysis', label: 'Full Psych Test', icon: Shield },
   { to: '/practice-lab', label: 'SSB Practice Lab', icon: FlaskConical },
+  { to: '/selection-boards', label: 'Selection Boards', icon: MapPin },
   { to: '/history', label: 'History', icon: History },
 ];
 
