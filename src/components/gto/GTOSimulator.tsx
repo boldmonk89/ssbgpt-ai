@@ -8,34 +8,47 @@ import { Matrix4 } from 'three';
 
 const STAGE_1: GTOStage = {
   id: 1,
-  name: "PGT Stage 1",
-  description: "Simple crossing with two white poles and one central block.",
+  name: "Basic Crossing (PGT-1)",
+  description: "Simple crossing using two white poles. Goal is to bridge the gap using available materials.",
   elements: [
-    { id: 'start-pole-1', type: 'pole', position: [-4, 1.5, -5], color: 'white', snapPoints: [[-4, 3, -5], [-4, 2, -5]] },
-    { id: 'start-pole-2', type: 'pole', position: [4, 1.5, -5], color: 'white', snapPoints: [[4, 3, -5], [4, 2, -5]] },
-    { id: 'center-block', type: 'block', position: [0, 0.5, 0], color: 'yellow', scale: [1, 1, 3], snapPoints: [[0, 1, 0]] },
-    { id: 'finish-pole-1', type: 'pole', position: [-2, 1.5, 5], color: 'white', snapPoints: [[-2, 3, 5]] },
+    { id: 'start-pole-1', type: 'pole', position: [-2, 1.5, -5], color: 'white' },
+    { id: 'start-pole-2', type: 'pole', position: [2, 1.5, -5], color: 'white' },
+    { id: 'center-block', type: 'block', position: [0, 0.5, 0], color: 'yellow', scale: [1, 1, 1] },
+    { id: 'finish-pole-1', type: 'pole', position: [0, 1.5, 5], color: 'white' },
   ],
   helpingMaterials: { planks: 1, ballis: 1, ropes: 2 },
-  hinglishHint: "Pehla structure white hai, toh aap uspe phatta rakh sakte hain. Balli ko block ke peeche support ke liye use kijiye."
+  hinglishHint: "Dono start poles white hain. Ek plank ko poles ke beech diagonal rakho phir aage badho."
 };
 
 const STAGE_2: GTOStage = {
   id: 2,
-  name: "PGT Stage 2",
-  description: "Increased distance! Use the central bridge and side supports.",
+  name: "Cantilever Logic (PGT-2)",
+  description: "The ground is Red (Out of Bounds). You must use the Yellow structure to anchor your materials.",
   elements: [
-    { id: 'start-block', type: 'block', position: [0, 0.5, -8], color: 'white' },
-    { id: 'mid-bridge', type: 'block', position: [0, 1.2, 0], color: 'yellow', scale: [4, 0.2, 2] },
-    { id: 'mid-pole-1', type: 'pole', position: [-2, 1.5, 0], color: 'white' },
-    { id: 'mid-pole-2', type: 'pole', position: [2, 1.5, 0], color: 'white' },
-    { id: 'finish-block', type: 'block', position: [0, 0.5, 8], color: 'white' },
+    { id: 'start-block', type: 'block', position: [0, 0.5, -8], color: 'white', scale: [4, 1, 2] },
+    { id: 'yellow-bridge-1', type: 'block', position: [-2, 0.5, 0], color: 'yellow', scale: [1, 1, 3] },
+    { id: 'yellow-bridge-2', type: 'block', position: [2, 0.5, 0], color: 'yellow', scale: [1, 1, 3] },
+    { id: 'finish-line', type: 'block', position: [0, 0.5, 8], color: 'white', scale: [4, 1, 2] },
   ],
-  helpingMaterials: { planks: 2, ballis: 1, ropes: 2 },
-  hinglishHint: "Yahan distance zyada hai. Pehle phatte ko side pole aur center bridge ke beech balance karein. Rassi ka use knot tie karne ke liye karein."
+  helpingMaterials: { planks: 2, ballis: 2, ropes: 4 },
+  hinglishHint: "Ground red hai! Yellow block ke peeche balli ko support ke liye phansao taaki cantilever ban sake."
 };
 
-const STAGES = [STAGE_1, STAGE_2];
+const STAGE_3: GTOStage = {
+  id: 3,
+  name: "Advanced Bridging (PGT-3)",
+  description: "Extreme distance. You must join materials to reach the final white structure.",
+  elements: [
+    { id: 'start-pole', type: 'pole', position: [0, 1.5, -8], color: 'white' },
+    { id: 'mid-pole-red', type: 'pole', position: [-1, 1.5, 0], color: 'red' },
+    { id: 'mid-pole-white', type: 'pole', position: [1, 1.5, 0], color: 'white' },
+    { id: 'finish-pole', type: 'pole', position: [0, 1.5, 8], color: 'white' },
+  ],
+  helpingMaterials: { planks: 2, ballis: 2, ropes: 4 },
+  hinglishHint: "Center ka ek pole red hai, usse touch nahi karna. Safed wale poles ka use karke lamba bridge banao."
+};
+
+const STAGES = [STAGE_1, STAGE_2, STAGE_3];
 
 interface PlacedMaterial {
   id: string;
@@ -60,13 +73,23 @@ const GTOObject = ({ element }: { element: GTOElement }) => {
     <mesh position={position} scale={scale} castShadow receiveShadow>
       {type === 'pole' ? (
         <>
-          <cylinderGeometry args={[0.1, 0.1, 3, 32]} />
-          <meshStandardMaterial color={getMaterialColor(color)} metalness={0.6} roughness={0.2} />
+          <cylinderGeometry args={[0.08, 0.08, 3, 32]} />
+          <meshStandardMaterial 
+            color={getMaterialColor(color)} 
+            metalness={0.8} 
+            roughness={0.2} 
+            emissive={color === 'white' ? '#444444' : '#000000'}
+            emissiveIntensity={0.2}
+          />
         </>
       ) : (
         <>
           <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color={getMaterialColor(color)} roughness={0.8} />
+          <meshStandardMaterial 
+            color={getMaterialColor(color)} 
+            roughness={0.9} 
+            metalness={0.1}
+          />
         </>
       )}
     </mesh>
@@ -133,12 +156,15 @@ export const GTOSimulator = () => {
             shadow-mapSize={[1024, 1024]}
           />
 
-          {/* Ground */}
+          {/* Ground - Turns red in Stage 2 to signify Out of Bounds */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
             <planeGeometry args={[100, 100]} />
-            <meshStandardMaterial color="#14532d" />
+            <meshStandardMaterial 
+              color={activeStage.id === 2 ? "#7f1d1d" : "#14532d"} 
+              roughness={1}
+            />
           </mesh>
-          <gridHelper args={[100, 50, '#ffffff08', '#ffffff08']} rotation={[0, 0, 0]} />
+          <gridHelper args={[100, 50, activeStage.id === 2 ? '#ff000020' : '#ffffff08', '#ffffff08']} />
 
           {/* Start & Finish Lines */}
           <mesh position={[0, 0.01, -10]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -156,38 +182,36 @@ export const GTOSimulator = () => {
           ))}
 
           {/* Placed Materials */}
-          {placedMaterials.map(mat => (
-            <group key={mat.id} position={mat.position} rotation={mat.rotation}>
-              {mat.type === 'plank' ? (
-                <PivotControls 
-                  depthTest={false} 
-                  scale={1} 
-                  lineWidth={1}
-                  onDrag={(l: Matrix4) => {
-                    // Update matrix logic here if needed
-                  }}
-                >
-                  <mesh castShadow>
-                    <boxGeometry args={[4, 0.1, 0.3]} />
-                    <meshStandardMaterial color="#8b4513" />
+          {placedMaterials.map((mat, idx) => (
+            <PivotControls 
+              key={mat.id}
+              depthTest={false} 
+              scale={0.7} 
+              lineWidth={2}
+              anchor={[0, 0, 0]}
+              onDrag={(l: Matrix4) => {
+                const position = [l.elements[12], l.elements[13], l.elements[14]] as [number, number, number];
+                // Local state update for persistence
+                const newMats = [...placedMaterials];
+                newMats[idx].position = position;
+                // Avoid too many state updates during drag
+                if (Math.random() > 0.95) setPlacedMaterials(newMats);
+              }}
+            >
+              <group position={mat.position} rotation={mat.rotation}>
+                {mat.type === 'plank' ? (
+                  <mesh castShadow receiveShadow>
+                    <boxGeometry args={[4, 0.1, 0.4]} />
+                    <meshStandardMaterial color="#8b4513" roughness={0.7} />
                   </mesh>
-                </PivotControls>
-              ) : (
-                <PivotControls 
-                  depthTest={false} 
-                  scale={1} 
-                  lineWidth={1}
-                  onDrag={(l: Matrix4) => {
-                    // Update matrix logic here
-                  }}
-                >
-                  <mesh castShadow>
-                    <cylinderGeometry args={[0.08, 0.08, 3, 16]} />
-                    <meshStandardMaterial color="#5d4037" />
+                ) : (
+                  <mesh castShadow receiveShadow>
+                    <cylinderGeometry args={[0.06, 0.06, 3, 16]} />
+                    <meshStandardMaterial color="#5d4037" roughness={0.6} />
                   </mesh>
-                </PivotControls>
-              )}
-            </group>
+                )}
+              </group>
+            </PivotControls>
           ))}
 
           <ContactShadows resolution={1024} scale={20} blur={2} opacity={0.35} far={10} color="#000000" />
