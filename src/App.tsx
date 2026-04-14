@@ -24,8 +24,9 @@ const NotFound        = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <Loader2 className="h-8 w-8 animate-spin text-gold" />
+  <div className="flex flex-col items-center justify-center min-h-[60vh] text-gold gap-4 bg-background/50">
+    <Loader2 className="h-10 w-10 animate-spin" />
+    <p className="text-xs font-heading font-medium tracking-[0.2em] uppercase opacity-50">Loading Module...</p>
   </div>
 );
 
