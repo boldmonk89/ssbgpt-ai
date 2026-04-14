@@ -15,7 +15,7 @@ export default function Footer() {
           <p className="font-body text-xs tracking-[0.15em] uppercase text-gold mb-4">About the Founder</p>
           <div className="flex justify-center mb-4">
             <div className="h-24 w-24 rounded-full overflow-hidden border-2 border-gold/50 glow-gold">
-              <img src={founderImg} alt="Founder" className="h-full w-full object-cover" />
+              <img src={founderImg} alt="Founder" className="h-full w-full object-cover object-top" />
             </div>
           </div>
           <p className="font-highlight italic text-lg text-foreground mb-2">
