@@ -7,7 +7,7 @@ import { Timer, FileText, Share2, Shield, Upload, Clock, AlertTriangle, CheckCir
 import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
-import { buildFullReportPrompt, callGemini, callGeminiMultiPart, fileToBase64 } from '@/lib/gemini';
+import { buildFullReportPrompt, callGemini, callGeminiMultiPart, fileToBase64, buildVerifyDocumentPrompt } from '@/lib/gemini';
 import { ChevronLeft, BrainCircuit, Maximize2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
