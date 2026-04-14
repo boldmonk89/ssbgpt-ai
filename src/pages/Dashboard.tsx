@@ -354,6 +354,6 @@ export default function DashboardPage() {
       </div>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 }

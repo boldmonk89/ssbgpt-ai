@@ -817,6 +817,6 @@ export default function AIPracticePage() {
           {ppdtResult && <AnalysisOutput content={ppdtResult} title="AI-Generated PPDT Story & Narration" />}
         </TabsContent>
       </Tabs>
-    </div>
+    </motion.div>
   );
 }
