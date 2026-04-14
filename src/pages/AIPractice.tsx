@@ -6,6 +6,30 @@ import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { callGemini, fileToBase64 } from '@/lib/gemini';
 import { Loader2, Upload, ImageIcon, Pencil, Zap, Eye, EyeOff, Users, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15
+    }
+  }
+};
 
 const SYSTEM_PROMPT_TAT = `You are an expert SSB psychologist and TAT evaluator for Indian defence selection. You know exactly what a RECOMMENDED candidate's story looks like.
 
@@ -557,9 +581,14 @@ export default function AIPracticePage() {
   };
 
   return (
-    <div className="space-y-6 scroll-reveal">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6 scroll-reveal"
+    >
       {/* Header */}
-      <div className="glass-card glow-gold relative overflow-hidden">
+      <motion.div variants={itemVariants} className="glass-card glow-gold relative overflow-hidden">
         <div className="absolute top-4 right-6 h-12 w-12 rounded-full opacity-15 float-slow"
           style={{ background: 'radial-gradient(circle, hsl(var(--gold) / 0.4), transparent)' }} />
         <div className="relative z-10">
@@ -570,38 +599,40 @@ export default function AIPracticePage() {
             Upload a TAT image, enter a WAT word, or type an SRT situation — get AI-generated model responses with embedded OLQs.
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* OLQ Toggle */}
-      <div className="flex justify-end">
+      <motion.div variants={itemVariants} className="flex justify-end">
         <button
           onClick={() => setShowOlqTags(!showOlqTags)}
           className="glass-button flex items-center gap-2 text-xs"
         >
           {showOlqTags ? 'Hide' : 'Show'} OLQ Tags
         </button>
-      </div>
+      </motion.div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-4 h-12 rounded-xl p-1" style={{
-          background: 'linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.5))',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid hsl(var(--border) / 0.3)',
-        }}>
-          <TabsTrigger value="tat" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
-            <ImageIcon className="h-4 w-4 mr-1.5" /> TAT
-          </TabsTrigger>
-          <TabsTrigger value="wat" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
-            <Pencil className="h-4 w-4 mr-1.5" /> WAT
-          </TabsTrigger>
-          <TabsTrigger value="srt" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
-            <Zap className="h-4 w-4 mr-1.5" /> SRT
-          </TabsTrigger>
-          <TabsTrigger value="ppdt" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
-            <Users className="h-4 w-4 mr-1.5" /> PPDT
-          </TabsTrigger>
-        </TabsList>
+        <motion.div variants={containerVariants}>
+          <TabsList className="w-full grid grid-cols-4 h-12 rounded-xl p-1" style={{
+            background: 'linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.5))',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid hsl(var(--border) / 0.3)',
+          }}>
+            <TabsTrigger value="tat" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
+              <ImageIcon className="h-4 w-4 mr-1.5" /> TAT
+            </TabsTrigger>
+            <TabsTrigger value="wat" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
+              <Pencil className="h-4 w-4 mr-1.5" /> WAT
+            </TabsTrigger>
+            <TabsTrigger value="srt" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
+              <Zap className="h-4 w-4 mr-1.5" /> SRT
+            </TabsTrigger>
+            <TabsTrigger value="ppdt" className="rounded-lg font-heading font-semibold text-sm data-[state=active]:bg-[hsl(var(--gold)/0.15)] data-[state=active]:text-gold data-[state=active]:shadow-none">
+              <Users className="h-4 w-4 mr-1.5" /> PPDT
+            </TabsTrigger>
+          </TabsList>
+        </motion.div>
 
         {/* TAT Tab */}
         <TabsContent value="tat" className="mt-6 space-y-4">

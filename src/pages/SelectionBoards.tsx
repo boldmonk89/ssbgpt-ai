@@ -1,28 +1,68 @@
 import { Shield, MapPin, Home, Plane, Anchor, Crosshair } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15
+    }
+  }
+};
 
 const BOARDS_DATA = {
   army: [
     {
       city: "Allahabad (Prayagraj)",
-      boards: ["11 SSB", "14 SSB", "18 SSB", "19 SSB", "34 SSB"],
+      boards: [
+        { name: "11 SSB", code: "35XXX" },
+        { name: "14 SSB", code: "71XXX" },
+        { name: "18 SSB", code: "38XXX" },
+        { name: "19 SSB", code: "39XXX" },
+        { name: "34 SSB", code: "46XXX" }
+      ],
       address: "Selection Centre Central, Cantt Rd, Old Cantt, Prayagraj, UP 211001",
       stay: "Dharmshala inside SSB - ₹200/head, 600m from centre (Best option; call letter mandatory before check-in). Hotel Veenit - ₹250/night, Dormitory by Ex-Army Officer - ₹1000/night, includes free drop facility in the morning."
     },
     {
       city: "Bhopal",
-      boards: ["20 SSB", "21 SSB", "22 SSB"],
+      boards: [
+        { name: "20 SSB", code: "40XXX" },
+        { name: "21 SSB", code: "72XXX" },
+        { name: "22 SSB", code: "42XXX" }
+      ],
       address: "Selection Centre South, Bairagarh, Bhopal, MP 462030",
       stay: "Jain Dharmshala - ₹200/head, 800m from centre, ₹50 for dinner; opposite Gufa Mandir, Dev Begas Sainik Aramgrah - Contact: 96859 62886, Address: Sardar Vallabh Bhai Patel Polytechnic Chouraha, 45 Bunglows, North TT Nagar, Bhopal - 462003"
     },
     {
       city: "Bengaluru",
-      boards: ["17 SSB", "24 SSB"],
+      boards: [
+        { name: "17 SSB", code: "63XXX" },
+        { name: "24 SSB", code: "68XXX" }
+      ],
       address: "Selection Centre South, 1 Richmond Rd, Langford Town, Bengaluru, KA 560025",
       stay: "Sri Sri Ravishankar Bal Mandir - ₹150/day, 3.1km from centre, Location: Kanakapura Rd, opposite Art of Living Ashram, Hotel Townhall - ₹650/head"
     },
     {
       city: "Jalandhar",
-      boards: ["31 SSB", "32 SSB"],
+      boards: [
+        { name: "31 SSB", code: "81XXX" },
+        { name: "32 SSB", code: "92XXX" }
+      ],
       address: "Selection Centre North, Military Station, Cantt, Jalandhar, PB 144005",
       stay: "Sodhi PG - ₹100/night, Address: H.No.43, Modern Estate, near Pinky Tent House, Dakoha, Rama Mandir, Jalandhar, Contact: 9872738031, 8437388717, Comfort PG - ₹700 (single), ₹900 (3-person room), 1 km from centre, Babri Dharmshala (SSB Stay) - Dormitory & PG, 27-B Beant Nagar, Contact: 9465331052"
     }
@@ -95,8 +135,13 @@ const BOARDS_DATA = {
 
 export default function SelectionBoards() {
   return (
-    <div className="space-y-12 pb-20 scroll-reveal">
-      <div className="glass-card glow-gold relative overflow-hidden">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-12 pb-20 scroll-reveal"
+    >
+      <motion.div variants={itemVariants} className="glass-card glow-gold relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <Shield className="h-32 w-32 text-gold" />
         </div>
@@ -108,113 +153,137 @@ export default function SelectionBoards() {
             Quick reference guide for Army, Air Force, and Navy Selection Boards across India, including addresses and stay options.
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Army Boards */}
-      <section className="space-y-6">
+      <motion.section variants={itemVariants} className="space-y-6">
         <div className="flex items-center gap-3 px-2">
-          <div className="h-10 w-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-            <Crosshair className="h-5 w-5 text-orange-500" />
+          <div className="h-10 w-10 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
+            <Crosshair className="h-5 w-5 text-gold" />
           </div>
-          <h2 className="text-2xl font-heading font-bold text-orange-500 tracking-wide uppercase">Army Boards</h2>
+          <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Army Selection Boards</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <motion.div 
+          variants={containerVariants}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           {BOARDS_DATA.army.map((board, i) => (
-            <div key={i} className="glass-card group hover:scale-[1.01] transition-transform duration-300 border-orange-500/10 hover:border-orange-500/30">
+            <motion.div 
+              key={i} 
+              variants={itemVariants}
+              whileHover={{ scale: 1.01, translateY: -4 }}
+              className="glass-card group transition-all duration-300 border-gold/10 hover:border-gold/30"
+            >
               <div className="flex flex-wrap gap-2 mb-4">
-                {board.boards.map((num, idx) => (
-                  <span key={idx} className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-500 text-[10px] font-bold border border-orange-500/20">
-                    {num}
+                {board.boards.map((b, idx) => (
+                  <span key={idx} className="px-2 py-0.5 rounded-md bg-gold/10 text-gold text-[10px] font-bold border border-gold/20 uppercase tracking-tighter">
+                    {b.name} - {b.code}
                   </span>
                 ))}
               </div>
-              <h3 className="text-xl font-heading font-bold mb-4 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-orange-500" />
+              <h3 className="text-xl font-heading font-bold mb-4 flex items-center gap-2 group-hover:text-gold transition-colors">
+                <MapPin className="h-4 w-4 text-gold/60" />
                 {board.city}
               </h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">Address</p>
-                  <p className="text-sm font-body text-foreground/80 leading-relaxed">{board.address}</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black mb-1.5">Primary Address</p>
+                  <p className="text-sm font-body text-foreground/70 leading-relaxed font-medium">{board.address}</p>
                 </div>
-                <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/10">
+                <div className="p-4 rounded-xl bg-gold/5 border border-gold/10 shadow-inner group-hover:bg-gold/10 transition-colors">
                   <div className="flex items-center gap-2 mb-2">
-                    <Home className="h-3.5 w-3.5 text-orange-500" />
-                    <p className="text-[10px] uppercase tracking-widest text-orange-500 font-bold">Stay Options</p>
+                    <Home className="h-3.5 w-3.5 text-gold" />
+                    <p className="text-[10px] uppercase tracking-widest text-gold font-bold">Recommended Stay</p>
                   </div>
-                  <p className="text-xs font-body text-orange-200/70 leading-relaxed">{board.stay}</p>
+                  <p className="text-xs font-body text-muted-foreground leading-relaxed italic">{board.stay}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Air Force Boards */}
-      <section className="space-y-6">
+      <motion.section variants={itemVariants} className="space-y-6">
         <div className="flex items-center gap-3 px-2">
-          <div className="h-10 w-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-            <Plane className="h-5 w-5 text-blue-400" />
+          <div className="h-10 w-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
+            <Plane className="h-5 w-5 text-sky-400" />
           </div>
-          <h2 className="text-2xl font-heading font-bold text-blue-400 tracking-wide uppercase">Air Force Boards</h2>
+          <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Air Force Selection Boards</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          variants={containerVariants}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {BOARDS_DATA.airforce.map((board, i) => (
-            <div key={i} className="glass-card group hover:scale-[1.01] transition-transform duration-300 border-blue-500/10 hover:border-blue-500/30">
-              <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 text-[10px] font-bold border border-blue-500/20 mb-3 inline-block">
+            <motion.div 
+              key={i} 
+              variants={itemVariants}
+              whileHover={{ scale: 1.01, translateY: -4 }}
+              className="glass-card group transition-all duration-300 border-sky-500/10 hover:border-sky-500/30"
+            >
+              <span className="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 text-[10px] font-black border border-sky-500/20 mb-3 inline-block uppercase tracking-widest">
                 {board.unit}
               </span>
-              <h3 className="text-lg font-heading font-bold mb-4">{board.name}</h3>
+              <h3 className="text-lg font-heading font-bold mb-4 group-hover:text-sky-300 transition-colors">{board.name}</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">Address</p>
-                  <p className="text-xs font-body text-foreground/80 leading-relaxed">{board.address}</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black mb-1.5">Establishment Address</p>
+                  <p className="text-xs font-body text-foreground/70 leading-relaxed font-medium">{board.address}</p>
                 </div>
-                <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                <div className="p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 shadow-inner group-hover:bg-sky-500/10 transition-colors">
                   <div className="flex items-center gap-2 mb-2">
-                    <Home className="h-3.5 w-3.5 text-blue-400" />
-                    <p className="text-[10px] uppercase tracking-widest text-blue-400 font-bold">Stay Options</p>
+                    <Home className="h-3.5 w-3.5 text-sky-400" />
+                    <p className="text-[10px] uppercase tracking-widest text-sky-400 font-bold">Stay Information</p>
                   </div>
-                  <p className="text-xs font-body text-blue-100/60 leading-relaxed">{board.stay}</p>
+                  <p className="text-xs font-body text-muted-foreground leading-relaxed italic">{board.stay}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Navy Boards */}
-      <section className="space-y-6">
+      <motion.section variants={itemVariants} className="space-y-6">
         <div className="flex items-center gap-3 px-2">
-          <div className="h-10 w-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
-            <Anchor className="h-5 w-5 text-teal-400" />
+          <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <Anchor className="h-5 w-5 text-emerald-400" />
           </div>
-          <h2 className="text-2xl font-heading font-bold text-teal-400 tracking-wide uppercase">Navy Boards</h2>
+          <h2 className="text-2xl font-heading font-bold text-foreground tracking-wide uppercase">Naval Selection Boards</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div 
+          variants={containerVariants}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {BOARDS_DATA.navy.map((board, i) => (
-            <div key={i} className="glass-card group hover:scale-[1.01] transition-transform duration-300 border-teal-500/10 hover:border-teal-500/30">
-              <span className="px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-400 text-[10px] font-bold border border-teal-500/20 mb-3 inline-block">
+            <motion.div 
+              key={i} 
+              variants={itemVariants}
+              whileHover={{ scale: 1.01, translateY: -4 }}
+              className="glass-card group transition-all duration-300 border-emerald-500/10 hover:border-emerald-500/30"
+            >
+              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-black border border-emerald-500/20 mb-3 inline-block uppercase tracking-widest">
                 {board.unit}
               </span>
-              <h3 className="text-lg font-heading font-bold mb-4">{board.name}</h3>
+              <h3 className="text-lg font-heading font-bold mb-4 group-hover:text-emerald-300 transition-colors">{board.name}</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">Address</p>
-                  <p className="text-xs font-body text-foreground/80 leading-relaxed">{board.address}</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60 font-black mb-1.5">Naval Base Address</p>
+                  <p className="text-xs font-body text-foreground/70 leading-relaxed font-medium">{board.address}</p>
                 </div>
-                <div className="p-4 rounded-xl bg-teal-500/5 border border-teal-500/10">
+                <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 shadow-inner group-hover:bg-emerald-500/10 transition-colors">
                   <div className="flex items-center gap-2 mb-2">
-                    <Home className="h-3.5 w-3.5 text-teal-400" />
-                    <p className="text-[10px] uppercase tracking-widest text-teal-400 font-bold">Stay Options</p>
+                    <Home className="h-3.5 w-3.5 text-emerald-400" />
+                    <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Stay & Logistics</p>
                   </div>
-                  <p className="text-xs font-body text-teal-100/60 leading-relaxed">{board.stay}</p>
+                  <p className="text-xs font-body text-muted-foreground leading-relaxed italic">{board.stay}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-      </section>
-    </div>
+        </motion.div>
+      </motion.section>
+    </motion.div>
   );
 }

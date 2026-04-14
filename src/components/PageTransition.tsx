@@ -1,30 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React from 'react';
+import { useLocation, useOutlet } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const [displayLocation, setDisplayLocation] = useState(location);
-  const [transitionStage, setTransitionStage] = useState('in');
-
-  useEffect(() => {
-    if (location.pathname !== displayLocation.pathname) {
-      setTransitionStage('out');
-      setTimeout(() => {
-        setDisplayLocation(location);
-        setTransitionStage('in');
-      }, 150); // Quick fade out duration
-    }
-  }, [location, displayLocation]);
 
   return (
-    <div
-      className={`transition-all duration-300 ease-in-out transform ${
-        transitionStage === 'in'
-          ? 'opacity-100 translate-y-0 scale-100'
-          : 'opacity-0 translate-y-4 scale-[0.98]'
-      }`}
-    >
-      {children}
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -10 }}
+        transition={{ 
+          duration: 0.25, 
+          ease: "easeInOut" 
+        }}
+        className="w-full"
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
   );
 }

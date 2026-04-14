@@ -2,6 +2,31 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit, BookOpen, GraduationCap, FileText, Users, ExternalLink, Swords } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15
+    }
+  }
+};
 
 import slide1 from '@/assets/slideshow/slide1.jpg';
 import slide2 from '@/assets/slideshow/slide2.jpg';
@@ -78,9 +103,14 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-10 scroll-reveal">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-10 scroll-reveal"
+    >
       {/* Hero — SSB Mentor inspired */}
-      <div className="relative text-center overflow-hidden min-h-[420px] md:min-h-[480px] rounded-2xl flex items-center justify-center">
+      <motion.div variants={itemVariants} className="relative text-center overflow-hidden min-h-[420px] md:min-h-[480px] rounded-2xl flex items-center justify-center">
         {/* Slideshow Background — slow crossfade */}
         {SLIDES.map((src, i) => (
           <div
@@ -141,10 +171,10 @@ export default function DashboardPage() {
             Start Full Analysis
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Mobile Navigation Hint */}
-      <div className="lg:hidden glass-card-subtle flex items-center gap-3 py-3 px-4 border-l-[3px] border-gold">
+      <motion.div variants={itemVariants} className="lg:hidden glass-card-subtle flex items-center gap-3 py-3 px-4 border-l-[3px] border-gold">
         <div className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{
           background: 'linear-gradient(135deg, hsl(var(--gold) / 0.2), hsl(var(--gold) / 0.05))',
         }}>
@@ -153,18 +183,21 @@ export default function DashboardPage() {
         <p className="font-body text-xs text-muted-foreground leading-snug">
           Tap the <strong className="text-gold">menu button</strong> (top-left) to navigate between tests — PIQ, TAT, WAT, SRT, SD & Full Analysis.
         </p>
-      </div>
+      </motion.div>
 
       {/* Section Title */}
-      <div className="gold-border-left">
+      <motion.div variants={itemVariants} className="gold-border-left">
         <h2 className="text-xl md:text-2xl">Analyse Your Tests</h2>
-      </div>
+      </motion.div>
 
       {/* Test Cards */}
-      <div className="space-y-4 stagger-children">
+      <motion.div variants={containerVariants} className="space-y-4">
         {TEST_CARDS.map((test) => (
-          <button
+          <motion.button
             key={test.path}
+            variants={itemVariants}
+            whileHover={{ scale: 1.01, translateY: -4 }}
+            whileTap={{ scale: 0.99 }}
             onClick={() => navigate(test.path)}
             className="glass-card liquid-card w-full text-left group cursor-pointer"
           >
@@ -185,12 +218,16 @@ export default function DashboardPage() {
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-gold group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
             </div>
-          </button>
+          </motion.button>
         ))}
-      </div>
+      </motion.div>
 
       {/* GTO Tasks CTA */}
-      <div className="glass-card glow-gold text-center liquid-card">
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.01, translateY: -4 }}
+        className="glass-card glow-gold text-center liquid-card"
+      >
         <div className="flex justify-center mb-3">
           <img src={logoGto} alt="GTO" loading="lazy" width={48} height={48} className="h-12 w-12 object-contain" />
         </div>
@@ -203,10 +240,14 @@ export default function DashboardPage() {
             Go to GTO Tasks
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* AI Practice CTA */}
-      <div className="glass-card glow-gold text-center liquid-card">
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.01, translateY: -4 }}
+        className="glass-card glow-gold text-center liquid-card"
+      >
         <div className="flex justify-center mb-3">
           <BrainCircuit className="h-6 w-6 text-gold" />
         </div>
@@ -219,10 +260,14 @@ export default function DashboardPage() {
             Go to AI Practice
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Full Analysis CTA */}
-      <div className="glass-card glow-gold text-center liquid-card">
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.01, translateY: -4 }}
+        className="glass-card glow-gold text-center liquid-card"
+      >
         <div className="flex justify-center mb-3">
           <ClipboardList className="h-6 w-6 text-gold" />
         </div>
@@ -235,12 +280,12 @@ export default function DashboardPage() {
             Go to Full Analysis
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* SSB Mentor Resources Section */}
-      <div className="gold-border-left">
+      <motion.div variants={itemVariants} className="gold-border-left">
         <h2 className="text-xl md:text-2xl">SSB Prep Resources</h2>
-      </div>
+      </motion.div>
 
       <div className="glass-card liquid-card">
         {/* Desktop: side by side. Mobile: stacked */}

@@ -6,6 +6,30 @@ import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { callGemini, callGeminiMultiPart, fileToBase64, getFileMimeType } from '@/lib/gemini';
 import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText, Box, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 15
+    }
+  }
+};
 
 
 
@@ -540,7 +564,12 @@ export default function GTOPage() {
   };
 
   return (
-    <div className="space-y-6 scroll-reveal">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6 scroll-reveal"
+    >
       {/* Header with GTO images */}
       <div className="glass-card glow-gold relative overflow-hidden">
         {/* Background slideshow */}
@@ -988,6 +1017,6 @@ export default function GTOPage() {
           {gpeUserAnalysis && <AnalysisOutput content={gpeUserAnalysis} title="GTO Logic Analysis" />}
         </TabsContent>
       </Tabs>
-    </div>
+    </motion.div>
   );
 }
