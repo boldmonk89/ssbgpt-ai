@@ -177,8 +177,8 @@ export function ExportPdfButton({ content, title = 'SSBGPT Analysis Report', cla
       }, 800);
 
       toast.success('PDF export ready — use Save as PDF in print dialog');
-    } catch (err: any) {
-      toast.error(err.message || 'Export failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Export failed');
     } finally {
       setExporting(false);
     }

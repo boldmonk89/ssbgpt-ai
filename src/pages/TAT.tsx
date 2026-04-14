@@ -44,8 +44,8 @@ export default function TATPage() {
       const extractedText = await callGemini(buildExtractTextFromImagePrompt('TAT story written by an SSB candidate'), base64);
       updateTatStory(0, { story: extractedText });
       toast.success('Story text extracted from image');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to extract text');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to extract text');
     } finally {
       setExtractingStory(false);
     }
@@ -73,8 +73,8 @@ export default function TATPage() {
       updateTatStory(0, { analysis: result.replace(/\*/g, '') });
       saveToHistory('TAT', { storyNumber: story.storyNumber, story: story.story }, result);
       toast.success('Story analyzed');
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setLoading(false);
     }
@@ -88,8 +88,8 @@ export default function TATPage() {
       setTatSummary(result);
       saveToHistory('TAT-PDF', { fileName: file.name }, result);
       toast.success('Full TAT PDF analyzed');
-    } catch (err: any) {
-      toast.error(err.message || 'PDF analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'PDF analysis failed');
     } finally {
       setPdfLoading(false);
     }

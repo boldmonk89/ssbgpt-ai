@@ -59,8 +59,8 @@ export default function SRTPage() {
       } else {
         toast.error('Could not extract SRT responses.');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to extract');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to extract');
     } finally {
       setExtracting(false);
     }
@@ -74,8 +74,8 @@ export default function SRTPage() {
       setSrtSummary(result);
       saveToHistory('SRT-PDF', { fileName: file.name }, result);
       toast.success('Full SRT analyzed');
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setPdfLoading(false);
     }
@@ -98,8 +98,8 @@ export default function SRTPage() {
       setSrtSummary(result.replace(/\*/g, ''));
       saveToHistory('SRT', { responses: filledRows }, result);
       toast.success('SRT analysis complete');
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setLoading(false);
     }

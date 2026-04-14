@@ -1,7 +1,7 @@
 import { toast } from 'sonner';
 
 export function useHistorySave() {
-  const saveToHistory = async (testType: string, inputData: any, result: string) => {
+  const saveToHistory = async (testType: string, inputData: unknown, result: string) => {
     try {
       const existing = localStorage.getItem('ssbgpt_local_history');
       const history = existing ? JSON.parse(existing) : [];

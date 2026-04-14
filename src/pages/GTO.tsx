@@ -360,8 +360,8 @@ export default function GTOPage() {
         SYSTEM_PROMPT_GD + `\n\nThe GD topic is: "${trimmed}"\n\nGenerate current talking points as instructed.`
       );
       setGdResult(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to generate GD points');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to generate GD points');
     } finally {
       setGdLoading(false);
     }
@@ -389,8 +389,8 @@ export default function GTOPage() {
         gpeImage
       );
       setGpeResult(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to generate GPE solution');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to generate GPE solution');
     } finally {
       setGpeLoading(false);
     }
@@ -420,8 +420,8 @@ export default function GTOPage() {
         [{ base64: gpePdfFile, mimeType }]
       );
       setGpeUserAnalysis(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to analyze your GPE solution');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to analyze your GPE solution');
     } finally {
       setGpeUserLoading(false);
     }
@@ -497,8 +497,8 @@ export default function GTOPage() {
         [{ base64, mimeType: 'audio/webm' }]
       );
       setVideoAnalysis(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to analyze your lecturette');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to analyze your lecturette');
     } finally {
       setVideoAnalyzing(false);
     }
@@ -515,8 +515,8 @@ export default function GTOPage() {
         SYSTEM_PROMPT_LECTURETTE + `\n\nThe lecturette topic is: "${trimmed}"\n\nGenerate a complete 3-minute model lecturette as instructed.`
       );
       setLecResult(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to generate lecturette');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to generate lecturette');
     } finally {
       setLecLoading(false);
     }
@@ -531,8 +531,8 @@ export default function GTOPage() {
         SYSTEM_PROMPT_LECTURETTE + `\n\nThe topic is: "${lecTopic.trim()}"\n\nThe candidate's own lecturette is:\n"${lecUserText.trim()}"\n\nAnalyze their lecturette — structure, current facts, word count, flow, clarity, improvements needed, and score out of 10.`
       );
       setLecUserAnalysis(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to analyze lecturette');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to analyze lecturette');
     } finally {
       setLecUserLoading(false);
     }
@@ -726,8 +726,8 @@ export default function GTOPage() {
                             gpeImage || undefined
                           );
                           setGpeUserAnalysis(result);
-                        } catch (err: any) {
-                          toast.error(err.message || 'Failed to analyze your solution');
+                        } catch (err: unknown) {
+                          toast.error(err instanceof Error ? err.message : 'Failed to analyze your solution');
                         } finally {
                           setGpeUserLoading(false);
                         }
@@ -1017,8 +1017,8 @@ export default function GTOPage() {
                       gpeImage
                     );
                     setGpeUserAnalysis(result);
-                  } catch (err: any) {
-                    toast.error(err.message || 'Failed to analyze solution');
+                  } catch (err: unknown) {
+                    toast.error(err instanceof Error ? err.message : 'Failed to analyze solution');
                   } finally {
                     setGpeUserLoading(false);
                   }

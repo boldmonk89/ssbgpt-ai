@@ -120,7 +120,7 @@ export default function Interview() {
         [{ base64, mimeType: 'audio/webm' }]
       );
       setResultA(response);
-    } catch (e: any) { alert(e.message); } finally { setLoadingA(false); }
+    } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Analysis failed'); } finally { setLoadingA(false); }
   };
 
   const analyzeRecordedB = async () => {
@@ -136,7 +136,7 @@ export default function Interview() {
         [{ base64, mimeType: 'audio/webm' }]
       );
       setResultB(response);
-    } catch (e: any) { alert(e.message); } finally { setLoadingB(false); }
+    } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Analysis failed'); } finally { setLoadingB(false); }
   };
 
 
@@ -146,8 +146,8 @@ export default function Interview() {
     try {
       const response = await callGemini(buildInterviewModeAPrompt(questionA, answerA));
       setResultA(response);
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Analysis failed');
     } finally {
       setLoadingA(false);
     }
@@ -159,8 +159,8 @@ export default function Interview() {
     try {
       const response = await callGemini(buildInterviewModeBPrompt(statementB));
       setResultB(response);
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Analysis failed');
     } finally {
       setLoadingB(false);
     }

@@ -1,8 +1,10 @@
 import React, { Suspense, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Sky, Stars, ContactShadows, Environment, PivotControls } from '@react-three/drei';
-import { GTOStage, GTOElement, ColorCode } from './types';
-import { Box as BoxIcon, Trophy, ArrowRight, RotateCcw, Lightbulb, Plus } from 'lucide-react';
+import { GTOStage, GTOElement } from './types';
+import { Box as BoxIcon, ArrowRight, RotateCcw, Lightbulb, Plus } from 'lucide-react';
+import { toast } from 'sonner';
+import { Matrix4 } from 'three';
 
 const STAGE_1: GTOStage = {
   id: 1,
@@ -41,26 +43,6 @@ interface PlacedMaterial {
   position: [number, number, number];
   rotation: [number, number, number];
 }
-
-const Plank = ({ material, onUpdate }: { material: PlacedMaterial, onUpdate: (id: string, pos: any, rot: any) => void }) => {
-  return (
-    <PivotControls
-      anchor={[0, 0, 0]}
-      depthTest={false}
-      lineWidth={2}
-      fixed={true}
-      scale={1}
-      onDrag={(l) => {
-        // Position & Rotation from matrix l
-      }}
-    >
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[0.2, 0.05, 4]} />
-        <meshStandardMaterial color="#8b4513" roughness={0.9} />
-      </mesh>
-    </PivotControls>
-  );
-};
 
 const GTOObject = ({ element }: { element: GTOElement }) => {
   const { type, position, color, scale = [1, 1, 1] } = element;
@@ -177,16 +159,30 @@ export const GTOSimulator = () => {
           {placedMaterials.map(mat => (
             <group key={mat.id} position={mat.position} rotation={mat.rotation}>
               {mat.type === 'plank' ? (
-                <PivotControls depthTest={false} scale={1} lineWidth={1}>
+                <PivotControls 
+                  depthTest={false} 
+                  scale={1} 
+                  lineWidth={1}
+                  onDrag={(l: Matrix4) => {
+                    // Update matrix logic here if needed
+                  }}
+                >
                   <mesh castShadow>
                     <boxGeometry args={[4, 0.1, 0.3]} />
                     <meshStandardMaterial color="#8b4513" />
                   </mesh>
                 </PivotControls>
               ) : (
-                <PivotControls depthTest={false} scale={1} lineWidth={1}>
+                <PivotControls 
+                  depthTest={false} 
+                  scale={1} 
+                  lineWidth={1}
+                  onDrag={(l: Matrix4) => {
+                    // Update matrix logic here
+                  }}
+                >
                   <mesh castShadow>
-                    <cylinderGeometry args={[0.08, 0.08, 3, 16]} rotation={[0, 0, Math.PI / 2]} />
+                    <cylinderGeometry args={[0.08, 0.08, 3, 16]} />
                     <meshStandardMaterial color="#5d4037" />
                   </mesh>
                 </PivotControls>

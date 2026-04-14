@@ -57,8 +57,8 @@ export default function WATPage() {
       } else {
         toast.error('Could not extract WAT responses. Try clearer images.');
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to extract');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to extract');
     } finally {
       setExtracting(false);
     }
@@ -72,8 +72,8 @@ export default function WATPage() {
       setWatSummary(result);
       saveToHistory('WAT-PDF', { fileName: file.name }, result);
       toast.success('Full WAT analyzed');
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setPdfLoading(false);
     }
@@ -97,8 +97,8 @@ export default function WATPage() {
       setWatSummary(result.replace(/\*/g, ''));
       saveToHistory('WAT', { responses: filledRows }, result);
       toast.success('WAT analysis complete');
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setLoading(false);
     }

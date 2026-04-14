@@ -15,7 +15,7 @@ function hashKey(input: string): string {
 }
 
 function cacheResult(key: string, result: string) {
-  try { localStorage.setItem(key, JSON.stringify({ result, ts: Date.now() })); } catch {}
+  try { localStorage.setItem(key, JSON.stringify({ result, ts: Date.now() })); } catch { /* Ignore quota errors or private mode */ }
 }
 
 function getCachedResult(key: string): string | null {
@@ -387,7 +387,7 @@ Then overall SD summary with consistency patterns and top improvements. Keep con
 }
 
 export function buildFullReportPrompt(
-  piqContext: any,
+  piqContext: Record<string, unknown> | null,
   tatSummary: string,
   watSummary: string,
   srtSummary: string,
@@ -466,7 +466,7 @@ Keep analysis structured and actionable. Focus on what matters for selection.`;
 }
 
 export function buildPiqPsychMatchPrompt(
-  piqContext: any,
+  piqContext: Record<string, unknown> | null,
   tatSummary: string,
   watSummary: string,
   srtSummary: string,

@@ -54,14 +54,14 @@ export interface TatStory {
 export interface WatResponse {
   word: string;
   sentence: string;
-  analysis?: any;
+  analysis?: string | Record<string, unknown>;
 }
 
 export interface SrtResponse {
   situationNumber: number;
   situation: string;
   response: string;
-  analysis?: any;
+  analysis?: string | Record<string, unknown>;
 }
 
 export interface SdParagraph {
@@ -84,8 +84,8 @@ interface AppState {
   examStats: ExamStats;
   setExamStats: (stats: Partial<ExamStats>) => void;
 
-  piqContext: any | null;
-  setPiqContext: (ctx: any) => void;
+  piqContext: string | Record<string, unknown> | null;
+  setPiqContext: (ctx: string | Record<string, unknown> | null) => void;
   piqImageUrl: string | null;
   setPiqImageUrl: (url: string | null) => void;
 

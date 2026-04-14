@@ -12,7 +12,7 @@ import { ChevronLeft, BrainCircuit, Maximize2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // We'll shuffle these pools to pick the test sets
-const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
+const shuffle = <T,>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.5);
 
 type TestStep = 'INSTRUCTIONS' | 'PIQ' | 'TAT' | 'WAT' | 'SRT' | 'SD' | 'FEEDBACK' | 'ANALYSIS';
 
@@ -595,7 +595,7 @@ const mockOlqData = [
   { subject: 'Stamina', A: 70, fullMark: 100 },
 ];
 
-function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq: string | null, tat: string | null, wat: string | null, srt: string | null, sd: string | null }) {
+function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: Record<string, unknown>, piq: string | null, tat: string | null, wat: string | null, srt: string | null, sd: string | null }) {
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
 
@@ -625,7 +625,7 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: any, piq:
 
       const res = await callGeminiMultiPart(prompt + "\n\nIMPORTANT: Use the provided actual response sheets for analysis. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. The report MUST be CONCISE, structured with bullet points, and highly readable. DO NOT use markdown bolding (**) in your response. Output plain text report.", files);
       setAnalysisResult(res.replace(/\*/g, ''));
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error("Deep Matrix synthesis failed or Timeout");
       console.error(e);
     } finally {
@@ -780,8 +780,8 @@ function MilestoneOverlay({ title, meta, onUpload }: { title: string, meta: stri
         setData(b64);
         setIsUploaded(true);
         toast.success(`${type} Document Verified & Anchored`, { icon: "🛡️" });
-      } catch (err: any) {
-        toast.error(err.message || 'Verification failed');
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : 'Verification failed');
       } finally {
         setIsVerifying(false);
       }

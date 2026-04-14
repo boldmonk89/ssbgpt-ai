@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 interface HistoryItem {
   id: string;
   test_type: string;
-  input_data: any;
+  input_data: unknown;
   result: string;
   created_at: string;
 }

@@ -27,8 +27,8 @@ export default function PIQPage() {
       setPiqImageUrl(base64);
       setFileType(file.type === 'application/pdf' ? 'pdf' : 'image');
       toast.success('PIQ Verified & Anchored', { icon: "🛡️" });
-    } catch (err: any) {
-      toast.error(err.message || 'Verification failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Verification failed');
     } finally {
       setLoading(false);
     }
@@ -54,8 +54,8 @@ export default function PIQPage() {
         setPiqContext({ rawAnalysis: result });
       }
       toast.success('PIQ analysis complete');
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed.');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed.');
     } finally {
       setLoading(false);
     }
@@ -117,7 +117,7 @@ export default function PIQPage() {
               {piqContext.overallProfile && (
                 <p className="font-body text-sm leading-relaxed text-foreground/85">{piqContext.overallProfile}</p>
               )}
-              {piqContext.traits && (
+              {piqContext.traits && Array.isArray(piqContext.traits) && (
                 <div>
                   <p className="font-heading font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Personality Traits</p>
                   <div className="flex flex-wrap gap-2">
@@ -127,7 +127,7 @@ export default function PIQPage() {
                   </div>
                 </div>
               )}
-              {piqContext.keyThemes && (
+              {piqContext.keyThemes && Array.isArray(piqContext.keyThemes) && (
                 <div>
                   <p className="font-heading font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Key Themes</p>
                   <div className="flex flex-wrap gap-2">
@@ -137,17 +137,17 @@ export default function PIQPage() {
                   </div>
                 </div>
               )}
-              {piqContext.olqInitialMapping && (
+              {piqContext.olqInitialMapping && typeof piqContext.olqInitialMapping === 'object' && (
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div>
                     <p className="font-heading font-semibold text-xs text-success uppercase tracking-wider mb-2">Likely Strong OLQs</p>
-                    {piqContext.olqInitialMapping.likelyStrong?.map((o: string, i: number) => (
+                    {((piqContext.olqInitialMapping as Record<string, unknown>).likelyStrong as string[])?.map((o: string, i: number) => (
                       <p key={i} className="text-sm font-body text-success/80">• {o}</p>
                     ))}
                   </div>
                   <div>
                     <p className="font-heading font-semibold text-xs text-destructive uppercase tracking-wider mb-2">Likely Weak OLQs</p>
-                    {piqContext.olqInitialMapping.likelyWeak?.map((o: string, i: number) => (
+                    {((piqContext.olqInitialMapping as Record<string, unknown>).likelyWeak as string[])?.map((o: string, i: number) => (
                       <p key={i} className="text-sm font-body text-destructive/80">• {o}</p>
                     ))}
                   </div>

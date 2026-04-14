@@ -468,8 +468,8 @@ export default function AIPracticePage() {
         tatImage
       );
       setTatResult(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setTatLoading(false);
     }
@@ -488,8 +488,8 @@ export default function AIPracticePage() {
         SYSTEM_PROMPT_WAT + `\n\nThe word is: "${trimmed}"\n\nGenerate WAT responses as instructed.`
       );
       setWatResult(result.replace(/\*/g, ''));
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setWatLoading(false);
     }
@@ -508,8 +508,8 @@ export default function AIPracticePage() {
         SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`
       );
       setSrtResult(result.replace(/\*/g, ''));
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setSrtLoading(false);
     }
@@ -544,8 +544,8 @@ export default function AIPracticePage() {
         ppdtImage
       );
       setPpdtResult(result);
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setPpdtLoading(false);
     }

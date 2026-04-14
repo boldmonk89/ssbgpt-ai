@@ -21,7 +21,7 @@ serve(async (req) => {
       });
     }
 
-    const contentParts: any[] = [{ type: "text", text: prompt }];
+    const contentParts: Record<string, unknown>[] = [{ type: "text", text: prompt }];
 
     if (files && Array.isArray(files)) {
       for (const f of files) {

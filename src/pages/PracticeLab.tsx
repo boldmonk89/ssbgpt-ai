@@ -28,7 +28,7 @@ import {
 } from '@/lib/gemini';
 
 // Shuffling utility
-const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
+const shuffle = <T,>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.5);
 
 type LabMode = 'DASHBOARD' | 'TAT' | 'WAT' | 'SRT' | 'SD' | 'ANALYSIS';
 
@@ -47,8 +47,8 @@ export default function PracticeLabPage() {
   
   // Test Data States
   const [tatPool, setTatPool] = useState<string[]>([]);
-  const [watPool, setWatPool] = useState<any[]>([]);
-  const [srtPool, setSrtPool] = useState<any[]>([]);
+  const [watPool, setWatPool] = useState<Record<string, string>[]>([]);
+  const [srtPool, setSrtPool] = useState<Record<string, string>[]>([]);
 
   useEffect(() => {
     const tatImages = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.png`);
@@ -161,7 +161,7 @@ export default function PracticeLabPage() {
   );
 }
 
-function DashboardCard({ title, icon: Icon, desc, onClick, accent = false }: { title: string, icon: any, desc: string, onClick: () => void, accent?: boolean }) {
+function DashboardCard({ title, icon: Icon, desc, onClick, accent = false }: { title: string, icon: React.ElementType, desc: string, onClick: () => void, accent?: boolean }) {
   return (
     <div 
       onClick={onClick}
@@ -337,7 +337,7 @@ function TatLabStep({ onComplete, tatPool, onUpdateAttempted, isPaused }: { onCo
   return createPortal(overlay, document.body);
 }
 
-function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onComplete: () => void, watPool: any[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
+function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onComplete: () => void, watPool: Record<string, string>[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
   const [showRules, setShowRules] = useState(true);
   const [index, setIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
@@ -410,7 +410,7 @@ function WatLabStep({ onComplete, watPool, onUpdateAttempted, isPaused }: { onCo
   return createPortal(overlay, document.body);
 }
 
-function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onComplete: () => void, srtPool: any[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
+function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onComplete: () => void, srtPool: Record<string, string>[], onUpdateAttempted: (n: number) => void, isPaused: boolean }) {
   const [showRules, setShowRules] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [timeLeft, setTimeLeft] = useState(2700);
@@ -625,8 +625,8 @@ function PdfMilestone({ title, onComplete, count }: { title: string, onComplete:
 
       setFileName(file.name);
       toast.success(`${type} Document Verified & Anchored`, { icon: "🛡️" });
-    } catch (err: any) {
-      toast.error(err.message || 'Verification failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Verification failed');
     } finally {
       setIsUploading(false);
     }
@@ -697,7 +697,7 @@ function PdfMilestone({ title, onComplete, count }: { title: string, onComplete:
   );
 }
 
-function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }) {
+function FinalAnalysisStep({ stats, onBack }: { stats: Record<string, unknown>, onBack: () => void }) {
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
 
@@ -733,7 +733,7 @@ function FinalAnalysisStep({ stats, onBack }: { stats: any, onBack: () => void }
         : await callGemini(prompt + "\n\nAnalyze the provided test summaries. Output must be clean text without asterisks.");
       
       setAnalysisResult(res.replace(/\*/g, ''));
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error("Analysis generation failed");
     } finally {
       setLoading(false);

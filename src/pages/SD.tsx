@@ -40,8 +40,8 @@ export default function SDPage() {
       updateSdParagraph(activeTab, { analysis: result.replace(/\*/g, '') });
       saveToHistory('SD', { type: para.type, content: para.content }, result);
       toast.success('SD paragraph analyzed');
-    } catch (err: any) {
-      toast.error(err.message || 'Analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
       setLoading(false);
     }
@@ -55,8 +55,8 @@ export default function SDPage() {
       setSdSummary(result);
       saveToHistory('SD-PDF', { fileName: file.name }, result);
       toast.success('Full SD PDF analyzed');
-    } catch (err: any) {
-      toast.error(err.message || 'PDF analysis failed');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'PDF analysis failed');
     } finally {
       setPdfLoading(false);
     }
