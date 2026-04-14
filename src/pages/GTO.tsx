@@ -1,12 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { callGemini, callGeminiMultiPart, fileToBase64, getFileMimeType } from '@/lib/gemini';
 import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText, Box } from 'lucide-react';
-import { GTOSimulator } from '@/components/gto/GTOSimulator';
 import { toast } from 'sonner';
+
+// Lazy load the 3D simulator to prevent @react-three crashes from killing the whole app
+const GTOSimulator = lazy(() =>
+  import('@/components/gto/GTOSimulator').then(m => ({ default: m.GTOSimulator }))
+);
 
 import gtoTask1 from '@/assets/gto/gto-task-1.jpg';
 import gtoTask2 from '@/assets/gto/gto-task-2.jpg';
@@ -759,7 +763,9 @@ export default function GTOPage() {
               </div>
             </div>
             
-            <GTOSimulator />
+            <Suspense fallback={<div className="w-full h-[600px] rounded-2xl bg-slate-900/50 border border-white/10 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-gold" /></div>}>
+              <GTOSimulator />
+            </Suspense>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="glass-card-subtle p-4 border-white/5">
