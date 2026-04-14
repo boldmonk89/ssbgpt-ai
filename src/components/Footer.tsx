@@ -21,8 +21,8 @@ export default function Footer() {
           <p className="font-highlight italic text-lg text-foreground mb-2">
             "Trying to help out fellow aspirants"
           </p>
-          <p className="font-body text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-            Go and get your recommendation. This platform is built to give every SSB aspirant the edge they deserve — powered by AI, guided by real experience.
+          <p className="font-body text-[13px] text-muted-foreground max-w-lg mx-auto leading-relaxed mt-4 italic">
+            "Everything here was built for the one who first inspired my defense journey. Though they are no longer with me, I carry their legacy forward. My mission will truly be accomplished only when I finally earn my commission."
           </p>
         </div>
 
