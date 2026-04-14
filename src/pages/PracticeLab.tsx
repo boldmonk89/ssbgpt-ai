@@ -422,7 +422,7 @@ function SrtLabStep({ onComplete, srtPool, onUpdateAttempted, isPaused }: { onCo
       timer = setInterval(() => setTimeLeft(prev => Math.max(0, prev - 1)), 1000);
     }
     return () => clearInterval(timer);
-  }, [isPaused, isUploadPhase]);
+  }, [isPaused, isUploadPhase, showRules]);
 
   const pageSize = 15;
   const currentSituations = srtPool.slice(currentPage * pageSize, (currentPage + 1) * pageSize);

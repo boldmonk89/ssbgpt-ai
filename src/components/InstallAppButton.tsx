@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect } from 'react';
 import { Download, Share, X, Plus } from 'lucide-react';
 
@@ -167,3 +168,4 @@ function IOSInstallGuide({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+

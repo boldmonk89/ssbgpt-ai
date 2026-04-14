@@ -251,17 +251,18 @@ function PiqStep({ onComplete }: { onComplete: (data: string) => void }) {
   );
 }
 
+const TAT_IMAGE_PATHS = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.png`);
+
 function TatStep({ onComplete }: { onComplete: (data: string) => void }) {
   const [index, setIndex] = useState(0);
   const [isViewing, setIsViewing] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isFinished, setIsFinished] = useState(false);
 
-  const tatImagePaths = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.png`);
   const [activeTatSet, setActiveTatSet] = useState<string[]>([]);
 
   useEffect(() => {
-    const shuffled = shuffle(tatImagePaths).slice(0, 11);
+    const shuffled = shuffle(TAT_IMAGE_PATHS).slice(0, 11);
     setActiveTatSet(shuffled);
   }, []);
 
