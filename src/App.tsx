@@ -15,7 +15,7 @@ const SRTPage         = lazy(() => import("./pages/SRT"));
 const SDPage          = lazy(() => import("./pages/SD"));
 const AIPracticePage  = lazy(() => import("./pages/AIPractice"));
 const GTOPage         = lazy(() => import("./pages/GTO"));
-const ConferencePage  = lazy(() => import("./pages/Conference"));
+const SelectionBoardsPage = lazy(() => import("./pages/SelectionBoards"));
 const HistoryPage     = lazy(() => import("./pages/History"));
 const InterviewPage   = lazy(() => import("./pages/Interview"));
 const FullAnalysisPage = lazy(() => import("./pages/FullAnalysis"));
@@ -93,7 +93,7 @@ const App = () => {
                       <Route path="/sd"            element={<SDPage />} />
                       <Route path="/ai-practice"   element={<AIPracticePage />} />
                       <Route path="/gto"           element={<GTOPage />} />
-                      <Route path="/conference"    element={<ConferencePage />} />
+                      <Route path="/selection-boards" element={<SelectionBoardsPage />} />
                       <Route path="/history"       element={<HistoryPage />} />
                       <Route path="/interview"     element={<InterviewPage />} />
                       <Route path="/full-analysis" element={<FullAnalysisPage />} />
