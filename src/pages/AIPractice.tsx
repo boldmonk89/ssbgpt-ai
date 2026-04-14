@@ -430,38 +430,27 @@ GD Tips:
 - For gender/age arguments: "Friends, we have time constraints. Let us assume age 20-25 and move on to actions."
 - If nominated for common story: "WE as a GROUP have discussed..." — never "I think" or "my story"`;
 
+import { usePracticeStore } from '@/store/practiceStore';
+
 export default function AIPracticePage() {
-  const [activeTab, setActiveTab] = useState('tat');
+  const {
+    aiActiveTab: activeTab, setAiActiveTab: setActiveTab,
+    tatImage, tatImageName, tatResult, setTatData,
+    watWord, watResult, setWatData,
+    srtSituation, srtResult, setSrtData,
+    ppdtImage, ppdtImageName, ppdtResult, setPpdtData
+  } = usePracticeStore();
 
-  // TAT state
-  const [tatImage, setTatImage] = useState<string | null>(null);
-  const [tatImageName, setTatImageName] = useState('');
-  const [tatResult, setTatResult] = useState('');
+  const [showOlqTags, setShowOlqTags] = useState(true);
   const [tatLoading, setTatLoading] = useState(false);
-
-  // WAT state
-  const [watWord, setWatWord] = useState('');
-  const [watResult, setWatResult] = useState('');
   const [watLoading, setWatLoading] = useState(false);
-
-  // SRT state
-  const [srtSituation, setSrtSituation] = useState('');
-  const [srtResult, setSrtResult] = useState('');
   const [srtLoading, setSrtLoading] = useState(false);
-
-  // PPDT state
-  const [ppdtImage, setPpdtImage] = useState<string | null>(null);
-  const [ppdtImageName, setPpdtImageName] = useState('');
-  const [ppdtResult, setPpdtResult] = useState('');
   const [ppdtLoading, setPpdtLoading] = useState(false);
 
-  // OLQ tag toggle
-  const [showOlqTags, setShowOlqTags] = useState(true);
-
-  const handleClearTat = () => { setTatResult(''); setTatImage(null); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
-  const handleClearWat = () => { setWatResult(''); setWatWord(''); };
-  const handleClearSrt = () => { setSrtResult(''); setSrtSituation(''); };
-  const handleClearPpdt = () => { setPpdtResult(''); setPpdtImage(null); if (document.getElementById('ppdt-upload')) (document.getElementById('ppdt-upload') as HTMLInputElement).value = ''; };
+  const handleClearTat = () => { setTatData({ result: '', image: null, name: '' }); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
+  const handleClearWat = () => { setWatData({ result: '', word: '' }); };
+  const handleClearSrt = () => { setSrtData({ result: '', situation: '' }); };
+  const handleClearPpdt = () => { setPpdtData({ result: '', image: null, name: '' }); if (document.getElementById('ppdt-upload')) (document.getElementById('ppdt-upload') as HTMLInputElement).value = ''; };
 
   const handleTatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -475,8 +464,7 @@ export default function AIPracticePage() {
       return;
     }
     const base64 = await fileToBase64(file);
-    setTatImage(base64);
-    setTatImageName(file.name);
+    setTatData({ image: base64, name: file.name });
   };
 
   const analyzeTat = async () => {
@@ -485,13 +473,13 @@ export default function AIPracticePage() {
       return;
     }
     setTatLoading(true);
-    setTatResult('');
+    setTatData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_TAT + '\n\nAnalyze this TAT image and generate stories as instructed.',
         tatImage
       );
-      setTatResult(result);
+      setTatData({ result: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -506,12 +494,12 @@ export default function AIPracticePage() {
       return;
     }
     setWatLoading(true);
-    setWatResult('');
+    setWatData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_WAT + `\n\nThe word is: "${trimmed}"\n\nGenerate WAT responses as instructed.`
       );
-      setWatResult(result.replace(/\*/g, ''));
+      setWatData({ result: result.replace(/\*/g, '') });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -526,12 +514,12 @@ export default function AIPracticePage() {
       return;
     }
     setSrtLoading(true);
-    setSrtResult('');
+    setSrtData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`
       );
-      setSrtResult(result.replace(/\*/g, ''));
+      setSrtData({ result: result.replace(/\*/g, '') });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -551,8 +539,7 @@ export default function AIPracticePage() {
       return;
     }
     const base64 = await fileToBase64(file);
-    setPpdtImage(base64);
-    setPpdtImageName(file.name);
+    setPpdtData({ image: base64, name: file.name });
   };
 
   const analyzePpdt = async () => {
@@ -561,13 +548,13 @@ export default function AIPracticePage() {
       return;
     }
     setPpdtLoading(true);
-    setPpdtResult('');
+    setPpdtData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_PPDT + '\n\nAnalyze this PPDT image. Identify all characters (Age, Sex, Mood), generate a complete PPDT story with narration script, and provide GD tips.',
         ppdtImage
       );
-      setPpdtResult(result);
+      setPpdtData({ result: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -666,7 +653,7 @@ export default function AIPracticePage() {
                     </p>
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={() => { setTatResult(''); setTatImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                    <button onClick={handleClearTat} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                        Delete & Reset This Prompt
                     </button>
                   </div>
@@ -695,7 +682,7 @@ export default function AIPracticePage() {
               <Input
                 placeholder="Type a single word (e.g., Leadership, Failure, Victory...)"
                 value={watWord}
-                onChange={(e) => setWatWord(e.target.value)}
+                onChange={(e) => setWatData({ word: e.target.value })}
                 className="h-12 text-base font-body bg-background/50 border-border/40 focus:border-gold/50"
                 onKeyDown={(e) => e.key === 'Enter' && analyzeWat()}
               />
@@ -709,7 +696,7 @@ export default function AIPracticePage() {
                     </p>
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={() => { setWatResult(''); setWatWord(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                    <button onClick={handleClearWat} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                        Delete & Reset This Prompt
                     </button>
                   </div>
@@ -738,7 +725,7 @@ export default function AIPracticePage() {
               <Textarea
                 placeholder="Describe a situation (e.g., You are travelling by train and notice an old man struggling with heavy luggage...)"
                 value={srtSituation}
-                onChange={(e) => setSrtSituation(e.target.value)}
+                onChange={(e) => setSrtData({ situation: e.target.value })}
                 className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
               />
               {srtResult && !srtLoading ? (
@@ -751,7 +738,7 @@ export default function AIPracticePage() {
                     </p>
                   </div>
                   <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={() => { setSrtResult(''); setSrtSituation(''); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                    <button onClick={handleClearSrt} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                        Delete & Reset This Prompt
                     </button>
                   </div>
@@ -797,7 +784,7 @@ export default function AIPracticePage() {
               {ppdtResult && !ppdtLoading ? (
                 <div className="glass-card-subtle border-gold/20 text-center py-4 flex flex-col items-center gap-3">
                   <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
-                    <button onClick={() => { setPpdtResult(''); setPpdtImage(null); }} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                    <button onClick={handleClearPpdt} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                        Delete & Reset PPDT
                     </button>
                 </div>

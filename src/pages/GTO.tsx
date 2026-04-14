@@ -322,32 +322,28 @@ PGT is the first task on the GTO ground. It consists of four obstacles of increa
 - **Rule of Rigidity**: Helping materials (plank/balli) cannot be tied together to increase length.
 `;
 
+import { usePracticeStore } from '@/store/practiceStore';
+
 export default function GTOPage() {
-  const [activeTab, setActiveTab] = useState('gd');
+  const {
+    gtoActiveTab: activeTab, setGtoActiveTab: setActiveTab,
+    gdTopic, gdResult, setGdData,
+    gpeScenario: gpeParagraph, gpeResult, gpeUserSolution, gpeUserAnalysis, gpePdfFile, gpePdfName, setGpeData,
+    lecTopic, lecResult, lecUserText, lecUserAnalysis, setLecData
+  } = usePracticeStore();
+
   const [currentImage, setCurrentImage] = useState(0);
 
-  // GD state
-  const [gdTopic, setGdTopic] = useState('');
-  const [gdResult, setGdResult] = useState('');
+  // Remaining states that don't need persistent sync (loading, files, etc. or handled differently)
   const [gdLoading, setGdLoading] = useState(false);
-
-  // GPE state
+  const [gpeLoading, setGpeLoading] = useState(false);
+  const [gpeUserLoading, setGpeUserLoading] = useState(false);
+  const [lecLoading, setLecLoading] = useState(false);
+  const [lecUserLoading, setLecUserLoading] = useState(false);
+  
+  // States that depend on local file objects or blobs
   const [gpeImage, setGpeImage] = useState<string | null>(null);
   const [gpeImageName, setGpeImageName] = useState('');
-  const [gpeParagraph, setGpeParagraph] = useState('');
-  const [gpeResult, setGpeResult] = useState('');
-  const [gpeLoading, setGpeLoading] = useState(false);
-  const [gpeUserSolution, setGpeUserSolution] = useState('');
-  const [gpeUserAnalysis, setGpeUserAnalysis] = useState('');
-  const [gpeUserLoading, setGpeUserLoading] = useState(false);
-  const [gpePdfFile, setGpePdfFile] = useState<string | null>(null);
-  const [gpePdfName, setGpePdfName] = useState('');
-
-  // Lecturette state
-  const [lecTopic, setLecTopic] = useState('');
-  const [lecResult, setLecResult] = useState('');
-  const [lecLoading, setLecLoading] = useState(false);
-  const [lecUserText, setLecUserText] = useState('');
   const [lecUserAnalysis, setLecUserAnalysis] = useState('');
   const [lecUserLoading, setLecUserLoading] = useState(false);
   // Video recording state
@@ -362,9 +358,9 @@ export default function GTOPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const clearGd = () => { setGdResult(''); setGdTopic(''); };
-  const clearGpe = () => { setGpeResult(''); setGpeUserAnalysis(''); setGpeImage(null); setGpeParagraph(''); setGpeUserSolution(''); setGpePdfFile(null); };
-  const clearLec = () => { setLecResult(''); setLecUserAnalysis(''); setLecTopic(''); setLecUserText(''); setVideoAnalysis(''); setVideoUrl(null); setVideoBlob(null); };
+  const clearGd = () => setGdData({ result: '', topic: '' });
+  const clearGpe = () => setGpeData({ result: '', userAnalysis: '', scenario: '', userSolution: '', pdfFile: null, pdfName: '' });
+  const clearLec = () => setLecData({ result: '', userAnalysis: '', topic: '', userText: '' });
 
   // Image slideshow
   useEffect(() => {
@@ -379,12 +375,12 @@ export default function GTOPage() {
     const trimmed = gdTopic.trim();
     if (!trimmed) { toast.error('Please enter a GD topic'); return; }
     setGdLoading(true);
-    setGdResult('');
+    setGdData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_GD + `\n\nThe GD topic is: "${trimmed}"\n\nGenerate current talking points as instructed.`
       );
-      setGdResult(result);
+      setGdData({ result: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate GD points');
     } finally {
@@ -407,13 +403,13 @@ export default function GTOPage() {
     if (!gpeImage) { toast.error('Please upload a GPE map image'); return; }
     if (!gpeParagraph.trim()) { toast.error('Please enter the problem paragraph'); return; }
     setGpeLoading(true);
-    setGpeResult('');
+    setGpeData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nAnalyze the map image and provide a complete GPE solution.`,
         gpeImage
       );
-      setGpeResult(result);
+      setGpeData({ result: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate GPE solution');
     } finally {
@@ -430,21 +426,20 @@ export default function GTOPage() {
     }
     if (file.size > 15 * 1024 * 1024) { toast.error('File must be under 15MB'); return; }
     const base64 = await fileToBase64(file);
-    setGpePdfFile(base64);
-    setGpePdfName(file.name);
+    setGpeData({ pdfFile: base64, pdfName: file.name });
   };
 
   const analyzeGpePdf = async () => {
     if (!gpePdfFile) { toast.error('Please upload your GPE solution PDF'); return; }
     setGpeUserLoading(true);
-    setGpeUserAnalysis('');
+    setGpeData({ userAnalysis: '' });
     try {
       const mimeType = gpePdfFile.startsWith('data:application/pdf') ? 'application/pdf' : 'image/jpeg';
       const result = await callGeminiMultiPart(
         SYSTEM_PROMPT_GPE + `\n\nThe candidate has uploaded their GPE solution as a PDF/image. Analyze their solution:\n- What they did well\n- What they missed\n- Specific improvements with suggestions\n- Prioritization accuracy\n- Resource utilization\n- Time management\n- OLQs demonstrated\n- Score out of 10\n\n${gpeParagraph ? `The original GPE problem was: "${gpeParagraph.trim()}"` : ''}`,
         [{ base64: gpePdfFile, mimeType }]
       );
-      setGpeUserAnalysis(result);
+      setGpeData({ userAnalysis: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to analyze your GPE solution');
     } finally {
@@ -534,12 +529,12 @@ export default function GTOPage() {
     const trimmed = lecTopic.trim();
     if (!trimmed) { toast.error('Please enter a lecturette topic'); return; }
     setLecLoading(true);
-    setLecResult('');
+    setLecData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_LECTURETTE + `\n\nThe lecturette topic is: "${trimmed}"\n\nGenerate a complete 3-minute model lecturette as instructed.`
       );
-      setLecResult(result);
+      setLecData({ result: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate lecturette');
     } finally {
@@ -550,12 +545,12 @@ export default function GTOPage() {
   const analyzeLecUser = async () => {
     if (!lecUserText.trim()) { toast.error('Please enter your lecturette'); return; }
     setLecUserLoading(true);
-    setLecUserAnalysis('');
+    setLecData({ userAnalysis: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_LECTURETTE + `\n\nThe topic is: "${lecTopic.trim()}"\n\nThe candidate's own lecturette is:\n"${lecUserText.trim()}"\n\nAnalyze their lecturette — structure, current facts, word count, flow, clarity, improvements needed, and score out of 10.`
       );
-      setLecUserAnalysis(result);
+      setLecData({ userAnalysis: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to analyze lecturette');
     } finally {
@@ -625,7 +620,7 @@ export default function GTOPage() {
               <Input
                 placeholder="Enter a GD topic (e.g., Iran vs US, AI in Defence, One Nation One Election...)"
                 value={gdTopic}
-                onChange={(e) => setGdTopic(e.target.value)}
+                onChange={(e) => setGdData({ topic: e.target.value })}
                 className="h-12 text-base font-body bg-background/50 border-border/40 focus:border-gold/50"
                 onKeyDown={(e) => e.key === 'Enter' && analyzeGd()}
               />
@@ -673,7 +668,7 @@ export default function GTOPage() {
               <Textarea
                 placeholder="Paste the GPE problem paragraph here (the scenario description with problems, resources, and time constraints)..."
                 value={gpeParagraph}
-                onChange={(e) => setGpeParagraph(e.target.value)}
+                onChange={(e) => setGpeData({ scenario: e.target.value })}
                 className="min-h-[100px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
               />
 
@@ -739,7 +734,7 @@ export default function GTOPage() {
                 <Textarea
                   placeholder="Paste your own GPE solution here..."
                   value={gpeUserSolution}
-                  onChange={(e) => setGpeUserSolution(e.target.value)}
+                  onChange={(e) => setGpeData({ userSolution: e.target.value })}
                   className="min-h-[100px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
                 />
                 {gpeUserSolution.trim() && (
@@ -784,7 +779,7 @@ export default function GTOPage() {
               <Input
                 placeholder="Enter a topic (e.g., Digital India, Climate Change, Women in Armed Forces...)"
                 value={lecTopic}
-                onChange={(e) => setLecTopic(e.target.value)}
+                onChange={(e) => setLecData({ topic: e.target.value })}
                 className="h-12 text-base font-body bg-background/50 border-border/40 focus:border-gold/50"
                 onKeyDown={(e) => e.key === 'Enter' && analyzeLec()}
               />
@@ -888,7 +883,7 @@ export default function GTOPage() {
                 <Textarea
                   placeholder="Paste your own lecturette text here — AI will analyze structure, facts, and flow..."
                   value={lecUserText}
-                  onChange={(e) => setLecUserText(e.target.value)}
+                  onChange={(e) => setLecData({ userText: e.target.value })}
                   className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
                 />
                 <button
