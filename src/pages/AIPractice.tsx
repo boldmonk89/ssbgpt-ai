@@ -441,6 +441,10 @@ export default function AIPracticePage() {
     ppdtImage, ppdtImageName, ppdtResult, setPpdtData
   } = usePracticeStore();
 
+  const [watUserSentence, setWatUserSentence] = useState('');
+  const [srtUserResponse, setSrtUserResponse] = useState('');
+  const [practiceMode, setPracticeMode] = useState<'MODEL' | 'SELF'>('MODEL');
+
   const [showOlqTags, setShowOlqTags] = useState(true);
   const [tatLoading, setTatLoading] = useState(false);
   const [watLoading, setWatLoading] = useState(false);
@@ -448,8 +452,8 @@ export default function AIPracticePage() {
   const [ppdtLoading, setPpdtLoading] = useState(false);
 
   const handleClearTat = () => { setTatData({ result: '', image: null, name: '' }); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
-  const handleClearWat = () => { setWatData({ result: '', word: '' }); };
-  const handleClearSrt = () => { setSrtData({ result: '', situation: '' }); };
+  const handleClearWat = () => { setWatData({ result: '', word: '' }); setWatUserSentence(''); };
+  const handleClearSrt = () => { setSrtData({ result: '', situation: '' }); setSrtUserResponse(''); };
   const handleClearPpdt = () => { setPpdtData({ result: '', image: null, name: '' }); if (document.getElementById('ppdt-upload')) (document.getElementById('ppdt-upload') as HTMLInputElement).value = ''; };
 
   const handleTatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -496,9 +500,17 @@ export default function AIPracticePage() {
     setWatLoading(true);
     setWatData({ result: '' });
     try {
-      const result = await callGemini(
-        SYSTEM_PROMPT_WAT + `\n\nThe word is: "${trimmed}"\n\nGenerate WAT responses as instructed.`
-      );
+      let prompt = '';
+      if (practiceMode === 'SELF' && watUserSentence.trim()) {
+        prompt = `You are an SSB psychologist.
+Word: "${trimmed}"
+Candidate's Sentence: "${watUserSentence}"
+Analyze if this sentence follows the manual guidelines (Observational, no third person, positive actions, short, reflects OLQs). 
+Then provide a model improved version.`;
+      } else {
+        prompt = SYSTEM_PROMPT_WAT + `\n\nThe word is: "${trimmed}"\n\nGenerate WAT responses as instructed.`;
+      }
+      const result = await callGemini(prompt);
       setWatData({ result: result.replace(/\*/g, '') });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
@@ -516,9 +528,17 @@ export default function AIPracticePage() {
     setSrtLoading(true);
     setSrtData({ result: '' });
     try {
-      const result = await callGemini(
-        SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`
-      );
+      let prompt = '';
+      if (practiceMode === 'SELF' && srtUserResponse.trim()) {
+        prompt = `You are an SSB psychologist.
+Situation: "${trimmed}"
+Candidate's Response: "${srtUserResponse}"
+Analyze this response (Realism, logic, complete resolution, telegram style, OLQs).
+Provide an improved short-form action sequence.`;
+      } else {
+        prompt = SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`;
+      }
+      const result = await callGemini(prompt);
       setSrtData({ result: result.replace(/\*/g, '') });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
@@ -588,8 +608,22 @@ export default function AIPracticePage() {
         </div>
       </motion.div>
 
-      {/* OLQ Toggle */}
-      <motion.div variants={itemVariants} className="flex justify-end">
+      {/* Mode & OLQ Toggle */}
+      <motion.div variants={itemVariants} className="flex justify-between items-center gap-4">
+        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+          <button
+            onClick={() => setPracticeMode('MODEL')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-heading font-bold transition-all ${practiceMode === 'MODEL' ? 'bg-gold text-black' : 'text-muted-foreground'}`}
+          >
+            Model Answers
+          </button>
+          <button
+            onClick={() => setPracticeMode('SELF')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-heading font-bold transition-all ${practiceMode === 'SELF' ? 'bg-gold text-black' : 'text-muted-foreground'}`}
+          >
+            Analyze My Work
+          </button>
+        </div>
         <button
           onClick={() => setShowOlqTags(!showOlqTags)}
           className="glass-button flex items-center gap-2 text-xs"
@@ -643,31 +677,14 @@ export default function AIPracticePage() {
                 )}
               </label>
 
-              {tatResult && !tatLoading ? (
-                <div className="glass-card-subtle border-gold/20 text-center py-4 px-6 relative overflow-hidden flex flex-col gap-4">
-                  <div className="absolute inset-0 bg-gold/5 blur-xl"></div>
-                  <div>
-                    <p className="font-heading font-semibold text-sm text-gold mb-1 relative z-10">Analysis Complete (1/1)</p>
-                    <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-                      The core of TAT is evaluating your first, instinctive thought. Generating multiple responses for the exact same image dilutes the psychological authenticity.
-                    </p>
-                  </div>
-                  <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={handleClearTat} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                       Delete & Reset This Prompt
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={analyzeTat}
-                  disabled={tatLoading || !tatImage}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {tatLoading ? 'Analyzing Image & Generating Stories...' : 'Generate TAT Stories'}
-                </button>
-              )}
+              <button
+                onClick={analyzeTat}
+                disabled={tatLoading || !tatImage}
+                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {tatLoading ? 'Analyzing Image & Generating Stories...' : 'Generate TAT Stories'}
+              </button>
             </div>
           </div>
 
@@ -684,33 +701,31 @@ export default function AIPracticePage() {
                 value={watWord}
                 onChange={(e) => setWatData({ word: e.target.value })}
                 className="h-12 text-base font-body bg-background/50 border-border/40 focus:border-gold/50"
-                onKeyDown={(e) => e.key === 'Enter' && analyzeWat()}
               />
-              {watResult && !watLoading ? (
-                <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden flex flex-col gap-4">
-                  <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
-                  <div>
-                    <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (4/4)</p>
-                    <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-                      You have analyzed responses for this specific word the maximum allowed times. The SSB focuses on your rapid, subconscious associations rather than over-practiced perfection.
-                    </p>
-                  </div>
-                  <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={handleClearWat} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                       Delete & Reset This Prompt
-                    </button>
-                  </div>
-                </div>
-              ) : (
+              {practiceMode === 'SELF' && (
+                <Textarea
+                  placeholder="Type your own sentence here to get it analyzed..."
+                  value={watUserSentence}
+                  onChange={(e) => setWatUserSentence(e.target.value)}
+                  className="min-h-[80px] bg-background/30 border-gold/20 italic"
+                />
+              )}
+              
+              <div className="flex gap-2">
                 <button
                   onClick={analyzeWat}
-                  disabled={watLoading || !watWord.trim()}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={watLoading || !watWord.trim() || (practiceMode === 'SELF' && !watUserSentence.trim())}
+                  className="glass-button-gold flex-1 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                 >
                   {watLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {watLoading ? 'Generating Responses...' : 'Generate WAT Responses'}
+                  {practiceMode === 'SELF' ? 'Analyze My Sentence' : 'Generate Model Responses'}
                 </button>
-              )}
+                {watResult && (
+                  <button onClick={handleClearWat} className="glass-button px-4 border-destructive/30 text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -728,31 +743,30 @@ export default function AIPracticePage() {
                 onChange={(e) => setSrtData({ situation: e.target.value })}
                 className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
               />
-              {srtResult && !srtLoading ? (
-                <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden flex flex-col gap-4">
-                  <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
-                  <div>
-                    <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (2/2)</p>
-                    <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-                      You have analyzed reactions for this specific situation the maximum allowed times. SRT evaluates your immediate reaction to crisis/scenarios. Practicing beyond this limit removes the true reaction validity.
-                    </p>
-                  </div>
-                  <div className="flex gap-3 justify-center relative z-10 mt-2">
-                    <button onClick={handleClearSrt} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                       Delete & Reset This Prompt
-                    </button>
-                  </div>
-                </div>
-              ) : (
+              {practiceMode === 'SELF' && (
+                <Textarea
+                  placeholder="Type your own response here to get it analyzed..."
+                  value={srtUserResponse}
+                  onChange={(e) => setSrtUserResponse(e.target.value)}
+                  className="min-h-[100px] bg-background/30 border-gold/20 italic"
+                />
+              )}
+
+              <div className="flex gap-2">
                 <button
                   onClick={analyzeSrt}
-                  disabled={srtLoading || !srtSituation.trim()}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={srtLoading || !srtSituation.trim() || (practiceMode === 'SELF' && !srtUserResponse.trim())}
+                  className="glass-button-gold flex-1 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                 >
                   {srtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {srtLoading ? 'Generating Reactions...' : 'Generate SRT Reactions'}
+                  {practiceMode === 'SELF' ? 'Analyze My Response' : 'Generate Model Reactions'}
                 </button>
-              )}
+                {srtResult && (
+                  <button onClick={handleClearSrt} className="glass-button px-4 border-destructive/30 text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
