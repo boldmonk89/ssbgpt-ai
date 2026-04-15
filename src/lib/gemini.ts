@@ -54,8 +54,8 @@ export async function callGemini(prompt: string, imageBase64?: string): Promise<
     const mimeType = imageBase64.startsWith('data:application/pdf')
       ? 'application/pdf'
       : imageBase64.startsWith('data:image/png')
-      ? 'image/png'
-      : 'image/jpeg';
+        ? 'image/png'
+        : 'image/jpeg';
     return callEdgeFunction(prompt, [{ base64: imageBase64, mimeType }]);
   }
   return callEdgeFunction(prompt);
@@ -221,9 +221,13 @@ For EACH entry, you MUST first check: "Does this sentence meaningfully and direc
 ### EVALUATION INSTRUCTIONS (per word):
 1. Association Check: Does the candidate's sentence logically connect to the given word? Mark as STRONG / WEAK / DISCONNECTED.
 2. Improved Model Sentence: Generate a better sentence (8-10 words max) that:
-   - Is DIRECTLY tied to the word's meaning or theme
-   - Is observational or action-based (NOT advice/orders/philosophy)
-   - Reflects positive OLQ traits
+   - Is DIRECTLY tied to the word's meaning or theme.
+   - FAVOR OBSERVATIONAL (Universal Truths/Factual) or POSITIVE ACTION-ORIENTED styles.
+   - Observational sentences should be strong, factual statements (e.g., "Discipline makes life systematic").
+   - Action-oriented sentences should use First Person (I, My, We).
+   - ABSOLUTELY NO story-telling third person (e.g., "The boy...", "A leader...").
+   - MUST be POSITIVE and CONSTRUCTIVE. No negative traits.
+   - Reflects positive OLQ traits (Courage, Responsibility, Determination, etc.).
 3. OLQ Signal: Which OLQ does this word-sentence pair reveal?
 
 ### BATCH SUMMARY (after all words):
@@ -233,12 +237,17 @@ For EACH entry, you MUST first check: "Does this sentence meaningfully and direc
 - Top 2 patterns to fix
 
 ### STYLE RULES (CRITICAL):
-- NO ADVICE/ORDERS: Never use "One should...", "Do...", or "Focus on...".
-- NO PREACHING/PHILOSOPHY: Avoid generic life lessons.
-- EXAMPLES:
-  * WORD: BASTARD -> GOOD: "Legality defines social status." (connected to word, observational)
-  * WORD: DARK -> GOOD: "Darkness tests a soldier's resolve." (connected to word, action-based)
-  * WORD: DARK -> BAD: "Leaders inspire their teams always." (DISCONNECTED from word)
+- PREFER OBSERVATIONAL: Use factual truths or universal laws (e.g., "Family supports each other during bad times").
+- PREFER ACTION: Use "I", "My", "Me", or "We" for direct actions.
+- NO STORY-TELLING: Never describe scenes with "He", "She", or "The [Noun]".
+- NO NEGATIVE THEMES: Avoid violence, fear, or weakness.
+- EXAMPLES (from SSB Manual):
+  * WORD: FAMILY -> GOOD: "Family is the backbone of development." (Observational)
+  * WORD: HOME -> GOOD: "Home is built by love and affection." (Observational)
+  * WORD: DISCIPLINE -> GOOD: "Discipline makes life systematic." (Observational/Action)
+  * WORD: SLAP -> GOOD: "I believe in logical discipline over force." (First person, mature)
+  * WORD: DARK -> BAD: "A quick slap startled the child." (NEGATIVE - WRONG)
+  * WORD: DARK -> BAD: "The old dame recalled her youthful days fondly." (STORY-TELLING - WRONG)
 
 CRITICAL:
 - Analyze ONLY the candidate data provided above.
@@ -250,9 +259,9 @@ export function buildWatPdfPrompt(): string {
   return `You are an SSB psychologist. This PDF/image contains handwritten WAT (Word Association Test) responses.
 
 First extract all word-sentence pairs. Then for each:
-1. Check word count (max 6), pronouns, positivity, observational quality.
+1. Check word count (max 6), first-person usage, positivity, action quality.
 2. Identify OLQ signals.
-3. Provide IMPROVED sentences that are strictly OBSERVATIONAL or ACTION-BASED. (NO advice, NO orders, NO preaching).
+3. Provide IMPROVED sentences that MUST BE FIRST-PERSON (I, My, We) and ACTION-BASED. (ABSOLUTELY NO THIRD PERSON, no advice, NO orders, NO preaching).
 
 Provide a summary table and batch analysis with OLQ coverage map, top improvements, and overall rating. Keep it concise and actionable.`;
 }
@@ -337,20 +346,21 @@ RULES:
 ${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse: "${r.response}"`).join('\n\n')}
 
 ### EVALUATION INSTRUCTIONS (per situation):
-1. Situation-Response Fit: Does the candidate's response directly and logically address THIS specific situation? Mark as APPROPRIATE / PARTIAL / IRRELEVANT.
-2. Improved Response: A 5-7 word action phrase SPECIFIC to the situation (e.g., for a fire situation: "Raised alarm, evacuated people, called brigade" NOT a generic "Acted bravely, helped others").
+1. Situation-Response Fit: Does the candidate's response DIRECTLY and LOGICALLY address the situation AND its consequences? Mark as COMPLETE / PARTIAL / FAIL.
+2. Improved Response (Telegram Style): A short action-sequence (5-10 words) starting with verbs, separated by commas.
+   - MUST address both the immediate problem and the goals (e.g., "Rushed to cyclist, provided first aid, informed police, reached office on time").
+   - NO Pronouns ("I", "He"). 
+   - NO generic fillers.
 3. OLQ Signal: Which OLQ does this response reveal?
 
 ### BATCH SUMMARY (after all situations):
-- Overall Assessment: Realism and decision-making quality
-- OLQ Signals: Map strongest and weakest qualities overall
-- Final Score: X/10
-- Top 2 patterns to fix
+- Overall Assessment: Realism and decision-making quality.
+- OLQ Signals: Map strongest and weakest qualities overall.
+- Final Score: X/10.
 
 CRITICAL:
-- Analyze ONLY the Candidate Data provided above. DO NOT evaluate or mention the reference cases.
-- NEVER MENTION ITEM NUMBERS FROM THE REFERENCE LIST (e.g., Do NOT say "Similar to 17").
-- Each improved response MUST be specific to its situation — no recycled generic phrases.
+- Every improved response MUST be a COMPLETE ACTION sequence.
+- Use SHORT FORM (Telegram style) as per official SSB guidelines.
 - Provide a summary that is highly READABLE and CONCISE.
 - NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
 }
@@ -621,7 +631,7 @@ Verify if it matches one of these two formats:
 2. Type 2 (Target SSB): Should be exactly 3-4 pages. Header contains "TARGET SSB INTERVIEW" and "PERSONAL INFORMATION QUESTIONNAIRE".
 
 REJECT if it is any other form, a different number of pages, or irrelevant content.${common}`;
-    
+
     case 'SRT':
       return `This must be a handwritten or printed SRT (Situation Reaction Test) response sheet.
 REJECT if:
