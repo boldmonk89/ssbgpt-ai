@@ -82,15 +82,44 @@ export const usePracticeStore = create<PracticeState>()(
     (set) => ({
       ...initialState,
       setAiActiveTab: (tab) => set({ aiActiveTab: tab }),
-      setTatData: (data) => set((s) => ({ ...s, ...data })),
-      setWatData: (data) => set((s) => ({ ...s, ...data })),
-      setSrtData: (data) => set((s) => ({ ...s, ...data })),
-      setPpdtData: (data) => set((s) => ({ ...s, ...data })),
+      setTatData: (data) => set((s) => ({
+        tatImage: data.image !== undefined ? data.image : s.tatImage,
+        tatImageName: data.name !== undefined ? data.name : s.tatImageName,
+        tatResult: data.result !== undefined ? data.result : s.tatResult,
+      })),
+      setWatData: (data) => set((s) => ({
+        watWord: data.word !== undefined ? data.word : s.watWord,
+        watResult: data.result !== undefined ? data.result : s.watResult,
+      })),
+      setSrtData: (data) => set((s) => ({
+        srtSituation: data.situation !== undefined ? data.situation : s.srtSituation,
+        srtResult: data.result !== undefined ? data.result : s.srtResult,
+      })),
+      setPpdtData: (data) => set((s) => ({
+        ppdtImage: data.image !== undefined ? data.image : s.ppdtImage,
+        ppdtImageName: data.name !== undefined ? data.name : s.ppdtImageName,
+        ppdtResult: data.result !== undefined ? data.result : s.ppdtResult,
+      })),
       
       setGtoActiveTab: (tab) => set({ gtoActiveTab: tab }),
-      setGdData: (data) => set((s) => ({ ...s, ...data })),
-      setGpeData: (data) => set((s) => ({ ...s, ...data })),
-      setLecData: (data) => set((s) => ({ ...s, ...data })),
+      setGdData: (data) => set((s) => ({
+        gdTopic: data.topic !== undefined ? data.topic : s.gdTopic,
+        gdResult: data.result !== undefined ? data.result : s.gdResult,
+      })),
+      setGpeData: (data) => set((s) => ({
+        gpeScenario: data.scenario !== undefined ? data.scenario : s.gpeScenario,
+        gpeResult: data.result !== undefined ? data.result : s.gpeResult,
+        gpeUserSolution: data.userSolution !== undefined ? data.userSolution : s.gpeUserSolution,
+        gpeUserAnalysis: data.userAnalysis !== undefined ? data.userAnalysis : s.gpeUserAnalysis,
+        gpePdfFile: data.pdfFile !== undefined ? data.pdfFile : s.gpePdfFile,
+        gpePdfName: data.pdfName !== undefined ? data.pdfName : s.gpePdfName,
+      })),
+      setLecData: (data) => set((s) => ({
+        lecTopic: data.topic !== undefined ? data.topic : s.lecTopic,
+        lecResult: data.result !== undefined ? data.result : s.lecResult,
+        lecUserText: data.userText !== undefined ? data.userText : s.lecUserText,
+        lecUserAnalysis: data.userAnalysis !== undefined ? data.userAnalysis : s.lecUserAnalysis,
+      })),
       
       clearPracticeSession: () => set(initialState),
     }),
