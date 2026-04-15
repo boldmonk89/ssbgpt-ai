@@ -445,7 +445,6 @@ export default function AIPracticePage() {
   const [srtUserResponse, setSrtUserResponse] = useState('');
   const [tatUserStory, setTatUserStory] = useState('');
   const [ppdtUserStory, setPpdtUserStory] = useState('');
-  const [practiceMode, setPracticeMode] = useState<'MODEL' | 'SELF'>('MODEL');
 
   const [showOlqTags, setShowOlqTags] = useState(true);
   const [tatLoading, setTatLoading] = useState(false);
@@ -482,10 +481,9 @@ export default function AIPracticePage() {
     setTatData({ result: '' });
     try {
       let prompt = '';
-      if (practiceMode === 'SELF' && tatUserStory.trim()) {
+      if (tatUserStory.trim()) {
         prompt = `You are an SSB psychologist.
-Examine this TAT picture and the Candidate's Story below.
-Candidate's Story: "${tatUserStory}"
+Examine this TAT picture and the Candidate's Story: "${tatUserStory}"
 Analyze if this story follows the recommended guidelines (Hero age 18-26, proactive action, Past/Present/Future structure, positive outcomes, OLQs).
 Provide an improved SSB-style story.`;
       } else {
@@ -510,7 +508,7 @@ Provide an improved SSB-style story.`;
     setWatData({ result: '' });
     try {
       let prompt = '';
-      if (practiceMode === 'SELF' && watUserSentence.trim()) {
+      if (watUserSentence.trim()) {
         prompt = `You are an SSB psychologist.
 Word: "${trimmed}"
 Candidate's Sentence: "${watUserSentence}"
@@ -538,7 +536,7 @@ Then provide a model improved version.`;
     setSrtData({ result: '' });
     try {
       let prompt = '';
-      if (practiceMode === 'SELF' && srtUserResponse.trim()) {
+      if (srtUserResponse.trim()) {
         prompt = `You are an SSB psychologist.
 Situation: "${trimmed}"
 Candidate's Response: "${srtUserResponse}"
@@ -580,10 +578,9 @@ Provide an improved short-form action sequence.`;
     setPpdtData({ result: '' });
     try {
       let prompt = '';
-      if (practiceMode === 'SELF' && ppdtUserStory.trim()) {
+      if (ppdtUserStory.trim()) {
         prompt = `You are an SSB psychologist.
-Examine this PPDT picture and the Candidate's Narration below.
-Candidate's Narration: "${ppdtUserStory}"
+Examine this PPDT picture and the Candidate's Narration: "${ppdtUserStory}"
 Analyze the narration quality (Clarity, confidence, theme selection, group goal focus).
 Provide a model narration script.`;
       } else {
@@ -624,22 +621,7 @@ Provide a model narration script.`;
         </div>
       </motion.div>
 
-      {/* Mode & OLQ Toggle */}
-      <motion.div variants={itemVariants} className="flex justify-between items-center gap-4">
-        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-          <button
-            onClick={() => setPracticeMode('MODEL')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-heading font-bold transition-all ${practiceMode === 'MODEL' ? 'bg-gold text-black' : 'text-muted-foreground'}`}
-          >
-            Model Answers
-          </button>
-          <button
-            onClick={() => setPracticeMode('SELF')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-heading font-bold transition-all ${practiceMode === 'SELF' ? 'bg-gold text-black' : 'text-muted-foreground'}`}
-          >
-            Analyze My Work
-          </button>
-        </div>
+      <motion.div variants={itemVariants} className="flex justify-end gap-4 p-4">
         <button
           onClick={() => setShowOlqTags(!showOlqTags)}
           className="glass-button flex items-center gap-2 text-xs"
@@ -676,39 +658,38 @@ Provide a model narration script.`;
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Upload TAT Image</h3>
             <div className="space-y-4">
-              <label className="glass-card-subtle flex flex-col items-center justify-center py-8 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl">
-                <input type="file" accept="image/*" className="hidden" onChange={handleTatImageUpload} />
+              <label className="glass-card-subtle flex flex-col items-center justify-center p-6 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl min-h-[160px]">
+                <input type="file" accept="image/*" className="hidden" onChange={handleTatImageUpload} id="tat-upload" />
                 {tatImage ? (
                   <div className="space-y-3 text-center">
-                    <img src={tatImage} alt="TAT" className="max-h-48 rounded-lg mx-auto shadow-lg" />
-                    <p className="text-sm text-muted-foreground font-body">{tatImageName}</p>
-                    <p className="text-xs text-gold">Click to change image</p>
+                    <img src={tatImage} alt="TAT" className="max-h-32 rounded-lg mx-auto shadow-lg" />
+                    <p className="text-[10px] text-muted-foreground font-body">{tatImageName}</p>
+                    <p className="text-[10px] text-gold uppercase tracking-tighter">Click to change image</p>
                   </div>
                 ) : (
                   <>
-                    <Upload className="h-10 w-10 text-muted-foreground/40 mb-3" />
-                    <p className="text-sm text-muted-foreground font-body">Click to upload a TAT picture</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">JPG, PNG, WEBP — max 10MB</p>
+                    <Upload className="h-8 w-8 text-gold/40 mb-2" />
+                    <p className="text-xs text-muted-foreground font-body">Upload Stimulus Image</p>
                   </>
                 )}
               </label>
 
-              {practiceMode === 'SELF' && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Your Story (Optional)</p>
                 <Textarea
-                  placeholder="Type your TAT story here to get it analyzed..."
+                  placeholder="Record your story here to get it reviewed by AI..."
                   value={tatUserStory}
                   onChange={(e) => setTatUserStory(e.target.value)}
-                  className="min-h-[150px] bg-background/30 border-gold/20 italic"
+                  className="min-h-[120px] bg-background/30 border-border/20 text-sm focus:border-gold/30"
                 />
-              )}
+              </div>
 
               <button
                 onClick={analyzeTat}
-                disabled={tatLoading || !tatImage || (practiceMode === 'SELF' && !tatUserStory.trim())}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={tatLoading || !tatImage}
+                className="glass-button-gold w-full h-12 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
               >
-                {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {practiceMode === 'SELF' ? 'Analyze My Story' : 'Generate Model STORIES'}
+                {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'GENERATE ANALYSIS'}
               </button>
             </div>
           </div>
@@ -721,32 +702,36 @@ Provide a model narration script.`;
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Enter a Word</h3>
             <div className="space-y-4">
-              <Input
-                placeholder="Type a single word (e.g., Leadership, Failure, Victory...)"
-                value={watWord}
-                onChange={(e) => setWatData({ word: e.target.value })}
-                className="h-12 text-base font-body bg-background/50 border-border/40 focus:border-gold/50"
-              />
-              {practiceMode === 'SELF' && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Stimulus Word</p>
+                <Input
+                  placeholder="e.g., Failure, Courage, Discipline..."
+                  value={watWord}
+                  onChange={(e) => setWatData({ word: e.target.value })}
+                  className="h-12 text-sm bg-background/50 border-border/20 focus:border-gold/30"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Your Response (Optional)</p>
                 <Textarea
-                  placeholder="Type your own sentence here to get it analyzed..."
+                  placeholder="Type your sentence here to get it analyzed..."
                   value={watUserSentence}
                   onChange={(e) => setWatUserSentence(e.target.value)}
-                  className="min-h-[80px] bg-background/30 border-gold/20 italic"
+                  className="min-h-[80px] bg-background/30 border-border/20 text-sm focus:border-gold/30"
                 />
-              )}
+              </div>
               
               <div className="flex gap-2">
                 <button
                   onClick={analyzeWat}
-                  disabled={watLoading || !watWord.trim() || (practiceMode === 'SELF' && !watUserSentence.trim())}
-                  className="glass-button-gold flex-1 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                  disabled={watLoading || !watWord.trim()}
+                  className="glass-button-gold flex-1 h-12 flex items-center justify-center gap-2 text-sm"
                 >
-                  {watLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {practiceMode === 'SELF' ? 'Analyze My Sentence' : 'Generate Model Responses'}
+                  {watLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'GENERATE ANALYSIS'}
                 </button>
                 {watResult && (
-                  <button onClick={handleClearWat} className="glass-button px-4 border-destructive/30 text-destructive">
+                  <button onClick={handleClearWat} className="glass-button px-4 border-destructive/20 text-destructive">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}
@@ -762,32 +747,36 @@ Provide a model narration script.`;
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Enter a Situation</h3>
             <div className="space-y-4">
-              <Textarea
-                placeholder="Describe a situation (e.g., You are travelling by train and notice an old man struggling with heavy luggage...)"
-                value={srtSituation}
-                onChange={(e) => setSrtData({ situation: e.target.value })}
-                className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
-              />
-              {practiceMode === 'SELF' && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Stimulus Situation</p>
                 <Textarea
-                  placeholder="Type your own response here to get it analyzed..."
+                  placeholder="Describe the situation..."
+                  value={srtSituation}
+                  onChange={(e) => setSrtData({ situation: e.target.value })}
+                  className="min-h-[100px] text-sm bg-background/50 border-border/20 focus:border-gold/30"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Your Response (Optional)</p>
+                <Textarea
+                  placeholder="Type your reaction here to get it analyzed..."
                   value={srtUserResponse}
                   onChange={(e) => setSrtUserResponse(e.target.value)}
-                  className="min-h-[100px] bg-background/30 border-gold/20 italic"
+                  className="min-h-[100px] bg-background/30 border-border/20 text-sm focus:border-gold/30"
                 />
-              )}
+              </div>
 
               <div className="flex gap-2">
                 <button
                   onClick={analyzeSrt}
-                  disabled={srtLoading || !srtSituation.trim() || (practiceMode === 'SELF' && !srtUserResponse.trim())}
-                  className="glass-button-gold flex-1 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                  disabled={srtLoading || !srtSituation.trim()}
+                  className="glass-button-gold flex-1 h-12 flex items-center justify-center gap-2 text-sm"
                 >
-                  {srtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {practiceMode === 'SELF' ? 'Analyze My Response' : 'Generate Model Reactions'}
+                  {srtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'GENERATE ANALYSIS'}
                 </button>
                 {srtResult && (
-                  <button onClick={handleClearSrt} className="glass-button px-4 border-destructive/30 text-destructive">
+                  <button onClick={handleClearSrt} className="glass-button px-4 border-destructive/20 text-destructive">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}
@@ -800,44 +789,41 @@ Provide a model narration script.`;
 
         {/* PPDT Tab */}
         <TabsContent value="ppdt" className="mt-6 space-y-4">
-          <div className="glass-card">
-            <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Upload PPDT Image</h3>
+          <div className="glass-card pt-6">
+            <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">PPDT Practice</h3>
             <div className="space-y-4">
-              <label className="glass-card-subtle flex flex-col items-center justify-center py-8 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl">
-                <input type="file" accept="image/*" className="hidden" onChange={handlePpdtImageUpload} />
+              <label className="glass-card-subtle flex flex-col items-center justify-center p-6 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl min-h-[160px]">
+                <input type="file" accept="image/*" className="hidden" onChange={handlePpdtImageUpload} id="ppdt-upload" />
                 {ppdtImage ? (
                   <div className="space-y-3 text-center">
-                    <img src={ppdtImage} alt="PPDT" className="max-h-48 rounded-lg mx-auto shadow-lg" />
-                    <p className="text-sm text-muted-foreground font-body">{ppdtImageName}</p>
-                    <p className="text-xs text-gold">Click to change image</p>
+                    <img src={ppdtImage} alt="PPDT" className="max-h-32 rounded-lg mx-auto shadow-lg" />
+                    <p className="text-[10px] text-muted-foreground font-body">{ppdtImageName}</p>
+                    <p className="text-[10px] text-gold uppercase tracking-tighter">Click to change image</p>
                   </div>
                 ) : (
                   <>
-                    <Upload className="h-10 w-10 text-muted-foreground/40 mb-3" />
-                    <p className="text-sm text-muted-foreground font-body">Click to upload a PPDT picture</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">JPG, PNG, WEBP — max 10MB</p>
+                    <Upload className="h-8 w-8 text-gold/40 mb-2" />
+                    <p className="text-xs text-muted-foreground font-body">Upload PPDT Image</p>
                   </>
                 )}
               </label>
 
-              {/* No secondary label needed here, removing the accidental closing tag */}
-
-              {practiceMode === 'SELF' && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Your Narration (Optional)</p>
                 <Textarea
-                  placeholder="Type your PPDT narration here to get it analyzed..."
+                  placeholder="Record your PPDT narration here to get it reviewed by AI..."
                   value={ppdtUserStory}
                   onChange={(e) => setPpdtUserStory(e.target.value)}
-                  className="min-h-[150px] bg-background/30 border-gold/20 italic"
+                  className="min-h-[120px] bg-background/30 border-border/20 text-sm focus:border-gold/30"
                 />
-              )}
+              </div>
 
               <button
                 onClick={analyzePpdt}
-                disabled={ppdtLoading || !ppdtImage || (practiceMode === 'SELF' && !ppdtUserStory.trim())}
-                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={ppdtLoading || !ppdtImage}
+                className="glass-button-gold w-full h-12 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
               >
-                {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {practiceMode === 'SELF' ? 'Analyze My Narration' : 'Generate Model Narration'}
+                {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'GENERATE ANALYSIS'}
               </button>
             </div>
           </div>
