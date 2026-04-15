@@ -443,6 +443,8 @@ export default function AIPracticePage() {
 
   const [watUserSentence, setWatUserSentence] = useState('');
   const [srtUserResponse, setSrtUserResponse] = useState('');
+  const [tatUserStory, setTatUserStory] = useState('');
+  const [ppdtUserStory, setPpdtUserStory] = useState('');
   const [practiceMode, setPracticeMode] = useState<'MODEL' | 'SELF'>('MODEL');
 
   const [showOlqTags, setShowOlqTags] = useState(true);
@@ -479,10 +481,17 @@ export default function AIPracticePage() {
     setTatLoading(true);
     setTatData({ result: '' });
     try {
-      const result = await callGemini(
-        SYSTEM_PROMPT_TAT + '\n\nAnalyze this TAT image and generate stories as instructed.',
-        tatImage
-      );
+      let prompt = '';
+      if (practiceMode === 'SELF' && tatUserStory.trim()) {
+        prompt = `You are an SSB psychologist.
+Examine this TAT picture and the Candidate's Story below.
+Candidate's Story: "${tatUserStory}"
+Analyze if this story follows the recommended guidelines (Hero age 18-26, proactive action, Past/Present/Future structure, positive outcomes, OLQs).
+Provide an improved SSB-style story.`;
+      } else {
+        prompt = SYSTEM_PROMPT_TAT + '\n\nAnalyze this TAT image and generate stories as instructed.';
+      }
+      const result = await callGemini(prompt, tatImage);
       setTatData({ result: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
@@ -570,10 +579,17 @@ Provide an improved short-form action sequence.`;
     setPpdtLoading(true);
     setPpdtData({ result: '' });
     try {
-      const result = await callGemini(
-        SYSTEM_PROMPT_PPDT + '\n\nAnalyze this PPDT image. Identify all characters (Age, Sex, Mood), generate a complete PPDT story with narration script, and provide GD tips.',
-        ppdtImage
-      );
+      let prompt = '';
+      if (practiceMode === 'SELF' && ppdtUserStory.trim()) {
+        prompt = `You are an SSB psychologist.
+Examine this PPDT picture and the Candidate's Narration below.
+Candidate's Narration: "${ppdtUserStory}"
+Analyze the narration quality (Clarity, confidence, theme selection, group goal focus).
+Provide a model narration script.`;
+      } else {
+        prompt = SYSTEM_PROMPT_PPDT + '\n\nAnalyze this PPDT image. Identify all characters (Age, Sex, Mood), generate a complete PPDT story with narration script, and provide GD tips.';
+      }
+      const result = await callGemini(prompt, ppdtImage);
       setPpdtData({ result: result });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
@@ -677,13 +693,22 @@ Provide an improved short-form action sequence.`;
                 )}
               </label>
 
+              {practiceMode === 'SELF' && (
+                <Textarea
+                  placeholder="Type your TAT story here to get it analyzed..."
+                  value={tatUserStory}
+                  onChange={(e) => setTatUserStory(e.target.value)}
+                  className="min-h-[150px] bg-background/30 border-gold/20 italic"
+                />
+              )}
+
               <button
                 onClick={analyzeTat}
-                disabled={tatLoading || !tatImage}
+                disabled={tatLoading || !tatImage || (practiceMode === 'SELF' && !tatUserStory.trim())}
                 className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {tatLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {tatLoading ? 'Analyzing Image & Generating Stories...' : 'Generate TAT Stories'}
+                {practiceMode === 'SELF' ? 'Analyze My Story' : 'Generate Model STORIES'}
               </button>
             </div>
           </div>
@@ -795,23 +820,25 @@ Provide an improved short-form action sequence.`;
                 )}
               </label>
 
-              {ppdtResult && !ppdtLoading ? (
-                <div className="glass-card-subtle border-gold/20 text-center py-4 flex flex-col items-center gap-3">
-                  <p className="font-heading text-xs text-gold">✓ Analysis Already Done</p>
-                    <button onClick={handleClearPpdt} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                       Delete & Reset PPDT
-                    </button>
-                </div>
-              ) : (
-                <button
-                  onClick={analyzePpdt}
-                  disabled={ppdtLoading || !ppdtImage}
-                  className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {ppdtLoading ? 'Generating PPDT Story & Narration...' : 'Generate PPDT Story'}
-                </button>
+              {/* No secondary label needed here, removing the accidental closing tag */}
+
+              {practiceMode === 'SELF' && (
+                <Textarea
+                  placeholder="Type your PPDT narration here to get it analyzed..."
+                  value={ppdtUserStory}
+                  onChange={(e) => setPpdtUserStory(e.target.value)}
+                  className="min-h-[150px] bg-background/30 border-gold/20 italic"
+                />
               )}
+
+              <button
+                onClick={analyzePpdt}
+                disabled={ppdtLoading || !ppdtImage || (practiceMode === 'SELF' && !ppdtUserStory.trim())}
+                className="glass-button-gold w-full flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {practiceMode === 'SELF' ? 'Analyze My Narration' : 'Generate Model Narration'}
+              </button>
             </div>
           </div>
 
