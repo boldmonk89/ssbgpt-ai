@@ -1,6 +1,36 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Derive a per-user storage key so different users on same browser never share data
+function getUserStorageKey(): string {
+  try {
+    // Supabase stores the session synchronously in localStorage
+    const raw = localStorage.getItem('sb-' + new URL(import.meta.env.VITE_SUPABASE_URL ?? 'https://placeholder.supabase.co').hostname.split('.')[0] + '-auth-token');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const userId = parsed?.user?.id || parsed?.user?.phone || parsed?.user?.email;
+      if (userId) return `ssb-psych-${userId}`;
+    }
+  } catch { /* fallback */ }
+  // Fallback: check supabase session synchronously stored data
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.includes('-auth-token')) {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const userId = parsed?.user?.id || parsed?.user?.phone || parsed?.user?.email;
+          if (userId) return `ssb-psych-${userId}`;
+        }
+      }
+    }
+  } catch { /* fallback */ }
+  return 'ssb-psych-analyzer';
+}
+
+const STORE_KEY = getUserStorageKey();
+
 export interface OlqScores {
   effectiveIntelligence: number;
   reasoningAbility: number;
@@ -103,14 +133,14 @@ interface AppState {
   setSdParagraphs: (paragraphs: SdParagraph[]) => void;
   updateSdParagraph: (index: number, para: Partial<SdParagraph>) => void;
 
-  tatSummary: string;
-  setTatSummary: (s: string) => void;
-  watSummary: string;
-  setWatSummary: (s: string) => void;
-  srtSummary: string;
-  setSrtSummary: (s: string) => void;
-  sdSummary: string;
-  setSdSummary: (s: string) => void;
+  tatSummary: string | null;
+  setTatSummary: (s: string | null) => void;
+  watSummary: string | null;
+  setWatSummary: (s: string | null) => void;
+  srtSummary: string | null;
+  setSrtSummary: (s: string | null) => void;
+  sdSummary: string | null;
+  setSdSummary: (s: string | null) => void;
   tatFile: string | null;
   setTatFile: (file: string | null) => void;
   watFile: string | null;
@@ -148,13 +178,13 @@ const initialState = {
   watResponses: [] as WatResponse[],
   srtResponses: [] as SrtResponse[],
   sdParagraphs: SD_TYPES.map(t => ({ type: t, content: '', analysis: '' })),
-  tatSummary: '',
+  tatSummary: null,
   tatFile: null,
-  watSummary: '',
+  watSummary: null,
   watFile: null,
-  srtSummary: '',
+  srtSummary: null,
   srtFile: null,
-  sdSummary: '',
+  sdSummary: null,
   sdFile: null,
   fullReport: '',
 };
@@ -192,8 +222,8 @@ export const useAppStore = create<AppState>()(
         set(() => ({ ...initialState }));
       },
     }),
-    { 
-      name: 'ssb-psych-analyzer',
+    {
+      name: STORE_KEY,
       storage: {
         getItem: (name) => {
           const str = sessionStorage.getItem(name);
@@ -203,7 +233,7 @@ export const useAppStore = create<AppState>()(
           try {
             sessionStorage.setItem(name, JSON.stringify(value));
           } catch (e) {
-            console.error("Storage quota exceeded", e);
+            console.error('Storage quota exceeded', e);
           }
         },
         removeItem: (name) => sessionStorage.removeItem(name),

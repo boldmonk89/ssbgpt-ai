@@ -207,29 +207,42 @@ Keep each story analysis concise and actionable.`;
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
   const formattedResponses = responses.map((r, i) => `${i + 1}. Word: "${r.word}" -> Sentence: "${r.sentence}"`).join('\n');
 
-  return `You are an SSB psychologist performing a concise WAT (Word Association Test) review.
+  return `You are an SSB psychologist performing a WAT (Word Association Test) review.
 
 ### CANDIDATE DATA FOR ANALYSIS:
 ${formattedResponses}
 
-### EVALUATION INSTRUCTIONS:
-1. **Key Traits**: Flag any aggression, deviant behavior, or coached cliches. 2. **Improved Model Sentences**: Rapid-fire better versions (8-10 words max each).
-3. **OLQ Rating**: Map shown qualities.
-4. **Final Score**: X/10.
+### PRIMARY EVALUATION RULE — WORD-SENTENCE CORRELATION (MOST IMPORTANT):
+For EACH entry, you MUST first check: "Does this sentence meaningfully and directly associate with the given stimulus WORD?"
+- The sentence must be a natural, logical association with that specific word.
+- A sentence that is positive but UNRELATED to the word is WRONG (e.g., Word: "DARK" -> Sentence: "Leaders inspire others" is WRONG — it has zero connection to "DARK").
+- The improved sentence you generate MUST be directly built around the given word's meaning, context, or concept.
 
-### STYLE & CALIBRATION (CRITICAL):
-- NO ADVICE/ORDERS: Never use "One should...", "Do...", or "Focus on...". sentences must be observational or action-based.
-- NO PREACHING/PHILOSOPHY: Avoid generic generic life lessons (e.g., "Compassion overcomes prejudices").
+### EVALUATION INSTRUCTIONS (per word):
+1. Association Check: Does the candidate's sentence logically connect to the given word? Mark as STRONG / WEAK / DISCONNECTED.
+2. Improved Model Sentence: Generate a better sentence (8-10 words max) that:
+   - Is DIRECTLY tied to the word's meaning or theme
+   - Is observational or action-based (NOT advice/orders/philosophy)
+   - Reflects positive OLQ traits
+3. OLQ Signal: Which OLQ does this word-sentence pair reveal?
+
+### BATCH SUMMARY (after all words):
+- Key Traits observed overall
+- OLQ Rating: Map strongest and weakest qualities shown
+- Final Score: X/10
+- Top 2 patterns to fix
+
+### STYLE RULES (CRITICAL):
+- NO ADVICE/ORDERS: Never use "One should...", "Do...", or "Focus on...".
+- NO PREACHING/PHILOSOPHY: Avoid generic life lessons.
 - EXAMPLES:
-  * WORD: BASTARD
-  * BAD: "Focus on growth, not labels." (ORDER)
-  * BAD: "Circumstances do not define worth." (PHILOSOPHY)
-  * GOOD: "Legality defines social status." (OBSERVATIONAL)
-  * GOOD: "Hard work establishes one's identity." (ACTION/TRAIT)
+  * WORD: BASTARD -> GOOD: "Legality defines social status." (connected to word, observational)
+  * WORD: DARK -> GOOD: "Darkness tests a soldier's resolve." (connected to word, action-based)
+  * WORD: DARK -> BAD: "Leaders inspire their teams always." (DISCONNECTED from word)
 
-CRITICAL: 
-- Analyze ONLY the candidate data provided above. 
-- The AI must be extremely concise — similar to a high-level summary. Use bullet points. 
+CRITICAL:
+- Analyze ONLY the candidate data provided above.
+- Be concise. Use bullet points.
 - NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
 }
 
@@ -246,7 +259,13 @@ Provide a summary table and batch analysis with OLQ coverage map, top improvemen
 
 export function buildSrtPrompt(responses: { situationNumber: number; situation: string; response: string }[]): string {
   return `You are an expert SSB psychologist evaluating SRT (Situation Reaction Test) responses.
-  
+
+### PRIMARY EVALUATION RULE — SITUATION-RESPONSE CORRELATION (MOST IMPORTANT):
+For EACH entry, you MUST first check: "Does this response DIRECTLY address the specific situation described?"
+- The response must be a logical, realistic reaction to THAT particular situation.
+- A generic brave/positive response that ignores the specific context of the situation is WRONG.
+- Your improved response must be tailored to the exact situation given, not a generic template.
+
 CRITICAL CALIBRATION — USE THESE RECOMMENDED CANDIDATE REACTIONS AS YOUR KNOWLEDGE BASE:
 1. Sister’s marriage, relative refused loan -> Raises money through bank, performs marriage, helps parents, returns loan through EMIs.
 2. Sister’s marriage, no leave due to inspection -> Inquires welfare telephonically, assist by raising funds, sends money online, requests relatives to ensure ceremony. Visits later.
@@ -317,14 +336,21 @@ RULES:
 ### CANDIDATE DATA FOR ANALYSIS:
 ${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse: "${r.response}"`).join('\n\n')}
 
-### EVALUATION INSTRUCTIONS (Concise Review):
-1. **Assessment**: Brief realism check. NEVER MENTION ITEM NUMBERS FROM THE REFERENCE LIST (e.g., Do NOT say "Similar to 17").
-2. **Improved Logic**: Provide a 5-6 word max action response (e.g., "Alerted police, caught thief, proceeded"). Use phrases, NOT full sentences.
-3. **OLQ Signals**: Map qualities.
-4. **Final Score**: X/10.
+### EVALUATION INSTRUCTIONS (per situation):
+1. Situation-Response Fit: Does the candidate's response directly and logically address THIS specific situation? Mark as APPROPRIATE / PARTIAL / IRRELEVANT.
+2. Improved Response: A 5-7 word action phrase SPECIFIC to the situation (e.g., for a fire situation: "Raised alarm, evacuated people, called brigade" NOT a generic "Acted bravely, helped others").
+3. OLQ Signal: Which OLQ does this response reveal?
+
+### BATCH SUMMARY (after all situations):
+- Overall Assessment: Realism and decision-making quality
+- OLQ Signals: Map strongest and weakest qualities overall
+- Final Score: X/10
+- Top 2 patterns to fix
 
 CRITICAL:
 - Analyze ONLY the Candidate Data provided above. DO NOT evaluate or mention the reference cases.
+- NEVER MENTION ITEM NUMBERS FROM THE REFERENCE LIST (e.g., Do NOT say "Similar to 17").
+- Each improved response MUST be specific to its situation — no recycled generic phrases.
 - Provide a summary that is highly READABLE and CONCISE.
 - NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
 }
@@ -388,10 +414,10 @@ Then overall SD summary with consistency patterns and top improvements. Keep con
 
 export function buildFullReportPrompt(
   piqContext: Record<string, unknown> | null,
-  tatSummary: string,
-  watSummary: string,
-  srtSummary: string,
-  sdSummary: string
+  tatSummary: string | null,
+  watSummary: string | null,
+  srtSummary: string | null,
+  sdSummary: string | null
 ): string {
   return `You are a board-level SSB psychologist generating the MOST CRITICAL assessment — matching a candidate's PIQ (Personal Information Questionnaire) profile against their actual psychological test performance.
   
@@ -467,10 +493,10 @@ Keep analysis structured and actionable. Focus on what matters for selection.`;
 
 export function buildPiqPsychMatchPrompt(
   piqContext: Record<string, unknown> | null,
-  tatSummary: string,
-  watSummary: string,
-  srtSummary: string,
-  sdSummary: string
+  tatSummary: string | null,
+  watSummary: string | null,
+  srtSummary: string | null,
+  sdSummary: string | null
 ): string {
   return `You are a board-level SSB psychologist performing the MOST CRITICAL assessment — matching a candidate's PIQ (Personal Information Questionnaire) profile against their actual psychological test performance.
 
