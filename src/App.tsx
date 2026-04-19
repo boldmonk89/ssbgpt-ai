@@ -20,7 +20,11 @@ const HistoryPage     = lazy(() => import("./pages/History"));
 const InterviewPage   = lazy(() => import("./pages/Interview"));
 const FullAnalysisPage = lazy(() => import("./pages/FullAnalysis"));
 const PracticeLabPage = lazy(() => import("./pages/PracticeLab"));
+const LoginPage       = lazy(() => import("./pages/Login"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
+
+import { useAuthStore } from "@/store/authStore";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +80,20 @@ class GlobalErrorBoundary extends React.Component<{ children: React.ReactNode },
 import { ThemeProvider } from "next-themes";
 
 const App = () => {
+  const { initialize, user, loading } = useAuthStore();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <PageLoader />
+      </div>
+    );
+  }
+
   return (
     <GlobalErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
@@ -84,29 +102,39 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="*" element={
-                  <AppLayout>
+                <Route path="/login" element={
                   <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route path="/"              element={<DashboardPage />} />
-                      <Route path="/piq"           element={<PIQPage />} />
-                      <Route path="/tat"           element={<TATPage />} />
-                      <Route path="/wat"           element={<WATPage />} />
-                      <Route path="/srt"           element={<SRTPage />} />
-                      <Route path="/sd"            element={<SDPage />} />
-                      <Route path="/ai-practice"   element={<AIPracticePage />} />
-                      <Route path="/gto"           element={<GTOPage />} />
-                      <Route path="/selection-boards" element={<SelectionBoardsPage />} />
-                      <Route path="/history"       element={<HistoryPage />} />
-                      <Route path="/interview"     element={<InterviewPage />} />
-                      <Route path="/full-analysis" element={<FullAnalysisPage />} />
-                      <Route path="/practice-lab"  element={<PracticeLabPage />} />
-                      <Route path="*"              element={<NotFound />} />
-                    </Routes>
+                    <LoginPage />
                   </Suspense>
-                </AppLayout>
-              } />
-            </Routes>
+                } />
+                
+                <Route path="*" element={
+                  user ? (
+                    <AppLayout>
+                      <Suspense fallback={<PageLoader />}>
+                        <Routes>
+                          <Route path="/"              element={<DashboardPage />} />
+                          <Route path="/piq"           element={<PIQPage />} />
+                          <Route path="/tat"           element={<TATPage />} />
+                          <Route path="/wat"           element={<WATPage />} />
+                          <Route path="/srt"           element={<SRTPage />} />
+                          <Route path="/sd"            element={<SDPage />} />
+                          <Route path="/ai-practice"   element={<AIPracticePage />} />
+                          <Route path="/gto"           element={<GTOPage />} />
+                          <Route path="/selection-boards" element={<SelectionBoardsPage />} />
+                          <Route path="/history"       element={<HistoryPage />} />
+                          <Route path="/interview"     element={<InterviewPage />} />
+                          <Route path="/full-analysis" element={<FullAnalysisPage />} />
+                          <Route path="/practice-lab"  element={<PracticeLabPage />} />
+                          <Route path="*"              element={<NotFound />} />
+                        </Routes>
+                      </Suspense>
+                    </AppLayout>
+                  ) : (
+                    <LoginPage />
+                  )
+                } />
+              </Routes>
             </BrowserRouter>
           </TooltipProvider>
         </QueryClientProvider>
