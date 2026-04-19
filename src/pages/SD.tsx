@@ -8,6 +8,8 @@ import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
 import { FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 const SD_LABELS = ['Parents', 'Teachers', 'Friends', 'Self', 'Develop'];
 
@@ -17,6 +19,8 @@ export default function SDPage() {
   const [loading, setLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const { saveToHistory } = useHistorySave();
+  const { credits, deductCredits } = useAuthStore();
+  const navigate = useNavigate();
 
   const para = sdParagraphs[activeTab];
 
@@ -34,12 +38,23 @@ export default function SDPage() {
     }
     const v = validateParagraph(para.content);
     if (!v.valid) { toast.error(v.message!); return; }
+
+    if (credits < 10) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setLoading(true);
     try {
       const result = await callGemini(buildSdPrompt(para.type, para.content));
+      
+      const success = await deductCredits(10);
+      if (!success) throw new Error('Credit deduction failed');
+
       updateSdParagraph(activeTab, { analysis: result.replace(/\*/g, '') });
       saveToHistory('SD', { type: para.type, content: para.content }, result);
-      toast.success('SD paragraph analyzed');
+      toast.success('SD paragraph analyzed (-10 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -48,13 +63,23 @@ export default function SDPage() {
   };
 
   const handlePdfUpload = async (file: File) => {
+    if (credits < 10) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setPdfLoading(true);
     try {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildSdFromPdfPrompt(), [{ base64, mimeType: 'application/pdf' }]);
+      
+      const success = await deductCredits(10);
+      if (!success) throw new Error('Credit deduction failed');
+
       setSdSummary(result);
       saveToHistory('SD-PDF', { fileName: file.name }, result);
-      toast.success('Full SD PDF analyzed');
+      toast.success('Full SD PDF analyzed (-10 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'PDF analysis failed');
     } finally {

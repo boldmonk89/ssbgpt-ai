@@ -4,12 +4,16 @@ import { callGemini, buildPiqPrompt, fileToBase64, buildVerifyDocumentPrompt, ca
 import { LoadingCard } from '@/components/LoadingCard';
 import { Upload, User, CheckCircle, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function PIQPage() {
   const { piqContext, setPiqContext, piqImageUrl, setPiqImageUrl } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [fileData, setFileData] = useState<string | null>(piqImageUrl);
   const [fileType, setFileType] = useState<'image' | 'pdf'>('image');
+  const { credits, deductCredits } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleFileUpload = useCallback(async (file: File) => {
     setLoading(true);
@@ -49,16 +53,27 @@ export default function PIQPage() {
 
   const analyze = async () => {
     if (!fileData) { toast.error('Please upload your PIQ first.'); return; }
+    
+    if (credits < 10) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setLoading(true);
     try {
       const result = await callGemini(buildPiqPrompt(), fileData);
+      
+      const success = await deductCredits(10);
+      if (!success) throw new Error('Credit deduction failed');
+
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         setPiqContext(JSON.parse(jsonMatch[0]));
       } else {
         setPiqContext({ rawAnalysis: result });
       }
-      toast.success('PIQ analysis complete');
+      toast.success('PIQ analysis complete (-10 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed.');
     } finally {

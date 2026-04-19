@@ -7,6 +7,8 @@ import { callGemini, fileToBase64 } from '@/lib/gemini';
 import { Loader2, Upload, ImageIcon, Pencil, Zap, Eye, EyeOff, Users, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -451,6 +453,9 @@ export default function AIPracticePage() {
   const [watLoading, setWatLoading] = useState(false);
   const [srtLoading, setSrtLoading] = useState(false);
   const [ppdtLoading, setPpdtLoading] = useState(false);
+  
+  const { credits, deductCredits } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleClearTat = () => { setTatData({ result: '', image: null, name: '' }); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
   const handleClearWat = () => { setWatData({ result: '', word: '' }); setWatUserSentence(''); };
@@ -477,6 +482,13 @@ export default function AIPracticePage() {
       toast.error('Please upload a TAT image first');
       return;
     }
+    
+    if (credits < 25) {
+      toast.error('Insufficient Credits (25 required). Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setTatLoading(true);
     setTatData({ result: '' });
     try {
@@ -490,7 +502,12 @@ Provide an improved SSB-style story.`;
         prompt = SYSTEM_PROMPT_TAT + '\n\nAnalyze this TAT image and generate stories as instructed.';
       }
       const result = await callGemini(prompt, tatImage);
+      
+      const success = await deductCredits(25);
+      if (!success) throw new Error('Credit deduction failed');
+
       setTatData({ result: result });
+      toast.success('TAT Analysis complete (-25 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -504,6 +521,13 @@ Provide an improved SSB-style story.`;
       toast.error('Please enter a word');
       return;
     }
+
+    if (credits < 25) {
+      toast.error('Insufficient Credits (25 required). Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setWatLoading(true);
     setWatData({ result: '' });
     try {
@@ -518,7 +542,12 @@ Then provide a model improved version.`;
         prompt = SYSTEM_PROMPT_WAT + `\n\nThe word is: "${trimmed}"\n\nGenerate WAT responses as instructed.`;
       }
       const result = await callGemini(prompt);
+      
+      const success = await deductCredits(25);
+      if (!success) throw new Error('Credit deduction failed');
+
       setWatData({ result: result.replace(/\*/g, '') });
+      toast.success('WAT Analysis complete (-25 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -532,6 +561,13 @@ Then provide a model improved version.`;
       toast.error('Please enter a situation');
       return;
     }
+
+    if (credits < 25) {
+      toast.error('Insufficient Credits (25 required). Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setSrtLoading(true);
     setSrtData({ result: '' });
     try {
@@ -546,7 +582,12 @@ Provide an improved short-form action sequence.`;
         prompt = SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`;
       }
       const result = await callGemini(prompt);
+
+      const success = await deductCredits(25);
+      if (!success) throw new Error('Credit deduction failed');
+
       setSrtData({ result: result.replace(/\*/g, '') });
+      toast.success('SRT Analysis complete (-25 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -574,6 +615,13 @@ Provide an improved short-form action sequence.`;
       toast.error('Please upload a PPDT image first');
       return;
     }
+
+    if (credits < 25) {
+      toast.error('Insufficient Credits (25 required). Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setPpdtLoading(true);
     setPpdtData({ result: '' });
     try {
@@ -587,7 +635,12 @@ Provide a model narration script.`;
         prompt = SYSTEM_PROMPT_PPDT + '\n\nAnalyze this PPDT image. Identify all characters (Age, Sex, Mood), generate a complete PPDT story with narration script, and provide GD tips.';
       }
       const result = await callGemini(prompt, ppdtImage);
+
+      const success = await deductCredits(25);
+      if (!success) throw new Error('Credit deduction failed');
+
       setPpdtData({ result: result });
+      toast.success('PPDT Analysis complete (-25 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {

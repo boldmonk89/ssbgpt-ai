@@ -3,6 +3,8 @@ import { MessageSquare, Users, ShieldAlert, BadgeInfo, MessageCircle, Send, Load
 import { callGemini } from '@/lib/gemini';
 import { toast } from 'sonner';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
+import { useAuthStore } from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 const CONFERENCE_SYSTEM_PROMPT = `You are an SSB Board President/Daughter of the President (expert assessor). 
 The user will tell you what questions were asked to them during their SSB Conference.
@@ -24,10 +26,18 @@ const ConferencePage = () => {
   const [questions, setQuestions] = useState('');
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState('');
+  const { credits, deductCredits } = useAuthStore();
+  const navigate = useNavigate();
 
   const analyzeConference = async () => {
     if (!questions.trim()) {
       toast.error('Please enter the questions you were asked');
+      return;
+    }
+
+    if (credits < 10) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
       return;
     }
 
@@ -39,8 +49,12 @@ const ConferencePage = () => {
         null,
         CONFERENCE_SYSTEM_PROMPT
       );
+      
+      const success = await deductCredits(10);
+      if (!success) throw new Error('Credit deduction failed');
+
       setAnalysis(response);
-      toast.success('Conference Assessment Complete');
+      toast.success('Conference Assessment Complete (-10 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {

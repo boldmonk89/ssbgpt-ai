@@ -7,6 +7,8 @@ import { callGemini, callGeminiMultiPart, fileToBase64, getFileMimeType } from '
 import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText, Box, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -346,6 +348,9 @@ export default function GTOPage() {
   const [lecLoading, setLecLoading] = useState(false);
   const [lecUserLoading, setLecUserLoading] = useState(false);
   
+  const { credits, deductCredits } = useAuthStore();
+  const navigate = useNavigate();
+  
   // States that depend on local file objects or blobs
   const [gpeImage, setGpeImage] = useState<string | null>(null);
   const [gpeImageName, setGpeImageName] = useState('');
@@ -377,13 +382,25 @@ export default function GTOPage() {
   const analyzeGd = async () => {
     const trimmed = gdTopic.trim();
     if (!trimmed) { toast.error('Please enter a GD topic'); return; }
+    
+    if (credits < 5) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setGdLoading(true);
     setGdData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_GD + `\n\nThe GD topic is: "${trimmed}"\n\nGenerate current talking points as instructed.`
       );
+
+      const success = await deductCredits(5);
+      if (!success) throw new Error('Credit deduction failed');
+
       setGdData({ result: result });
+      toast.success('GD Points generated (-5 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate GD points');
     } finally {
@@ -405,6 +422,13 @@ export default function GTOPage() {
   const analyzeGpe = async () => {
     if (!gpeImage) { toast.error('Please upload a GPE map image'); return; }
     if (!gpeParagraph.trim()) { toast.error('Please enter the problem paragraph'); return; }
+    
+    if (credits < 5) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setGpeLoading(true);
     setGpeData({ result: '' });
     try {
@@ -412,7 +436,12 @@ export default function GTOPage() {
         SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nAnalyze the map image and provide a complete GPE solution.`,
         gpeImage
       );
+
+      const success = await deductCredits(5);
+      if (!success) throw new Error('Credit deduction failed');
+
       setGpeData({ result: result });
+      toast.success('GPE Solution generated (-5 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate GPE solution');
     } finally {
@@ -434,6 +463,13 @@ export default function GTOPage() {
 
   const analyzeGpePdf = async () => {
     if (!gpePdfFile) { toast.error('Please upload your GPE solution PDF'); return; }
+    
+    if (credits < 5) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setGpeUserLoading(true);
     setGpeData({ userAnalysis: '' });
     try {
@@ -442,7 +478,12 @@ export default function GTOPage() {
         SYSTEM_PROMPT_GPE + `\n\nThe candidate has uploaded their GPE solution as a PDF/image. Analyze their solution:\n- What they did well\n- What they missed\n- Specific improvements with suggestions\n- Prioritization accuracy\n- Resource utilization\n- Time management\n- OLQs demonstrated\n- Score out of 10\n\n${gpeParagraph ? `The original GPE problem was: "${gpeParagraph.trim()}"` : ''}`,
         [{ base64: gpePdfFile, mimeType }]
       );
+
+      const success = await deductCredits(5);
+      if (!success) throw new Error('Credit deduction failed');
+
       setGpeData({ userAnalysis: result });
+      toast.success('GPE solution analyzed (-5 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to analyze your GPE solution');
     } finally {
@@ -504,6 +545,13 @@ export default function GTOPage() {
 
   const analyzeRecordedLecturette = async () => {
     if (!videoBlob) { toast.error('No recording found'); return; }
+    
+    if (credits < 5) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setVideoAnalyzing(true);
     setVideoAnalysis('');
     try {
@@ -519,7 +567,12 @@ export default function GTOPage() {
         SYSTEM_PROMPT_LECTURETTE + `\n\nThe candidate has recorded a ${Math.round(recordingTime / 60)}:${String(recordingTime % 60).padStart(2, '0')} minute audio lecturette on the topic: "${lecTopic.trim() || 'Unknown topic'}"\n\nTranscribe the audio and then analyze:\n- Structure (Opening quote + Jay Hind / Body parts / Personal opinion / Closing)\n- Time management (was it close to 3 minutes?)\n- Content quality and current facts used\n- Fluency, filler words, pauses\n- What to rephrase and what NOT to say\n- How to better structure the lecturette\n- Score out of 10\n- Provide specific improvements`,
         [{ base64, mimeType: 'audio/webm' }]
       );
+
+      const success = await deductCredits(5);
+      if (!success) throw new Error('Credit deduction failed');
+
       setVideoAnalysis(result);
+      toast.success('Audio analysis complete (-5 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to analyze your lecturette');
     } finally {
@@ -531,13 +584,25 @@ export default function GTOPage() {
   const analyzeLec = async () => {
     const trimmed = lecTopic.trim();
     if (!trimmed) { toast.error('Please enter a lecturette topic'); return; }
+    
+    if (credits < 5) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setLecLoading(true);
     setLecData({ result: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_LECTURETTE + `\n\nThe lecturette topic is: "${trimmed}"\n\nGenerate a complete 3-minute model lecturette as instructed.`
       );
+
+      const success = await deductCredits(5);
+      if (!success) throw new Error('Credit deduction failed');
+
       setLecData({ result: result });
+      toast.success('Lecturette generated (-5 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate lecturette');
     } finally {
@@ -547,13 +612,25 @@ export default function GTOPage() {
 
   const analyzeLecUser = async () => {
     if (!lecUserText.trim()) { toast.error('Please enter your lecturette'); return; }
+    
+    if (credits < 5) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setLecUserLoading(true);
     setLecData({ userAnalysis: '' });
     try {
       const result = await callGemini(
         SYSTEM_PROMPT_LECTURETTE + `\n\nThe topic is: "${lecTopic.trim()}"\n\nThe candidate's own lecturette is:\n"${lecUserText.trim()}"\n\nAnalyze their lecturette — structure, current facts, word count, flow, clarity, improvements needed, and score out of 10.`
       );
+
+      const success = await deductCredits(5);
+      if (!success) throw new Error('Credit deduction failed');
+
       setLecData({ userAnalysis: result });
+      toast.success('Lecturette analyzed (-5 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to analyze lecturette');
     } finally {

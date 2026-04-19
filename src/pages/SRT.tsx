@@ -7,14 +7,18 @@ import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
 import { Trash2, ImageIcon, FileText, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function SRTPage() {
   const { srtResponses, setSrtResponses, srtSummary, setSrtSummary } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
-  const [genCount, setGenCount] = useState(0);
+  const { genCount, setGenCount } = useState(0);
   const { saveToHistory } = useHistorySave();
+  const { credits, deductCredits } = useAuthStore();
+  const navigate = useNavigate();
 
   const rows = srtResponses.length > 0 ? srtResponses : [{ situationNumber: 1, situation: '', response: '' }];
 
@@ -67,13 +71,23 @@ export default function SRTPage() {
   };
 
   const handlePdfUpload = async (file: File) => {
+    if (credits < 10) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     setPdfLoading(true);
     try {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildSrtPdfPrompt(), [{ base64, mimeType: file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg' }]);
+      
+      const success = await deductCredits(10);
+      if (!success) throw new Error('Credit deduction failed');
+
       setSrtSummary(result);
       saveToHistory('SRT-PDF', { fileName: file.name }, result);
-      toast.success('Full SRT analyzed');
+      toast.success('Full SRT analyzed (-10 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -85,6 +99,13 @@ export default function SRTPage() {
 
   const analyzeAll = async () => {
     if (filledRows.length === 0) { toast.error('Type some SRT responses first.'); return; }
+    
+    if (credits < 10) {
+      toast.error('Insufficient Credits. Please top up.');
+      navigate('/credits');
+      return;
+    }
+
     const allResponses = filledRows.map(r => r.response).join(' ');
     const gibberishMsg = detectGibberish(allResponses);
     if (gibberishMsg) {
@@ -92,12 +113,16 @@ export default function SRTPage() {
       return;
     }
     setLoading(true);
-    setGenCount(prev => prev + 1);
     try {
       const result = await callGemini(buildSrtPrompt(filledRows));
+      
+      const success = await deductCredits(10);
+      if (!success) throw new Error('Credit deduction failed');
+
       setSrtSummary(result.replace(/\*/g, ''));
       saveToHistory('SRT', { responses: filledRows }, result);
-      toast.success('SRT analysis complete');
+      setGenCount(prev => prev + 1);
+      toast.success('SRT analysis complete (-10 Credits)');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
