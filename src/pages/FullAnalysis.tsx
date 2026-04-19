@@ -9,8 +9,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tool
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
 import { buildFullReportPrompt, callGemini, callGeminiMultiPart, fileToBase64, buildVerifyDocumentPrompt } from '@/lib/gemini';
 import { ChevronLeft, BrainCircuit, Maximize2 } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
+import { useNavigate } from 'react-router-dom';
 
 // We'll shuffle these pools to pick the test sets
 const shuffle = <T,>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.5);
@@ -678,9 +677,7 @@ const mockOlqData = [
 function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: Record<string, unknown>, piq: string | null, tat: string | null, wat: string | null, srt: string | null, sd: string | null }) {
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const handleGenerate = async () => {
     if (!piq) {
@@ -688,11 +685,6 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: Record<st
       return;
     }
     
-    if (credits < 50) {
-      toast.error('Insufficient Credits (50 required). Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setLoading(true);
     try {
@@ -712,13 +704,10 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: Record<st
         ...(sd ? [{ base64: sd, mimeType: 'application/pdf' }] : []),
       ];
 
-      const res = await callGeminiMultiPart(prompt + "\n\nIMPORTANT: Use the provided actual response sheets for analysis. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. The report MUST be CONCISE, structured with bullet points, and highly readable. DO NOT use markdown bolding (**) in your response. Output plain text report.", files);
+      const result = await callGeminiMultiPart(prompt + "\n\nIMPORTANT: Use the provided actual response sheets for analysis. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. The report MUST be CONCISE, structured with bullet points, and highly readable. DO NOT use markdown bolding (**) in your response. Output plain text report.", files);
       
-      const success = await deductCredits(50);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setAnalysisResult(res.replace(/\*/g, ''));
-      toast.success('Psychological Dossier Finalized (-50 Credits)');
+      setAnalysisResult(result);
+      toast.success('Psych Profile Analysis Complete');
     } catch (e: unknown) {
       toast.error("Deep Matrix synthesis failed or Timeout");
       console.error(e);
@@ -939,10 +928,6 @@ function MilestoneOverlay({ title, meta, onUpload }: { title: string, meta: stri
           </div>
        </div>
 
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
     </div>
   );
 }

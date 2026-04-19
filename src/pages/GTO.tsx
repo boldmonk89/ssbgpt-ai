@@ -7,9 +7,7 @@ import { callGemini, callGeminiMultiPart, fileToBase64, getFileMimeType } from '
 import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText, Box, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -349,9 +347,7 @@ export default function GTOPage() {
   const [lecLoading, setLecLoading] = useState(false);
   const [lecUserLoading, setLecUserLoading] = useState(false);
   
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   
   // States that depend on local file objects or blobs
   const [gpeImage, setGpeImage] = useState<string | null>(null);
@@ -385,12 +381,6 @@ export default function GTOPage() {
     const trimmed = gdTopic.trim();
     if (!trimmed) { toast.error('Please enter a GD topic'); return; }
     
-    if (credits < 5) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setGdLoading(true);
     setGdData({ result: '' });
     try {
@@ -398,11 +388,8 @@ export default function GTOPage() {
         SYSTEM_PROMPT_GD + `\n\nThe GD topic is: "${trimmed}"\n\nGenerate current talking points as instructed.`
       );
 
-      const success = await deductCredits(5);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setGdData({ result: result });
-      toast.success('GD Points generated (-5 Credits)');
+      setGdData({ result: result.replace(/\*/g, ''), topic: trimmed });
+      toast.success('GD Topic Analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate GD points');
     } finally {
@@ -410,7 +397,6 @@ export default function GTOPage() {
     }
   };
 
-  // GPE handlers
   const handleGpeImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -425,12 +411,6 @@ export default function GTOPage() {
     if (!gpeImage) { toast.error('Please upload a GPE map image'); return; }
     if (!gpeParagraph.trim()) { toast.error('Please enter the problem paragraph'); return; }
     
-    if (credits < 5) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setGpeLoading(true);
     setGpeData({ result: '' });
     try {
@@ -439,11 +419,8 @@ export default function GTOPage() {
         gpeImage
       );
 
-      const success = await deductCredits(5);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setGpeData({ result: result });
-      toast.success('GPE Solution generated (-5 Credits)');
+      setGpeData({ result: result.replace(/\*/g, '') });
+      toast.success('GPE Solution generated');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate GPE solution');
     } finally {
@@ -451,7 +428,6 @@ export default function GTOPage() {
     }
   };
 
-  // GPE PDF upload handler
   const handleGpePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -466,12 +442,6 @@ export default function GTOPage() {
   const analyzeGpePdf = async () => {
     if (!gpePdfFile) { toast.error('Please upload your GPE solution PDF'); return; }
     
-    if (credits < 5) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setGpeUserLoading(true);
     setGpeData({ userAnalysis: '' });
     try {
@@ -481,11 +451,8 @@ export default function GTOPage() {
         [{ base64: gpePdfFile, mimeType }]
       );
 
-      const success = await deductCredits(5);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setGpeData({ userAnalysis: result });
-      toast.success('GPE solution analyzed (-5 Credits)');
+      setGpeData({ userAnalysis: result.replace(/\*/g, '') });
+      toast.success('GPE solution analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to analyze your GPE solution');
     } finally {
@@ -493,7 +460,6 @@ export default function GTOPage() {
     }
   };
 
-  // Video recording functions
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current?.state === 'recording') {
       mediaRecorderRef.current.stop();
@@ -533,7 +499,7 @@ export default function GTOPage() {
 
       timerRef.current = setInterval(() => {
         setRecordingTime(prev => {
-          if (prev >= 179) { // 3 minutes = 180 seconds
+          if (prev >= 179) {
             stopRecording();
             return 180;
           }
@@ -548,16 +514,9 @@ export default function GTOPage() {
   const analyzeRecordedLecturette = async () => {
     if (!videoBlob) { toast.error('No recording found'); return; }
     
-    if (credits < 5) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setVideoAnalyzing(true);
     setVideoAnalysis('');
     try {
-      // Convert blob to base64
       const reader = new FileReader();
       const base64Promise = new Promise<string>((resolve) => {
         reader.onload = () => resolve(reader.result as string);
@@ -566,15 +525,12 @@ export default function GTOPage() {
       const base64 = await base64Promise;
 
       const result = await callGeminiMultiPart(
-        SYSTEM_PROMPT_LECTURETTE + `\n\nThe candidate has recorded a ${Math.round(recordingTime / 60)}:${String(recordingTime % 60).padStart(2, '0')} minute audio lecturette on the topic: "${lecTopic.trim() || 'Unknown topic'}"\n\nTranscribe the audio and then analyze:\n- Structure (Opening quote + Jay Hind / Body parts / Personal opinion / Closing)\n- Time management (was it close to 3 minutes?)\n- Content quality and current facts used\n- Fluency, filler words, pauses\n- What to rephrase and what NOT to say\n- How to better structure the lecturette\n- Score out of 10\n- Provide specific improvements`,
-        [{ base64, mimeType: 'audio/webm' }]
+        `Analyze this video of a candidate giving a lecturette. Topic: "${lecTopic}". Focus on body language, confidence, eye contact, and factual delivery.\n\nJSON output format: { "rank": "A/B/C", "points": ["...", "..."], "verdict": "..." }`,
+        [{ base64, mimeType: 'video/webm' }]
       );
 
-      const success = await deductCredits(5);
-      if (!success) throw new Error('Credit deduction failed');
-
       setVideoAnalysis(result);
-      toast.success('Audio analysis complete (-5 Credits)');
+      toast.success('Video analysis complete');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to analyze your lecturette');
     } finally {
@@ -582,29 +538,19 @@ export default function GTOPage() {
     }
   };
 
-  // Lecturette handlers
   const analyzeLec = async () => {
     const trimmed = lecTopic.trim();
     if (!trimmed) { toast.error('Please enter a lecturette topic'); return; }
     
-    if (credits < 5) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setLecLoading(true);
     setLecData({ result: '' });
     try {
       const result = await callGemini(
-        SYSTEM_PROMPT_LECTURETTE + `\n\nThe lecturette topic is: "${trimmed}"\n\nGenerate a complete 3-minute model lecturette as instructed.`
+        SYSTEM_PROMPT_LECTURETTE + `\n\nLecturette Topic: "${trimmed}"\n\nGenerate structure.`
       );
 
-      const success = await deductCredits(5);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setLecData({ result: result });
-      toast.success('Lecturette generated (-5 Credits)');
+      setLecData({ result: result.replace(/\*/g, ''), topic: trimmed });
+      toast.success('Lecturette structure generated');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to generate lecturette');
     } finally {
@@ -615,12 +561,6 @@ export default function GTOPage() {
   const analyzeLecUser = async () => {
     if (!lecUserText.trim()) { toast.error('Please enter your lecturette'); return; }
     
-    if (credits < 5) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setLecUserLoading(true);
     setLecData({ userAnalysis: '' });
     try {
@@ -628,11 +568,8 @@ export default function GTOPage() {
         SYSTEM_PROMPT_LECTURETTE + `\n\nThe topic is: "${lecTopic.trim()}"\n\nThe candidate's own lecturette is:\n"${lecUserText.trim()}"\n\nAnalyze their lecturette — structure, current facts, word count, flow, clarity, improvements needed, and score out of 10.`
       );
 
-      const success = await deductCredits(5);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setLecData({ userAnalysis: result });
-      toast.success('Lecturette analyzed (-5 Credits)');
+      setLecData({ userAnalysis: result.replace(/\*/g, '') });
+      toast.success('Lecturette analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to analyze lecturette');
     } finally {
@@ -647,9 +584,7 @@ export default function GTOPage() {
       animate="visible"
       className="space-y-6 scroll-reveal"
     >
-      {/* Header with GTO images */}
       <div className="glass-card glow-gold relative overflow-hidden">
-        {/* Background slideshow */}
         {GTO_IMAGES.map((src, i) => (
           <div
             key={i}
@@ -672,7 +607,6 @@ export default function GTOPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-4 h-12 rounded-xl p-1" style={{
           background: 'linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.5))',
@@ -694,7 +628,6 @@ export default function GTOPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* GD Tab */}
         <TabsContent value="gd" className="mt-6 space-y-4">
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Enter GD Topic</h3>
@@ -725,7 +658,6 @@ export default function GTOPage() {
           {gdResult && <AnalysisOutput content={gdResult} title="AI-Generated GD Points" />}
         </TabsContent>
 
-        {/* GPE Tab */}
         <TabsContent value="gpe" className="mt-6 space-y-4">
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Upload GPE Map & Problem</h3>
@@ -773,12 +705,10 @@ export default function GTOPage() {
 
           {gpeResult && <AnalysisOutput content={gpeResult} title="AI-Generated GPE Solution" />}
 
-          {/* User's own solution analysis */}
           {gpeResult && (
             <div className="glass-card">
               <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Submit Your Solution for Review</h3>
               <div className="space-y-4">
-                {/* Option 1: Upload PDF */}
                 <label className="glass-card-subtle flex flex-col items-center justify-center py-5 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl">
                   <input type="file" accept=".pdf,image/*" className="hidden" onChange={handleGpePdfUpload} />
                   {gpePdfFile ? (
@@ -830,7 +760,7 @@ export default function GTOPage() {
                             SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nThe candidate's own solution is:\n"${gpeUserSolution.trim()}"\n\nAnalyze their solution — what they did well, what they missed, specific improvements, and score out of 10.`,
                             gpeImage || undefined
                           );
-                          setGpeUserAnalysis(result);
+                          setGpeUserAnalysis(result.replace(/\*/g, ''));
                         } catch (err: unknown) {
                           toast.error(err instanceof Error ? err.message : 'Failed to analyze your solution');
                         } finally {
@@ -851,9 +781,6 @@ export default function GTOPage() {
           {gpeUserAnalysis && <AnalysisOutput content={gpeUserAnalysis} title="Your GPE Solution — AI Review" />}
         </TabsContent>
 
-
-
-        {/* Lecturette Tab */}
         <TabsContent value="lecturette" className="mt-6 space-y-4">
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Enter Lecturette Topic</h3>
@@ -884,12 +811,10 @@ export default function GTOPage() {
 
           {lecResult && <AnalysisOutput content={lecResult} title="AI-Generated Model Lecturette" />}
 
-          {/* User lecturette analysis — text or audio */}
           {lecResult && (
             <div className="glass-card">
               <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Submit Your Lecturette for Review</h3>
               <div className="space-y-4">
-                {/* Audio Recording */}
                 <div className="glass-card-subtle p-4 rounded-xl space-y-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Video className="h-4 w-4 text-gold" />
@@ -926,7 +851,6 @@ export default function GTOPage() {
                     )}
                   </div>
 
-                  {/* Progress bar */}
                   {(isRecording || recordingTime > 0) && (
                     <div className="w-full h-1.5 rounded-full bg-muted/30 overflow-hidden">
                       <div
@@ -983,9 +907,7 @@ export default function GTOPage() {
           {lecUserAnalysis && <AnalysisOutput content={lecUserAnalysis} title="Your Lecturette — AI Review" />}
         </TabsContent>
 
-        {/* More Tab — PGT, HGT, FGT & Snake Race */}
         <TabsContent value="more" className="mt-6 space-y-6">
-          {/* PGT Gallery Section */}
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">PGT Structures & Analysis</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -1006,25 +928,21 @@ export default function GTOPage() {
             <AnalysisOutput content={PGT_THEORY} title="Progressive Group Task Theory" />
           </div>
 
-          {/* HGT Section */}
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Half Group Task</h3>
             <AnalysisOutput content={HGT_THEORY} title="HGT Theory & Psychology" />
           </div>
 
-          {/* FGT Section */}
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Final Group Task</h3>
             <AnalysisOutput content={FGT_THEORY} title="FGT Final Looks" />
           </div>
 
-          {/* Snake Race Tips */}
           <div className="glass-card">
             <h3 className="font-heading font-bold text-base text-gold gold-border-left mb-4">Snake Race / Group Obstacles</h3>
             <AnalysisOutput content={SNAKE_RACE_TIPS} title="Snake Race Tips & Strategy" />
           </div>
 
-          {/* Practice GTO Solution */}
           <div className="glass-card bg-gold/5 border-gold/20">
             <div className="flex items-center gap-3 mb-6">
               <Sword className="h-6 w-6 text-gold" />
@@ -1034,7 +952,6 @@ export default function GTOPage() {
               Upload a picture of any PGT/HGT structure or obstacle, and describe your solution (in English or Hinglish). AI will analyze your logic and provide a professional feedback in Hinglish if you prefer.
             </p>
             <div className="space-y-4">
-               {/* Reusing GPE logic for custom PGT/HGT practice */}
                <label className="glass-card-subtle flex flex-col items-center justify-center py-6 cursor-pointer hover:border-gold/40 transition-colors border-2 border-dashed border-border/40 rounded-xl">
                 <input type="file" accept="image/*" className="hidden" onChange={handleGpeImageUpload} />
                 {gpeImage ? (
@@ -1076,7 +993,7 @@ export default function GTOPage() {
                       The candidate's solution: "${gpeUserSolution.trim()}"`,
                       gpeImage
                     );
-                    setGpeUserAnalysis(result);
+                    setGpeUserAnalysis(result.replace(/\*/g, ''));
                   } catch (err: unknown) {
                     toast.error(err instanceof Error ? err.message : 'Failed to analyze solution');
                   } finally {
@@ -1094,11 +1011,7 @@ export default function GTOPage() {
           {gpeUserAnalysis && <AnalysisOutput content={gpeUserAnalysis} title="GTO Logic Analysis" />}
         </TabsContent>
       </Tabs>
-
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
+      <Footer />
     </motion.div>
   );
 }

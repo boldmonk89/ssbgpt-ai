@@ -7,9 +7,7 @@ import { callGemini, fileToBase64 } from '@/lib/gemini';
 import { Loader2, Upload, ImageIcon, Pencil, Zap, Eye, EyeOff, Users, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -455,9 +453,7 @@ export default function AIPracticePage() {
   const [srtLoading, setSrtLoading] = useState(false);
   const [ppdtLoading, setPpdtLoading] = useState(false);
   
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const handleClearTat = () => { setTatData({ result: '', image: null, name: '' }); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
   const handleClearWat = () => { setWatData({ result: '', word: '' }); setWatUserSentence(''); };
@@ -485,31 +481,17 @@ export default function AIPracticePage() {
       return;
     }
     
-    if (credits < 25) {
-      toast.error('Insufficient Credits (25 required). Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setTatLoading(true);
     setTatData({ result: '' });
     try {
-      let prompt = '';
-      if (tatUserStory.trim()) {
-        prompt = `You are an SSB psychologist.
-Examine this TAT picture and the Candidate's Story: "${tatUserStory}"
-Analyze if this story follows the recommended guidelines (Hero age 18-26, proactive action, Past/Present/Future structure, positive outcomes, OLQs).
-Provide an improved SSB-style story.`;
-      } else {
-        prompt = SYSTEM_PROMPT_TAT + '\n\nAnalyze this TAT image and generate stories as instructed.';
-      }
-      const result = await callGemini(prompt, tatImage);
+      const result = await callGeminiMultiPart(
+        `Imagine a complete TAT story for this picture. Analyze its psychology, OLQs, and Mansa-Vacha-Karma alignment. PICTURE BASELINE ENCLOSED.`,
+        [{ base64: tatImage, mimeType: 'image/jpeg' }]
+      );
       
-      const success = await deductCredits(25);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setTatData({ result: result });
-      toast.success('TAT Analysis complete (-25 Credits)');
+      setTatData({ result: result.replace(/\*/g, ''), image: tatImage, name: tatImageName });
+      toast.success('TAT practiced');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -518,38 +500,21 @@ Provide an improved SSB-style story.`;
   };
 
   const analyzeWat = async () => {
-    const trimmed = watWord.trim();
-    if (!trimmed) {
+    const trimmed = watUserSentence.trim();
+    if (!watWord.trim()) {
       toast.error('Please enter a word');
-      return;
-    }
-
-    if (credits < 25) {
-      toast.error('Insufficient Credits (25 required). Please top up.');
-      setIsPurchaseModalOpen(true);
       return;
     }
 
     setWatLoading(true);
     setWatData({ result: '' });
     try {
-      let prompt = '';
-      if (watUserSentence.trim()) {
-        prompt = `You are an SSB psychologist.
-Word: "${trimmed}"
-Candidate's Sentence: "${watUserSentence}"
-Analyze if this sentence follows the manual guidelines (Observational, no third person, positive actions, short, reflects OLQs). 
-Then provide a model improved version.`;
-      } else {
-        prompt = SYSTEM_PROMPT_WAT + `\n\nThe word is: "${trimmed}"\n\nGenerate WAT responses as instructed.`;
-      }
-      const result = await callGemini(prompt);
+      const result = await callGemini(
+        `Provide a professional psych analysis of this WAT association: Word: "${watWord}", Response: "${trimmed}". Analyze OLQs and subconscious bias.`
+      );
       
-      const success = await deductCredits(25);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setWatData({ result: result.replace(/\*/g, '') });
-      toast.success('WAT Analysis complete (-25 Credits)');
+      setWatData({ word: watWord, result: result.replace(/\*/g, '') });
+      toast.success('WAT practiced');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -564,32 +529,13 @@ Then provide a model improved version.`;
       return;
     }
 
-    if (credits < 25) {
-      toast.error('Insufficient Credits (25 required). Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setSrtLoading(true);
     setSrtData({ result: '' });
     try {
-      let prompt = '';
-      if (srtUserResponse.trim()) {
-        prompt = `You are an SSB psychologist.
-Situation: "${trimmed}"
-Candidate's Response: "${srtUserResponse}"
-Analyze this response (Realism, logic, complete resolution, telegram style, OLQs).
-Provide an improved short-form action sequence.`;
-      } else {
-        prompt = SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`;
-      }
-      const result = await callGemini(prompt);
+      const result = await callGemini(SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`);
 
-      const success = await deductCredits(25);
-      if (!success) throw new Error('Credit deduction failed');
-
-      setSrtData({ result: result.replace(/\*/g, '') });
-      toast.success('SRT Analysis complete (-25 Credits)');
+      setSrtData({ situation: trimmed, result: result.replace(/\*/g, '') });
+      toast.success('SRT Analysis complete');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -618,28 +564,9 @@ Provide an improved short-form action sequence.`;
       return;
     }
 
-    if (credits < 25) {
-      toast.error('Insufficient Credits (25 required). Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setPpdtLoading(true);
     setPpdtData({ result: '' });
     try {
-      let prompt = '';
-      if (ppdtUserStory.trim()) {
-        prompt = `You are an SSB psychologist.
-Examine this PPDT picture and the Candidate's Narration: "${ppdtUserStory}"
-Analyze the narration quality (Clarity, confidence, theme selection, group goal focus).
-Provide a model narration script.`;
-      } else {
-        prompt = SYSTEM_PROMPT_PPDT + '\n\nAnalyze this PPDT image. Identify all characters (Age, Sex, Mood), generate a complete PPDT story with narration script, and provide GD tips.';
-      }
-      const result = await callGemini(prompt, ppdtImage);
-
-      const success = await deductCredits(25);
-      if (!success) throw new Error('Credit deduction failed');
 
       setPpdtData({ result: result });
       toast.success('PPDT Analysis complete (-25 Credits)');
@@ -887,10 +814,6 @@ Provide a model narration script.`;
         </TabsContent>
       </Tabs>
 
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
-    </motion.div>
+      </motion.div>
   );
 }

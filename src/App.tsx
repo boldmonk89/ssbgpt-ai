@@ -20,7 +20,6 @@ const HistoryPage     = lazy(() => import("./pages/History"));
 const InterviewPage   = lazy(() => import("./pages/Interview"));
 const FullAnalysisPage = lazy(() => import("./pages/FullAnalysis"));
 const PracticeLabPage = lazy(() => import("./pages/PracticeLab"));
-const CreditsPage     = lazy(() => import("./pages/Credits"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
 // LoginPage is removed
 
@@ -118,7 +117,6 @@ const App = () => {
                     <Route path="/interview"     element={<InterviewPage />} />
                     <Route path="/full-analysis" element={<FullAnalysisPage />} />
                     <Route path="/practice-lab"  element={<PracticeLabPage />} />
-                    <Route path="/credits"       element={<CreditsPage />} />
                     <Route path="*"              element={<NotFound />} />
                   </Routes>
                 </Suspense>

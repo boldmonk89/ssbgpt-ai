@@ -3,19 +3,14 @@ import { useAppStore } from '@/store/appStore';
 import { callGemini, buildPiqPrompt, fileToBase64, buildVerifyDocumentPrompt, callGeminiMultiPart } from '@/lib/gemini';
 import { LoadingCard } from '@/components/LoadingCard';
 import { Upload, User, CheckCircle, FileText } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 export default function PIQPage() {
   const { piqContext, setPiqContext, piqImageUrl, setPiqImageUrl } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [fileData, setFileData] = useState<string | null>(piqImageUrl);
   const [fileType, setFileType] = useState<'image' | 'pdf'>('image');
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const handleFileUpload = useCallback(async (file: File) => {
     setLoading(true);
@@ -56,11 +51,6 @@ export default function PIQPage() {
   const analyze = async () => {
     if (!fileData) { toast.error('Please upload your PIQ first.'); return; }
     
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setLoading(true);
     try {
@@ -207,10 +197,6 @@ export default function PIQPage() {
         </button>
       )}
 
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
-    </div>
+      </div>
   );
 }

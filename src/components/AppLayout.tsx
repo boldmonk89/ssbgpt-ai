@@ -8,8 +8,6 @@ import { Progress } from '@/components/ui/progress';
 import OfflineBanner from '@/components/OfflineBanner';
 import PageTransition from '@/components/PageTransition';
 import { useAppStore } from '@/store/appStore';
-import { useAuthStore } from '@/store/authStore';
-import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 import { useEffect } from 'react';
@@ -29,7 +27,6 @@ const navItems = [
   { to: '/practice-lab', label: 'SSB Practice Lab', icon: FlaskConical },
   { to: '/selection-boards', label: 'Selection Boards', icon: MapPin },
   { to: '/history', label: 'History', icon: History },
-  { to: '/credits', label: 'Credits & Store', icon: Zap },
 ];
 
 function SplashScreen() {
@@ -80,10 +77,9 @@ function SplashScreen() {
 // Removed InstallHeaderButton
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const clearSession = useAppStore((s) => s.clearSession);
-  const { user, credits, signOut } = useAuthStore();
 
   return (
     <div className="min-h-screen flex flex-col topo-bg">
@@ -137,7 +133,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.to;
+            const isActive = pathname === item.to;
             return (
               <NavLink key={item.to} to={item.to} onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 text-sm font-heading font-semibold rounded-xl transition-all duration-300 transform hover:scale-[1.02] ${
@@ -156,27 +152,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="gold-stripe mx-4" />
-
-        <div className="p-4 space-y-3">
-          <div className="px-3 py-3 rounded-xl bg-gold/5 border border-gold/10 space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Reserve</span>
-              <span className="text-sm font-heading font-black text-gold">{credits}</span>
-            </div>
-            <Progress value={Math.min((credits / 500) * 100, 100)} className="h-1 bg-gold/10" />
-          </div>
-          <button
-            onClick={() => { signOut(); toast.success('Logged out successfully'); }}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-heading font-semibold rounded-xl text-destructive/70 hover:text-destructive transition-all"
-            style={{
-              background: 'linear-gradient(135deg, hsl(var(--destructive) / 0.08) 0%, transparent 100%)',
-              border: '1px solid hsl(var(--destructive) / 0.2)',
-            }}
-          >
-            Logout Node
-          </button>
-        </div>
       </aside>
 
       {sidebarOpen && (
@@ -190,24 +165,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }}>
           <span className="font-heading font-black text-sm tracking-[0.2em] text-gold uppercase">SSB GPT HUB</span>
           <div className="flex items-center gap-4">
-            <NavLink to="/credits" className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 hover:bg-gold/20 transition-all group">
-              <Zap className="h-3 w-3 text-gold animate-pulse" />
-              <span className="text-[10px] font-heading font-bold text-gold tracking-[0.1em]">{credits} CREDITS</span>
-            </NavLink>
-            <div className="h-4 w-px bg-border/40 mx-1" />
-            <div className="flex items-center gap-2">
-              <div className="text-right hidden sm:block">
-                <p className="text-[9px] font-bold text-foreground leading-none">{user?.user_metadata?.full_name || 'Candidate'}</p>
-                <p className="text-[8px] font-medium text-muted-foreground leading-none mt-1 opacity-50 uppercase">Cadet Protocol</p>
-              </div>
-              <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
-                {user?.user_metadata?.avatar_url ? (
-                  <img src={user.user_metadata.avatar_url} alt="User" className="h-full w-full object-cover" />
-                ) : (
-                  <UserCircle className="h-5 w-5 text-primary/60" />
-                )}
-              </div>
-            </div>
             <ThemeToggle />
           </div>
         </div>

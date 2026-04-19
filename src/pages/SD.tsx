@@ -7,10 +7,8 @@ import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
 import { FileText } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
+import { toast } from 'sonner';
 
 const SD_LABELS = ['Parents', 'Teachers', 'Friends', 'Self', 'Develop'];
 
@@ -20,9 +18,7 @@ export default function SDPage() {
   const [loading, setLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const { saveToHistory } = useHistorySave();
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const para = sdParagraphs[activeTab];
 
@@ -41,11 +37,6 @@ export default function SDPage() {
     const v = validateParagraph(para.content);
     if (!v.valid) { toast.error(v.message!); return; }
 
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setLoading(true);
     try {
@@ -174,10 +165,6 @@ export default function SDPage() {
         </div>
       </div>
 
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
-    </div>
+      </div>
   );
 }

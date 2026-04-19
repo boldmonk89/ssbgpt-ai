@@ -7,27 +7,21 @@ import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
 import { Trash2, ImageIcon, FileText, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 export default function SRTPage() {
   const { srtResponses, setSrtResponses, srtSummary, setSrtSummary } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
-  const { genCount, setGenCount } = useState(0);
   const { saveToHistory } = useHistorySave();
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const rows = srtResponses.length > 0 ? srtResponses : [{ situationNumber: 1, situation: '', response: '' }];
 
   const handleClear = () => {
     setSrtSummary(null);
     setSrtResponses([{ situationNumber: 1, situation: '', response: '' }]);
-    setGenCount(0);
     if (document.getElementById('srt-images')) (document.getElementById('srt-images') as HTMLInputElement).value = '';
     if (document.getElementById('srt-pdf')) (document.getElementById('srt-pdf') as HTMLInputElement).value = '';
   };
@@ -73,23 +67,15 @@ export default function SRTPage() {
   };
 
   const handlePdfUpload = async (file: File) => {
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setPdfLoading(true);
     try {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildSrtPdfPrompt(), [{ base64, mimeType: file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg' }]);
       
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
-
       setSrtSummary(result);
       saveToHistory('SRT-PDF', { fileName: file.name }, result);
-      toast.success('Full SRT analyzed (-10 Credits)');
+      toast.success('Full SRT analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -102,11 +88,6 @@ export default function SRTPage() {
   const analyzeAll = async () => {
     if (filledRows.length === 0) { toast.error('Type some SRT responses first.'); return; }
     
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     const allResponses = filledRows.map(r => r.response).join(' ');
     const gibberishMsg = detectGibberish(allResponses);
@@ -118,13 +99,9 @@ export default function SRTPage() {
     try {
       const result = await callGemini(buildSrtPrompt(filledRows));
       
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
-
       setSrtSummary(result.replace(/\*/g, ''));
       saveToHistory('SRT', { responses: filledRows }, result);
-      setGenCount(prev => prev + 1);
-      toast.success('SRT analysis complete (-10 Credits)');
+      toast.success('SRT analysis complete');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -213,28 +190,14 @@ export default function SRTPage() {
       </div>
 
       {filledRows.length > 0 && (
-        genCount >= 2 ? (
-          <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
-            <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (2/2)</p>
-            <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-              You have analyzed reactions for this specific situation the maximum allowed times. SRT evaluates your immediate reaction to crisis/scenarios. Practicing beyond this limit for the same situation removes the true reaction validity. Clear your session from the sidebar to test new situations.
-            </p>
-          </div>
-        ) : (
-          <button onClick={analyzeAll} disabled={loading}
-            className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold">
-            {loading ? 'ANALYZING SRT...' : `ANALYZE ALL SRT RESPONSES (${5 - genCount} clicks left)`}
-          </button>
-        )
+        <button onClick={analyzeAll} disabled={loading}
+          className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold">
+          {loading ? 'ANALYZING SRT...' : 'ANALYZE ALL SRT RESPONSES'}
+        </button>
       )}
 
       {loading && <LoadingCard message="Evaluating responses... mapping OLQs..." />}
 
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
     </div>
   );
 }

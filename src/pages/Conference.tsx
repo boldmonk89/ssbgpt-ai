@@ -3,9 +3,7 @@ import { MessageSquare, Users, ShieldAlert, BadgeInfo, MessageCircle, Send, Load
 import { callGemini } from '@/lib/gemini';
 import { toast } from 'sonner';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 const CONFERENCE_SYSTEM_PROMPT = `You are an SSB Board President/Daughter of the President (expert assessor). 
 The user will tell you what questions were asked to them during their SSB Conference.
@@ -27,9 +25,7 @@ const ConferencePage = () => {
   const [questions, setQuestions] = useState('');
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState('');
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const analyzeConference = async () => {
     if (!questions.trim()) {
@@ -37,11 +33,6 @@ const ConferencePage = () => {
       return;
     }
 
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setLoading(true);
     setAnalysis('');
@@ -52,11 +43,8 @@ const ConferencePage = () => {
         CONFERENCE_SYSTEM_PROMPT
       );
       
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
-
       setAnalysis(response);
-      toast.success('Conference Assessment Complete (-10 Credits)');
+      toast.success('Conference Assessment Complete');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -168,10 +156,6 @@ const ConferencePage = () => {
         </div>
       </div>
 
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
     </div>
   );
 };

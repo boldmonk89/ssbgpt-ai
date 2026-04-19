@@ -7,27 +7,21 @@ import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
 import { Trash2, ImageIcon, FileText, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 export default function WATPage() {
   const { watResponses, setWatResponses, watSummary, setWatSummary } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
-  const { genCount, setGenCount } = useState(0);
   const { saveToHistory } = useHistorySave();
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const rows = watResponses.length > 0 ? watResponses : [{ word: '', sentence: '' }];
 
   const handleClear = () => {
     setWatSummary(null);
     setWatResponses([{ word: '', sentence: '' }]);
-    setGenCount(0);
     if (document.getElementById('wat-images')) (document.getElementById('wat-images') as HTMLInputElement).value = '';
     if (document.getElementById('wat-pdf')) (document.getElementById('wat-pdf') as HTMLInputElement).value = '';
   };
@@ -71,23 +65,15 @@ export default function WATPage() {
   };
 
   const handlePdfUpload = async (file: File) => {
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setPdfLoading(true);
     try {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildWatPdfPrompt(), [{ base64, mimeType: file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg' }]);
       
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
-
       setWatSummary(result);
       saveToHistory('WAT-PDF', { fileName: file.name }, result);
-      toast.success('Full WAT analyzed (-10 Credits)');
+      toast.success('Full WAT analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -100,11 +86,6 @@ export default function WATPage() {
   const analyzeAll = async () => {
     if (filledRows.length === 0) { toast.error('Type some WAT responses first.'); return; }
     
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     // Check for gibberish in sentences
     const allSentences = filledRows.map(r => r.sentence).join(' ');
@@ -117,13 +98,9 @@ export default function WATPage() {
     try {
       const result = await callGemini(buildWatPrompt(filledRows));
       
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
-
       setWatSummary(result.replace(/\*/g, ''));
       saveToHistory('WAT', { responses: filledRows }, result);
-      setGenCount(prev => prev + 1);
-      toast.success('WAT analysis complete (-10 Credits)');
+      toast.success('WAT analysis complete');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -226,28 +203,13 @@ export default function WATPage() {
       </div>
 
       {filledRows.length > 0 && (
-        genCount >= 4 ? (
-          <div className="glass-card-subtle border-destructive/20 text-center py-4 px-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-destructive/5 blur-xl"></div>
-            <p className="font-heading font-semibold text-sm text-destructive mb-1 relative z-10">Maximum Iterations Reached (4/4)</p>
-            <p className="font-body text-xs text-muted-foreground relative z-10 leading-relaxed max-w-md mx-auto">
-              You have analyzed responses for this specific word the maximum allowed times. The SSB focuses on your rapid, subconscious associations rather than over-practiced perfection. To practice a new word, please clear your session from the sidebar to ensure a fresh psychological evaluation state.
-            </p>
-          </div>
-        ) : (
-          <button onClick={analyzeAll} disabled={loading}
-            className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold">
-            {loading ? 'ANALYZING WAT...' : `ANALYZE ALL WAT RESPONSES (${5 - genCount} clicks left)`}
-          </button>
-        )
+        <button onClick={analyzeAll} disabled={loading}
+          className="w-full glass-button-gold py-3.5 disabled:opacity-40 glow-gold">
+          {loading ? 'ANALYZING WAT...' : 'ANALYZE ALL WAT RESPONSES'}
+        </button>
       )}
 
       {loading && <LoadingCard message="Scanning word associations... mapping OLQs..." />}
-      
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
     </div>
   );
 }

@@ -7,10 +7,8 @@ import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
 import { Upload, ImageIcon, FileText } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
-import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
+import { toast } from 'sonner';
 
 export default function TATPage() {
   const { tatStories, updateTatStory, tatSummary, setTatSummary } = useAppStore();
@@ -20,9 +18,7 @@ export default function TATPage() {
   const [picturePreview, setPicturePreview] = useState<string | null>(null);
   const [pictureBase64, setPictureBase64] = useState<string | null>(null);
   const { saveToHistory } = useHistorySave();
-  const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const story = tatStories[0];
 
@@ -66,11 +62,6 @@ export default function TATPage() {
     }
     const v = validateStory(story.story);
     if (!v.valid) { toast.error(v.message!); return; }
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setLoading(true);
     try {
@@ -83,12 +74,9 @@ export default function TATPage() {
         result = await callGemini(prompt);
       }
 
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
-
       updateTatStory(0, { analysis: result.replace(/\*/g, '') });
       saveToHistory('TAT', { storyNumber: story.storyNumber, story: story.story }, result);
-      toast.success('Story analyzed (-10 Credits)');
+      toast.success('Story analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -97,23 +85,15 @@ export default function TATPage() {
   };
 
   const handlePdfUpload = async (file: File) => {
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
 
     setPdfLoading(true);
     try {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildTatPdfPrompt(), [{ base64, mimeType: 'application/pdf' }]);
       
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
-
       setTatSummary(result);
       saveToHistory('TAT-PDF', { fileName: file.name }, result);
-      toast.success('Full TAT PDF analyzed (-10 Credits)');
+      toast.success('Full TAT PDF analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'PDF analysis failed');
     } finally {
@@ -232,11 +212,6 @@ export default function TATPage() {
           )}
         </div>
       </div>
-
-      <PurchaseCreditsModal 
-        isOpen={isPurchaseModalOpen} 
-        onClose={() => setIsPurchaseModalOpen(false)} 
-      />
     </div>
   );
 }
