@@ -4,6 +4,7 @@ import { useState } from 'react';
 import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Download } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import OfflineBanner from '@/components/OfflineBanner';
 import PageTransition from '@/components/PageTransition';
 import { useAppStore } from '@/store/appStore';
