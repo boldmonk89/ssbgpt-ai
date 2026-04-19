@@ -6,7 +6,7 @@
 
 **Analyze. Improve. Get Recommended.**
 
-[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-ssbgpt.vercel.app-blue?style=for-the-badge)](https://ssbgpt.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-ssbgpt.com-blue?style=for-the-badge)](https://ssbgpt.vercel.app)
 [![Built With](https://img.shields.io/badge/Powered%20By-Gemini%202.5%20Flash-orange?style=for-the-badge)](https://ssbgpt.vercel.app)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
