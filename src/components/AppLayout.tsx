@@ -7,7 +7,9 @@ import { Download } from 'lucide-react';
 import OfflineBanner from '@/components/OfflineBanner';
 import PageTransition from '@/components/PageTransition';
 import { useAppStore } from '@/store/appStore';
+import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 import { useEffect } from 'react';
 import splashImg from '@/assets/splash.png';
