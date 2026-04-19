@@ -21,6 +21,7 @@ const InterviewPage   = lazy(() => import("./pages/Interview"));
 const FullAnalysisPage = lazy(() => import("./pages/FullAnalysis"));
 const PracticeLabPage = lazy(() => import("./pages/PracticeLab"));
 const LoginPage       = lazy(() => import("./pages/Login"));
+const CreditsPage     = lazy(() => import("./pages/Credits"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
 
 import { useAuthStore } from "@/store/authStore";
@@ -126,12 +127,15 @@ const App = () => {
                           <Route path="/interview"     element={<InterviewPage />} />
                           <Route path="/full-analysis" element={<FullAnalysisPage />} />
                           <Route path="/practice-lab"  element={<PracticeLabPage />} />
+                          <Route path="/credits"       element={<CreditsPage />} />
                           <Route path="*"              element={<NotFound />} />
                         </Routes>
                       </Suspense>
                     </AppLayout>
                   ) : (
-                    <LoginPage />
+                    <Suspense fallback={<PageLoader />}>
+                      <LoginPage />
+                    </Suspense>
                   )
                 } />
               </Routes>
