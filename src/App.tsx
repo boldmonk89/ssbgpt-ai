@@ -20,9 +20,9 @@ const HistoryPage     = lazy(() => import("./pages/History"));
 const InterviewPage   = lazy(() => import("./pages/Interview"));
 const FullAnalysisPage = lazy(() => import("./pages/FullAnalysis"));
 const PracticeLabPage = lazy(() => import("./pages/PracticeLab"));
-const LoginPage       = lazy(() => import("./pages/Login"));
 const CreditsPage     = lazy(() => import("./pages/Credits"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
+// LoginPage is removed
 
 import { useAuthStore } from "@/store/authStore";
 import { useEffect } from "react";
@@ -102,43 +102,27 @@ const App = () => {
           <TooltipProvider>
             <Sonner />
             <BrowserRouter>
-              <Routes>
-                <Route path="/login" element={
-                  <Suspense fallback={<PageLoader />}>
-                    <LoginPage />
-                  </Suspense>
-                } />
-                
-                <Route path="*" element={
-                  user ? (
-                    <AppLayout>
-                      <Suspense fallback={<PageLoader />}>
-                        <Routes>
-                          <Route path="/"              element={<DashboardPage />} />
-                          <Route path="/piq"           element={<PIQPage />} />
-                          <Route path="/tat"           element={<TATPage />} />
-                          <Route path="/wat"           element={<WATPage />} />
-                          <Route path="/srt"           element={<SRTPage />} />
-                          <Route path="/sd"            element={<SDPage />} />
-                          <Route path="/ai-practice"   element={<AIPracticePage />} />
-                          <Route path="/gto"           element={<GTOPage />} />
-                          <Route path="/selection-boards" element={<SelectionBoardsPage />} />
-                          <Route path="/history"       element={<HistoryPage />} />
-                          <Route path="/interview"     element={<InterviewPage />} />
-                          <Route path="/full-analysis" element={<FullAnalysisPage />} />
-                          <Route path="/practice-lab"  element={<PracticeLabPage />} />
-                          <Route path="/credits"       element={<CreditsPage />} />
-                          <Route path="*"              element={<NotFound />} />
-                        </Routes>
-                      </Suspense>
-                    </AppLayout>
-                  ) : (
-                    <Suspense fallback={<PageLoader />}>
-                      <LoginPage />
-                    </Suspense>
-                  )
-                } />
-              </Routes>
+              <AppLayout>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/"              element={<DashboardPage />} />
+                    <Route path="/piq"           element={<PIQPage />} />
+                    <Route path="/tat"           element={<TATPage />} />
+                    <Route path="/wat"           element={<WATPage />} />
+                    <Route path="/srt"           element={<SRTPage />} />
+                    <Route path="/sd"            element={<SDPage />} />
+                    <Route path="/ai-practice"   element={<AIPracticePage />} />
+                    <Route path="/gto"           element={<GTOPage />} />
+                    <Route path="/selection-boards" element={<SelectionBoardsPage />} />
+                    <Route path="/history"       element={<HistoryPage />} />
+                    <Route path="/interview"     element={<InterviewPage />} />
+                    <Route path="/full-analysis" element={<FullAnalysisPage />} />
+                    <Route path="/practice-lab"  element={<PracticeLabPage />} />
+                    <Route path="/credits"       element={<CreditsPage />} />
+                    <Route path="*"              element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </AppLayout>
             </BrowserRouter>
           </TooltipProvider>
         </QueryClientProvider>

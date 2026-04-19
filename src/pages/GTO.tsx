@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -350,6 +351,7 @@ export default function GTOPage() {
   
   const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   
   // States that depend on local file objects or blobs
   const [gpeImage, setGpeImage] = useState<string | null>(null);
@@ -385,7 +387,7 @@ export default function GTOPage() {
     
     if (credits < 5) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -425,7 +427,7 @@ export default function GTOPage() {
     
     if (credits < 5) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -466,7 +468,7 @@ export default function GTOPage() {
     
     if (credits < 5) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -548,7 +550,7 @@ export default function GTOPage() {
     
     if (credits < 5) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -587,7 +589,7 @@ export default function GTOPage() {
     
     if (credits < 5) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -615,7 +617,7 @@ export default function GTOPage() {
     
     if (credits < 5) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -1092,6 +1094,11 @@ export default function GTOPage() {
           {gpeUserAnalysis && <AnalysisOutput content={gpeUserAnalysis} title="GTO Logic Analysis" />}
         </TabsContent>
       </Tabs>
+
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </motion.div>
   );
 }

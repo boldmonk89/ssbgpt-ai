@@ -13,6 +13,7 @@ interface AuthState {
   deductCredits: (amount: number) => Promise<boolean>;
   signOut: () => Promise<void>;
   initialize: () => Promise<void>;
+  linkPhone: (phone: string) => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -42,8 +43,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               .insert({ 
                 user_id: userData.user.id, 
                 credits: 50,
-                contact_email: userData.user.email,
-                full_name: userData.user.user_metadata.full_name || ''
+                contact_email: userData.user.email || '',
+                full_name: userData.user.user_metadata.full_name || 'Guest'
               })
               .select()
               .single();
@@ -54,7 +55,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             }
           }
         }
-        console.error('Error fetching credits:', error);
         return;
       }
       
@@ -90,11 +90,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ user: null, credits: 0 });
   },
 
+  linkPhone: async (phone: string) => {
+    const { user } = get();
+    if (!user) return false;
+    
+    const { error } = await supabase
+      .from('candidate_profiles')
+      .update({ contact_phone: phone })
+      .eq('user_id', user.id);
+      
+    return !error;
+  },
+
   initialize: async () => {
     if (get().initialized) return;
 
     // Get initial session
-    const { data: { session } } = await supabase.auth.getSession();
+    let { data: { session } } = await supabase.auth.getSession();
+    
+    // If no session, create an anonymous one
+    if (!session) {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (!error && data.session) {
+        session = data.session;
+      }
+    }
+    
     set({ user: session?.user ?? null, initialized: true });
 
     if (session?.user) {
@@ -103,12 +124,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     // Listen for auth changes
     supabase.auth.onAuthStateChange(async (event, session) => {
-      set({ user: session?.user ?? null, loading: false });
-      if (session?.user) {
-        await get().fetchCredits(session.user.id);
-      } else {
-        set({ credits: 0 });
-      }
+       const currentUser = session?.user ?? null;
+       set({ user: currentUser, loading: false });
+       if (currentUser) {
+         await get().fetchCredits(currentUser.id);
+       } else {
+         set({ credits: 0 });
+       }
     });
 
     set({ loading: false });

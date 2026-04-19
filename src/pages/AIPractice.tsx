@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -456,6 +457,7 @@ export default function AIPracticePage() {
   
   const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const handleClearTat = () => { setTatData({ result: '', image: null, name: '' }); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
   const handleClearWat = () => { setWatData({ result: '', word: '' }); setWatUserSentence(''); };
@@ -485,7 +487,7 @@ export default function AIPracticePage() {
     
     if (credits < 25) {
       toast.error('Insufficient Credits (25 required). Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -524,7 +526,7 @@ Provide an improved SSB-style story.`;
 
     if (credits < 25) {
       toast.error('Insufficient Credits (25 required). Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -564,7 +566,7 @@ Then provide a model improved version.`;
 
     if (credits < 25) {
       toast.error('Insufficient Credits (25 required). Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -618,7 +620,7 @@ Provide an improved short-form action sequence.`;
 
     if (credits < 25) {
       toast.error('Insufficient Credits (25 required). Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -884,6 +886,11 @@ Provide a model narration script.`;
           {ppdtResult && <AnalysisOutput content={ppdtResult} title="AI-Generated PPDT Story & Narration" />}
         </TabsContent>
       </Tabs>
+
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </motion.div>
   );
 }

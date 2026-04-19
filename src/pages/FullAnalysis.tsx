@@ -9,8 +9,8 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tool
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
 import { buildFullReportPrompt, callGemini, callGeminiMultiPart, fileToBase64, buildVerifyDocumentPrompt } from '@/lib/gemini';
 import { ChevronLeft, BrainCircuit, Maximize2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 // We'll shuffle these pools to pick the test sets
 const shuffle = <T,>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.5);
@@ -680,6 +680,7 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: Record<st
   const [analysisResult, setAnalysisResult] = useState('');
   const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const handleGenerate = async () => {
     if (!piq) {
@@ -689,7 +690,7 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: Record<st
     
     if (credits < 50) {
       toast.error('Insufficient Credits (50 required). Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -937,6 +938,11 @@ function MilestoneOverlay({ title, meta, onUpload }: { title: string, meta: stri
              </Button>
           </div>
        </div>
+
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </div>
   );
 }

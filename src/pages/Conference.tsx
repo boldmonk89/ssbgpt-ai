@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 const CONFERENCE_SYSTEM_PROMPT = `You are an SSB Board President/Daughter of the President (expert assessor). 
 The user will tell you what questions were asked to them during their SSB Conference.
@@ -28,6 +29,7 @@ const ConferencePage = () => {
   const [analysis, setAnalysis] = useState('');
   const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const analyzeConference = async () => {
     if (!questions.trim()) {
@@ -37,7 +39,7 @@ const ConferencePage = () => {
 
     if (credits < 10) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -165,6 +167,11 @@ const ConferencePage = () => {
           )}
         </div>
       </div>
+
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </div>
   );
 };

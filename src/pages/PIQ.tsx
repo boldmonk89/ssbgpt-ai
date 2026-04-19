@@ -6,6 +6,7 @@ import { Upload, User, CheckCircle, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 export default function PIQPage() {
   const { piqContext, setPiqContext, piqImageUrl, setPiqImageUrl } = useAppStore();
@@ -14,6 +15,7 @@ export default function PIQPage() {
   const [fileType, setFileType] = useState<'image' | 'pdf'>('image');
   const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const handleFileUpload = useCallback(async (file: File) => {
     setLoading(true);
@@ -56,7 +58,7 @@ export default function PIQPage() {
     
     if (credits < 10) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -204,6 +206,11 @@ export default function PIQPage() {
           {loading ? 'ANALYZING...' : 'ANALYZE PIQ'}
         </button>
       )}
+
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </div>
   );
 }

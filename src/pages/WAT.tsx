@@ -9,6 +9,7 @@ import { Trash2, ImageIcon, FileText, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 export default function WATPage() {
   const { watResponses, setWatResponses, watSummary, setWatSummary } = useAppStore();
@@ -19,6 +20,7 @@ export default function WATPage() {
   const { saveToHistory } = useHistorySave();
   const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const rows = watResponses.length > 0 ? watResponses : [{ word: '', sentence: '' }];
 
@@ -71,7 +73,7 @@ export default function WATPage() {
   const handlePdfUpload = async (file: File) => {
     if (credits < 10) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -100,7 +102,7 @@ export default function WATPage() {
     
     if (credits < 10) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -241,6 +243,11 @@ export default function WATPage() {
       )}
 
       {loading && <LoadingCard message="Scanning word associations... mapping OLQs..." />}
+      
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </div>
   );
 }

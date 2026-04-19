@@ -8,8 +8,8 @@ import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
 import { Upload, ImageIcon, FileText } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 export default function TATPage() {
   const { tatStories, updateTatStory, tatSummary, setTatSummary } = useAppStore();
@@ -21,6 +21,7 @@ export default function TATPage() {
   const { saveToHistory } = useHistorySave();
   const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const story = tatStories[0];
 
@@ -66,7 +67,7 @@ export default function TATPage() {
     if (!v.valid) { toast.error(v.message!); return; }
     if (credits < 10) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -97,7 +98,7 @@ export default function TATPage() {
   const handlePdfUpload = async (file: File) => {
     if (credits < 10) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -230,6 +231,11 @@ export default function TATPage() {
           )}
         </div>
       </div>
+
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </div>
   );
 }

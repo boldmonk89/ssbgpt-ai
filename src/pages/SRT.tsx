@@ -9,6 +9,7 @@ import { Trash2, ImageIcon, FileText, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 export default function SRTPage() {
   const { srtResponses, setSrtResponses, srtSummary, setSrtSummary } = useAppStore();
@@ -19,6 +20,7 @@ export default function SRTPage() {
   const { saveToHistory } = useHistorySave();
   const { credits, deductCredits } = useAuthStore();
   const navigate = useNavigate();
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const rows = srtResponses.length > 0 ? srtResponses : [{ situationNumber: 1, situation: '', response: '' }];
 
@@ -73,7 +75,7 @@ export default function SRTPage() {
   const handlePdfUpload = async (file: File) => {
     if (credits < 10) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -102,7 +104,7 @@ export default function SRTPage() {
     
     if (credits < 10) {
       toast.error('Insufficient Credits. Please top up.');
-      navigate('/credits');
+      setIsPurchaseModalOpen(true);
       return;
     }
 
@@ -228,6 +230,11 @@ export default function SRTPage() {
       )}
 
       {loading && <LoadingCard message="Evaluating responses... mapping OLQs..." />}
+
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </div>
   );
 }

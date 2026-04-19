@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/authStore';
+import PurchaseCreditsModal from '@/components/PurchaseCreditsModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -95,7 +96,8 @@ const TEST_CARDS = [
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { credits } = useAuthStore();
+   const { credits, user } = useAuthStore();
+   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -139,8 +141,17 @@ export default function DashboardPage() {
               alt="SSBGPT"
               width={80}
               height={80}
-              className="h-20 w-20 md:h-24 md:w-24 object-contain drop-shadow-2xl"
             />
+          </div>
+
+          <div className="flex flex-col items-center gap-1 mb-4">
+            <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest">Candidate Status</p>
+            <p className="text-sm font-heading font-bold text-white">
+              {user?.is_anonymous ? 'Anonymous Guest' : 'Verified Candidate'}
+            </p>
+            {user?.contact_phone && (
+              <p className="text-[10px] text-muted-foreground font-mono">Linked to: {user.contact_phone}</p>
+            )}
           </div>
 
           {/* Small label tag */}
@@ -176,9 +187,9 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Credits Quick View */}
-      <motion.div 
+       <motion.div 
         variants={itemVariants} 
-        onClick={() => navigate('/credits')}
+        onClick={() => setIsPurchaseModalOpen(true)}
         className="glass-card flex items-center justify-between p-4 border-l-[3px] border-gold cursor-pointer hover:bg-gold/[0.05] transition-all"
       >
         <div className="flex items-center gap-4">
@@ -304,7 +315,13 @@ export default function DashboardPage() {
 
 
 
+
       <Footer />
+
+      <PurchaseCreditsModal 
+        isOpen={isPurchaseModalOpen} 
+        onClose={() => setIsPurchaseModalOpen(false)} 
+      />
     </motion.div>
   );
 }
