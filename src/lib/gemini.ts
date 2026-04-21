@@ -255,52 +255,37 @@ Keep each story analysis concise and actionable.`;
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
   const formattedResponses = responses.map((r, i) => `${i + 1}. Word: "${r.word}" -> Sentence: "${r.sentence}"`).join('\n');
 
-  return `You are an SSB psychologist performing a WAT (Word Association Test) review.
+  return `You are a Senior SSB Psychologist evaluating a candidate's Word Association Test (WAT).
 
 ### CANDIDATE DATA FOR ANALYSIS:
 ${formattedResponses}
 
-### PRIMARY EVALUATION RULE — WORD-SENTENCE CORRELATION (MOST IMPORTANT):
-For EACH entry, you MUST first check: "Does this sentence meaningfully and directly associate with the given stimulus WORD?"
-- The sentence must be a natural, logical association with that specific word.
-- A sentence that is positive but UNRELATED to the word is WRONG (e.g., Word: "DARK" -> Sentence: "Leaders inspire others" is WRONG — it has zero connection to "DARK").
-- The improved sentence you generate MUST be directly built around the given word's meaning, context, or concept.
+### EVALUATION PROTOCOL (STRICT ADHERENCE REQUIRED):
 
-### EVALUATION INSTRUCTIONS (per word):
-1. Association Check: Does the candidate's sentence logically connect to the given word? Mark as STRONG / WEAK / DISCONNECTED.
-2. Improved Model Sentence: Generate a better sentence (8-10 words max) that:
-   - Is DIRECTLY tied to the word's meaning or theme.
-   - FAVOR OBSERVATIONAL (Universal Truths/Factual) or POSITIVE ACTION-ORIENTED styles.
-   - Observational sentences should be strong, factual statements (e.g., "Discipline makes life systematic").
-   - Action-oriented sentences should use First Person (I, My, We).
-   - ABSOLUTELY NO story-telling third person (e.g., "The boy...", "A leader...").
-   - MUST be POSITIVE and CONSTRUCTIVE. No negative traits.
-   - Reflects positive OLQ traits (Courage, Responsibility, Determination, etc.).
-3. OLQ Signal: Which OLQ does this word-sentence pair reveal?
+For EACH response, evaluate and provide:
+1. Association Type: Mark as STRONG (direct/meaningful), WEAK (indirect), or DISCONNECTED (no logical link).
+2. OLQ Signal: Identify which of the 15 Officer Like Qualities (OLQs) is demonstrated (e.g., Initiative, Social Adaptability, Determination).
+3. Improved Model Sentence: Generate a high-quality model sentence based on these ELITE SSB RULES:
 
-### BATCH SUMMARY (after all words):
-- Key Traits observed overall
-- OLQ Rating: Map strongest and weakest qualities shown
-- Final Score: X/10
-- Top 2 patterns to fix
+### ELITE RULES FOR MODEL SENTENCES:
+- WORD COUNT: Strictly 6 to 10 words.
+- TONALITY: Must be positive, proactive, and constructive.
+- STYLE A — OBSERVATIONAL (Preferred): Universal truths, factual laws, or mature realizations. (e.g., "Discipline makes life systematic" or "Challenges provide opportunities for growth").
+- STYLE B — ACTION-ORIENTED: Use 'I', 'My', or 'We' to show personal involvement. (e.g., "I take initiative in group tasks" or "We cooperate to achieve team goals").
+- PROHIBITED — NO NEGATION: Do NOT use "no", "not", "never", "cannot", or "impossible". Pivot negative words to positive actions.
+- PROHIBITED — NO STORYTELLING: No "The boy", "He", "She", or third-person narratives.
+- PROHIBITED — NO CLICHES: Avoid overused quotes like "Honesty is the best policy" or "Unity is strength".
+- PROHIBITED — NO ADVICE/PREACHING: Do not give orders or advice.
 
-### STYLE RULES (CRITICAL):
-- PREFER OBSERVATIONAL: Use factual truths or universal laws (e.g., "Family supports each other during bad times").
-- PREFER ACTION: Use "I", "My", "Me", or "We" for direct actions.
-- NO STORY-TELLING: Never describe scenes with "He", "She", or "The [Noun]".
-- NO NEGATIVE THEMES: Avoid violence, fear, or weakness.
-- EXAMPLES (from SSB Manual):
-  * WORD: FAMILY -> GOOD: "Family is the backbone of development." (Observational)
-  * WORD: HOME -> GOOD: "Home is built by love and affection." (Observational)
-  * WORD: DISCIPLINE -> GOOD: "Discipline makes life systematic." (Observational/Action)
-  * WORD: SLAP -> GOOD: "I believe in logical discipline over force." (First person, mature)
-  * WORD: DARK -> BAD: "A quick slap startled the child." (NEGATIVE - WRONG)
-  * WORD: DARK -> BAD: "The old dame recalled her youthful days fondly." (STORY-TELLING - WRONG)
+### BATCH PSYCHOLOGICAL SUMMARY (Final Section):
+- Personality Profile: A 3-line summary of the candidate's subconscious mindset based on the provided batch.
+- OLQ Heatmap: List the top 3 strongest OLQs found and the 2 most critical OLQ gaps.
+- Final Rating & Action Plan: Score out of 10 and 2 specific psychological adjustments the candidate needs.
 
-CRITICAL:
-- Analyze ONLY the candidate data provided above.
-- Be concise. Use bullet points.
-- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
+STYLE RULES:
+- Be brutally honest and direct.
+- Use bullet points for readability.
+- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use plain text only. NO asterisks anywhere in the output.`;
 }
 
 export function buildWatPdfPrompt(): string {
