@@ -8,6 +8,7 @@ interface RazorpayOptions {
   currency: string;
   name: string;
   description: string;
+  image?: string;
   handler: (response: any) => void;
   prefill: {
     name: string;
@@ -58,8 +59,10 @@ export const processPayment = async (
       if (response.razorpay_payment_id) {
         try {
           // Update credits in Database
-          // In a real app, you should verify payment on the backend
-          const { data, error: fetchError } = await supabase
+          // NOTE: 'candidate_profiles' table is not yet in the generated types,
+          // so we cast the client to bypass strict typing here.
+          const db = supabase as any;
+          const { data, error: fetchError } = await db
             .from('candidate_profiles')
             .select('credits')
             .eq('user_id', user.id)
@@ -67,9 +70,9 @@ export const processPayment = async (
 
           if (fetchError) throw fetchError;
 
-          const newTotal = (data.credits || 0) + credits;
+          const newTotal = ((data?.credits as number) || 0) + credits;
 
-          const { error: updateError } = await supabase
+          const { error: updateError } = await db
             .from('candidate_profiles')
             .update({ credits: newTotal })
             .eq('user_id', user.id);

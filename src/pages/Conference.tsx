@@ -38,9 +38,7 @@ const ConferencePage = () => {
     setAnalysis('');
     try {
       const response = await callGemini(
-        `Calculate my borderline status based on these conference questions: "${questions}"`,
-        null,
-        CONFERENCE_SYSTEM_PROMPT
+        `${CONFERENCE_SYSTEM_PROMPT}\n\nCalculate my borderline status based on these conference questions: "${questions}"`
       );
       
       setAnalysis(response);
