@@ -6,10 +6,11 @@ import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { callGemini, callGeminiMultiPart, fileToBase64, getFileMimeType } from '@/lib/gemini';
 import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight, Video, Square, FileText, Box, Shield } from 'lucide-react';
 import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import Footer from '@/components/Footer';
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -19,13 +20,13 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { 
     opacity: 1, 
     y: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 100,
       damping: 15
     }
@@ -754,13 +755,13 @@ export default function GTOPage() {
                       onClick={async () => {
                         if (!gpeUserSolution.trim()) return;
                         setGpeUserLoading(true);
-                        setGpeUserAnalysis('');
+                        setGpeData({ userAnalysis: '' });
                         try {
                           const result = await callGemini(
                             SYSTEM_PROMPT_GPE + `\n\nThe GPE problem paragraph is:\n"${gpeParagraph.trim()}"\n\nThe candidate's own solution is:\n"${gpeUserSolution.trim()}"\n\nAnalyze their solution — what they did well, what they missed, specific improvements, and score out of 10.`,
                             gpeImage || undefined
                           );
-                          setGpeUserAnalysis(result.replace(/\*/g, ''));
+                          setGpeData({ userAnalysis: result.replace(/\*/g, '') });
                         } catch (err: unknown) {
                           toast.error(err instanceof Error ? err.message : 'Failed to analyze your solution');
                         } finally {
@@ -970,7 +971,7 @@ export default function GTOPage() {
               <Textarea
                 placeholder="Type your solution logic here... (e.g., 'Maine balli ko support A pe phansaya aur plank ko support B pe cantilever banaya...')"
                 value={gpeUserSolution}
-                onChange={(e) => setGpeUserSolution(e.target.value)}
+                onChange={(e) => setGpeData({ userSolution: e.target.value })}
                 className="min-h-[120px] text-sm font-body bg-background/50 border-border/40 focus:border-gold/50"
               />
 
@@ -979,7 +980,7 @@ export default function GTOPage() {
                   if (!gpeImage) { toast.error('Please upload a structure image'); return; }
                   if (!gpeUserSolution.trim()) { toast.error('Please enter your solution'); return; }
                   setGpeUserLoading(true);
-                  setGpeUserAnalysis('');
+                  setGpeData({ userAnalysis: '' });
                   try {
                     const result = await callGemini(
                       `You are an SSB GTO expert. Analyze the candidate's solution for the PGT/HGT obstacle shown in the image.
@@ -993,7 +994,7 @@ export default function GTOPage() {
                       The candidate's solution: "${gpeUserSolution.trim()}"`,
                       gpeImage
                     );
-                    setGpeUserAnalysis(result.replace(/\*/g, ''));
+                    setGpeData({ userAnalysis: result.replace(/\*/g, '') });
                   } catch (err: unknown) {
                     toast.error(err instanceof Error ? err.message : 'Failed to analyze solution');
                   } finally {

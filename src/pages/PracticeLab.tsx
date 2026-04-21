@@ -47,8 +47,8 @@ export default function PracticeLabPage() {
   
   // Test Data States
   const [tatPool, setTatPool] = useState<string[]>([]);
-  const [watPool, setWatPool] = useState<Record<string, string>[]>([]);
-  const [srtPool, setSrtPool] = useState<Record<string, string>[]>([]);
+  const [watPool, setWatPool] = useState<{ id: number; word: string }[]>([]);
+  const [srtPool, setSrtPool] = useState<{ id: number; situation: string }[]>([]);
 
   useEffect(() => {
     const tatImages = Array.from({ length: 20 }, (_, i) => `/tat/tat${i + 1}.png`);
@@ -141,10 +141,10 @@ export default function PracticeLabPage() {
         )}
 
         {mode === 'TAT' && <TatLabStep onComplete={() => setMode('DASHBOARD')} tatPool={tatPool} onUpdateAttempted={(n) => updateStats('tatAttempted', n)} isPaused={isPaused} />}
-        {mode === 'WAT' && <WatLabStep onComplete={() => setMode('DASHBOARD')} watPool={watPool} onUpdateAttempted={(n) => updateStats('watAttempted', n)} isPaused={isPaused} />}
-        {mode === 'SRT' && <SrtLabStep onComplete={() => setMode('DASHBOARD')} srtPool={srtPool} onUpdateAttempted={(n) => updateStats('srtAttempted', n)} isPaused={isPaused} />}
+        {mode === 'WAT' && <WatLabStep onComplete={() => setMode('DASHBOARD')} watPool={watPool as unknown as Record<string, string>[]} onUpdateAttempted={(n) => updateStats('watAttempted', n)} isPaused={isPaused} />}
+        {mode === 'SRT' && <SrtLabStep onComplete={() => setMode('DASHBOARD')} srtPool={srtPool as unknown as Record<string, string>[]} onUpdateAttempted={(n) => updateStats('srtAttempted', n)} isPaused={isPaused} />}
         {mode === 'SD' && <SdLabStep onComplete={() => setMode('DASHBOARD')} onUpdateAttempted={(n) => updateStats('sdAttempted', n)} isPaused={isPaused} />}
-        {mode === 'ANALYSIS' && <FinalAnalysisStep stats={examStats} onBack={() => setMode('DASHBOARD')} />}
+        {mode === 'ANALYSIS' && <FinalAnalysisStep stats={examStats as unknown as Record<string, unknown>} onBack={() => setMode('DASHBOARD')} />}
       </div>
 
       {mode !== 'DASHBOARD' && mode !== 'ANALYSIS' && (
@@ -712,14 +712,18 @@ function FinalAnalysisStep({ stats, onBack }: { stats: Record<string, unknown>, 
   } = useAppStore();
 
   const handleGenerate = async () => {
-    if (stats.tatAttempted + stats.watAttempted + stats.srtAttempted + stats.sdAttempted === 0 && !tatSummary && !watSummary && !srtSummary && !sdSummary) {
+    const tatN = Number(stats.tatAttempted) || 0;
+    const watN = Number(stats.watAttempted) || 0;
+    const srtN = Number(stats.srtAttempted) || 0;
+    const sdN = Number(stats.sdAttempted) || 0;
+    if (tatN + watN + srtN + sdN === 0 && !tatSummary && !watSummary && !srtSummary && !sdSummary) {
       setAnalysisResult("⚠️ You haven't attempted any tests or uploaded any records yet. Please complete some sessions before generating a matrix report.");
       return;
     }
     setLoading(true);
     try {
       const prompt = buildFullReportPrompt(
-        piqContext,
+        (typeof piqContext === 'string' ? { rawAnalysis: piqContext } : (piqContext || {})) as Record<string, unknown>,
         tatSummary || "Complete TAT response sheet verified.",
         watSummary || "60 WAT items verified.",
         srtSummary || "60 SRT items verified.",

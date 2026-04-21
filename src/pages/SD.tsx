@@ -41,13 +41,10 @@ export default function SDPage() {
     setLoading(true);
     try {
       const result = await callGemini(buildSdPrompt(para.type, para.content));
-      
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
 
       updateSdParagraph(activeTab, { analysis: result.replace(/\*/g, '') });
       saveToHistory('SD', { type: para.type, content: para.content }, result);
-      toast.success('SD paragraph analyzed (-10 Credits)');
+      toast.success('SD paragraph analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {
@@ -56,23 +53,14 @@ export default function SDPage() {
   };
 
   const handlePdfUpload = async (file: File) => {
-    if (credits < 10) {
-      toast.error('Insufficient Credits. Please top up.');
-      setIsPurchaseModalOpen(true);
-      return;
-    }
-
     setPdfLoading(true);
     try {
       const base64 = await fileToBase64(file);
       const result = await callGeminiMultiPart(buildSdFromPdfPrompt(), [{ base64, mimeType: 'application/pdf' }]);
-      
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
 
       setSdSummary(result);
       saveToHistory('SD-PDF', { fileName: file.name }, result);
-      toast.success('Full SD PDF analyzed (-10 Credits)');
+      toast.success('Full SD PDF analyzed');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'PDF analysis failed');
     } finally {

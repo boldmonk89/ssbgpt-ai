@@ -1,5 +1,5 @@
 import { Shield, MapPin, Home, Plane, Anchor, Crosshair, Search } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
 import slide7 from '@/assets/slideshow/slide7.png';
@@ -7,7 +7,7 @@ import slide8 from '@/assets/slideshow/slide8.png';
 
 const BOARD_IMAGES = [slide7, slide8];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -17,13 +17,13 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { 
     opacity: 1, 
     y: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 100,
       damping: 15
     }

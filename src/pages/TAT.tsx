@@ -187,7 +187,7 @@ export default function TATPage() {
                 </p>
               </div>
               <div className="flex gap-3 justify-center relative z-10 mt-2">
-                <button onClick={() => updateTatStory(0, { story: '', picture: undefined, analysis: '' })} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
+                <button onClick={() => updateTatStory(0, { story: '', pictureDescription: undefined, analysis: '' })} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
                    Delete & Upload New Image
                 </button>
               </div>
