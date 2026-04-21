@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAppStore } from '@/store/appStore';
 import { callGemini, buildPiqPrompt, fileToBase64, buildVerifyDocumentPrompt, callGeminiMultiPart } from '@/lib/gemini';
 import { LoadingCard } from '@/components/LoadingCard';
-import { Upload, User, CheckCircle, FileText } from 'lucide-react';
+import { Upload, User, CheckCircle, FileText, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -82,11 +82,19 @@ export default function PIQPage() {
 
   return (
     <div className="space-y-6 scroll-reveal">
-      <div className="gold-border-left">
-        <h1 className="text-2xl">PIQ — Personal Information Questionnaire</h1>
-        <p className="text-muted-foreground font-body text-sm mt-1">
-          Upload your PIQ (PDF or photograph) for AI psychological profiling.
-        </p>
+      <div className="gold-border-left flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl">PIQ — Personal Information Questionnaire</h1>
+          <p className="text-muted-foreground font-body text-sm mt-1">
+            Upload your PIQ (PDF or photograph) for AI psychological profiling.
+          </p>
+        </div>
+        {(piqContext || fileData) && (
+          <button onClick={handleClear} className="glass-button text-xs flex items-center gap-2 text-destructive hover:bg-destructive/10 border-destructive/20 transition-all duration-300">
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear All
+          </button>
+        )}
       </div>
       <div className="gold-stripe" />
 
