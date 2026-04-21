@@ -8,7 +8,7 @@ import { Loader2, Upload, MessageSquare, Mic, Users, Sword, Clock, ChevronRight,
 import { toast } from 'sonner';
 import { motion, type Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Footer } from '@/components/Footer';
+import Footer from '@/components/Footer';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },

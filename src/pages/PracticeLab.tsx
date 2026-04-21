@@ -141,8 +141,8 @@ export default function PracticeLabPage() {
         )}
 
         {mode === 'TAT' && <TatLabStep onComplete={() => setMode('DASHBOARD')} tatPool={tatPool} onUpdateAttempted={(n) => updateStats('tatAttempted', n)} isPaused={isPaused} />}
-        {mode === 'WAT' && <WatLabStep onComplete={() => setMode('DASHBOARD')} watPool={watPool} onUpdateAttempted={(n) => updateStats('watAttempted', n)} isPaused={isPaused} />}
-        {mode === 'SRT' && <SrtLabStep onComplete={() => setMode('DASHBOARD')} srtPool={srtPool} onUpdateAttempted={(n) => updateStats('srtAttempted', n)} isPaused={isPaused} />}
+        {mode === 'WAT' && <WatLabStep onComplete={() => setMode('DASHBOARD')} watPool={watPool as unknown as Record<string, string>[]} onUpdateAttempted={(n) => updateStats('watAttempted', n)} isPaused={isPaused} />}
+        {mode === 'SRT' && <SrtLabStep onComplete={() => setMode('DASHBOARD')} srtPool={srtPool as unknown as Record<string, string>[]} onUpdateAttempted={(n) => updateStats('srtAttempted', n)} isPaused={isPaused} />}
         {mode === 'SD' && <SdLabStep onComplete={() => setMode('DASHBOARD')} onUpdateAttempted={(n) => updateStats('sdAttempted', n)} isPaused={isPaused} />}
         {mode === 'ANALYSIS' && <FinalAnalysisStep stats={examStats as unknown as Record<string, unknown>} onBack={() => setMode('DASHBOARD')} />}
       </div>
