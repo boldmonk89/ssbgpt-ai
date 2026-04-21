@@ -26,27 +26,71 @@ function getCachedResult(key: string): string | null {
   } catch { return null; }
 }
 
-async function callEdgeFunction(prompt: string, files?: FilePart[]): Promise<string> {
+async function callGeminiDirectly(prompt: string, files?: FilePart[]): Promise<string> {
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  
+  if (!GEMINI_API_KEY) {
+    throw new Error('Gemini API key is not configured. Please add VITE_GEMINI_API_KEY to your .env file.');
+  }
+
   if (!navigator.onLine) {
     const cached = getCachedResult(hashKey(prompt));
     if (cached) return cached + '\n\n---\n*⚠️ Showing cached result (offline)*';
     throw new Error('You are offline. AI analysis requires an internet connection.');
   }
 
-  const cleanFiles = files?.map(f => ({
-    base64: f.base64.replace(/^data:[^;]+;base64,/, ''),
-    mimeType: f.mimeType,
-  }));
+  const parts: any[] = [{ text: prompt }];
 
-  const { data, error } = await supabase.functions.invoke('analyze', {
-    body: { prompt, files: cleanFiles || [] },
-  });
+  if (files && Array.isArray(files)) {
+    for (const f of files) {
+      parts.push({
+        inline_data: {
+          mime_type: f.mimeType,
+          data: f.base64.replace(/^data:[^;]+;base64,/, ''),
+        },
+      });
+    }
+  }
 
-  if (error) throw new Error(error.message || 'Analysis failed');
-  if (data?.error) throw new Error(data.error);
-  const result = data?.result || '';
-  cacheResult(hashKey(prompt), result);
-  return result;
+  try {
+    const model = "gemini-1.5-flash"; // Using a stable model
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 8192,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Gemini API Error:', errorData);
+      throw new Error(errorData.error?.message || 'Gemini API call failed');
+    }
+
+    const data = await response.json();
+    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    if (result) {
+      cacheResult(hashKey(prompt), result);
+    }
+    
+    return result;
+  } catch (error: any) {
+    console.error('Gemini Analysis Error:', error);
+    throw new Error(error.message || 'Analysis failed');
+  }
 }
 
 export async function callGemini(prompt: string, imageBase64?: string): Promise<string> {
@@ -55,14 +99,18 @@ export async function callGemini(prompt: string, imageBase64?: string): Promise<
       ? 'application/pdf'
       : imageBase64.startsWith('data:image/png')
         ? 'image/png'
-        : 'image/jpeg';
-    return callEdgeFunction(prompt, [{ base64: imageBase64, mimeType }]);
+          : imageBase64.startsWith('data:image/webp')
+            ? 'image/webp'
+            : 'image/jpeg';
+    
+    const base64 = imageBase64.split(',')[1] || imageBase64;
+    return callGeminiDirectly(prompt, [{ base64, mimeType }]);
   }
-  return callEdgeFunction(prompt);
+  return callGeminiDirectly(prompt);
 }
 
 export async function callGeminiMultiPart(prompt: string, files: FilePart[]): Promise<string> {
-  return callEdgeFunction(prompt, files);
+  return callGeminiDirectly(prompt, files);
 }
 
 export function fileToBase64(file: File): Promise<string> {
