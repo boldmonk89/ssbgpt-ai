@@ -28,7 +28,7 @@ function getCachedResult(key: string): string | null {
 
 async function callGeminiDirectly(prompt: string, files?: FilePart[]): Promise<string> {
   const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  
+
   if (!GEMINI_API_KEY) {
     throw new Error('Gemini API key is not configured. Please add VITE_GEMINI_API_KEY to your .env file.');
   }
@@ -81,11 +81,11 @@ async function callGeminiDirectly(prompt: string, files?: FilePart[]): Promise<s
 
     const data = await response.json();
     const result = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
+
     if (result) {
       cacheResult(hashKey(prompt), result);
     }
-    
+
     return result;
   } catch (error: any) {
     console.error('Gemini Analysis Error:', error);
@@ -99,10 +99,10 @@ export async function callGemini(prompt: string, imageBase64?: string): Promise<
       ? 'application/pdf'
       : imageBase64.startsWith('data:image/png')
         ? 'image/png'
-          : imageBase64.startsWith('data:image/webp')
-            ? 'image/webp'
-            : 'image/jpeg';
-    
+        : imageBase64.startsWith('data:image/webp')
+          ? 'image/webp'
+          : 'image/jpeg';
+
     const base64 = imageBase64.split(',')[1] || imageBase64;
     return callGeminiDirectly(prompt, [{ base64, mimeType }]);
   }
@@ -260,32 +260,35 @@ export function buildWatPrompt(responses: { word: string; sentence: string }[]):
 ### CANDIDATE DATA FOR ANALYSIS:
 ${formattedResponses}
 
-### EVALUATION PROTOCOL (STRICT ADHERENCE REQUIRED):
+### EVALUATION RULES (STRICT):
 
-For EACH response, evaluate and provide:
-1. Association Type: Mark as STRONG (direct/meaningful), WEAK (indirect), or DISCONNECTED (no logical link).
-2. OLQ Signal: Identify which of the 15 Officer Like Qualities (OLQs) is demonstrated (e.g., Initiative, Social Adaptability, Determination).
-3. Improved Model Sentence: Generate a high-quality model sentence based on these ELITE SSB RULES:
+1. ASSOCIATION CHECK: Does the sentence logically connect to the word? (STRONG / WEAK / DISCONNECTED).
+2. OLQ SIGNAL: Which of the 15 Officer Like Qualities (OLQs) is shown (e.g. Initiative, Courage, Social Adaptability).
+3. IMPROVED MODEL SENTENCE (CRITICAL): Generate a full, high-quality model sentence (6-10 words) that follows these ELITE SSB STANDARDS:
 
 ### ELITE RULES FOR MODEL SENTENCES:
-- WORD COUNT: Strictly 6 to 10 words.
-- TONALITY: Must be positive, proactive, and constructive.
-- STYLE A — OBSERVATIONAL (Preferred): Universal truths, factual laws, or mature realizations. (e.g., "Discipline makes life systematic" or "Challenges provide opportunities for growth").
-- STYLE B — ACTION-ORIENTED: Use 'I', 'My', or 'We' to show personal involvement. (e.g., "I take initiative in group tasks" or "We cooperate to achieve team goals").
-- PROHIBITED — NO NEGATION: Do NOT use "no", "not", "never", "cannot", or "impossible". Pivot negative words to positive actions.
-- PROHIBITED — NO STORYTELLING: No "The boy", "He", "She", or third-person narratives.
-- PROHIBITED — NO CLICHES: Avoid overused quotes like "Honesty is the best policy" or "Unity is strength".
-- PROHIBITED — NO ADVICE/PREACHING: Do not give orders or advice.
+- MUST BE A FULL SENTENCE: Never respond with just one or two words.
+- POSITIVE PIVOT: If the word is negative (e.g., Kill, Death, Hate, Fear), you MUST pivot it into a positive or constructive observational truth.
+- STYLE: Prefer OBSERVATIONAL (Universal Truths) or ACTION-ORIENTED (I/We/My).
+- NO STORYTELLING: No "He", "She", or "The boy".
+- NO CLICHES: No "Unity is strength" or "Honesty is the best policy".
+- WORD-DIRECTED: The sentence must be built around the stimulus word's core meaning.
 
-### BATCH PSYCHOLOGICAL SUMMARY (Final Section):
-- Personality Profile: A 3-line summary of the candidate's subconscious mindset based on the provided batch.
-- OLQ Heatmap: List the top 3 strongest OLQs found and the 2 most critical OLQ gaps.
-- Final Rating & Action Plan: Score out of 10 and 2 specific psychological adjustments the candidate needs.
+### NEGATIVE WORD PIVOT EXAMPLES (For your reference):
+- Word: KILL -> Model: "Hard work kills the fear of failure." (Observational)
+- Word: KILL -> Model: "Punctuality kills the habit of procrastination." (Observational)
+- Word: DEATH -> Model: "Great works remain alive even after death." (Universal Truth)
+- Word: FEAR -> Model: "I overcome fear through systematic preparation." (Action-oriented)
+- Word: ENEMY -> Model: "Forgiveness is the best way to win over an enemy." (Maturity)
+
+### BATCH SUMMARY:
+- Brief psychological profile (3 lines).
+- OLQ heatmap (Strengths vs Gaps).
+- Final Score (X/10).
 
 STYLE RULES:
-- Be brutally honest and direct.
-- Use bullet points for readability.
-- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use plain text only. NO asterisks anywhere in the output.`;
+- Use bullet points.
+- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use plain text ONLY. NO asterisks anywhere in the output.`;
 }
 
 export function buildWatPdfPrompt(): string {
