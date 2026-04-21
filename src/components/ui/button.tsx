@@ -16,11 +16,13 @@ const buttonVariants = cva(
         secondary: "glass-button",
         ghost: "hover:bg-accent hover:text-accent-foreground rounded-full",
         link: "text-primary underline-offset-4 hover:underline",
+        gold: "glass-button-gold",
       },
       size: {
         default: "h-11 px-6 py-2",
         sm: "h-9 px-4 text-xs",
         lg: "h-12 px-8 text-base",
+        xl: "h-14 px-10 text-base",
         icon: "h-10 w-10",
       },
     },
