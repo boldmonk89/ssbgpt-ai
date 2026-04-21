@@ -53,9 +53,9 @@ async function callGeminiDirectly(prompt: string, files?: FilePart[]): Promise<s
   }
 
   try {
-    const model = "gemini-1.5-flash"; // Using a stable model
+    const model = "gemini-2.5-flash"; // Switched to the latest stable model
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: {
