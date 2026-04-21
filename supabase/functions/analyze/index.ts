@@ -5,13 +5,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Gemini model — change here if you want a different one
+const GEMINI_MODEL = "gemini-2.0-flash";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
     const { prompt, files } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("Server configuration error. Please try again later.");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
+      return new Response(JSON.stringify({ error: "Server configuration error: GEMINI_API_KEY missing." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Input validation
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
@@ -21,61 +29,55 @@ serve(async (req) => {
       });
     }
 
-    const contentParts: Record<string, unknown>[] = [{ type: "text", text: prompt }];
+    // Build Gemini "parts" array (text + inline files)
+    const parts: Record<string, unknown>[] = [{ text: prompt }];
 
     if (files && Array.isArray(files)) {
       for (const f of files) {
-        if (f.mimeType === "application/pdf") {
-          contentParts.push({
-            type: "file",
-            file: {
-              filename: "document.pdf",
-              file_data: `data:application/pdf;base64,${f.base64}`,
-            },
-          });
-        } else {
-          contentParts.push({
-            type: "image_url",
-            image_url: {
-              url: `data:${f.mimeType};base64,${f.base64}`,
-            },
-          });
-        }
+        if (!f?.base64 || !f?.mimeType) continue;
+        parts.push({
+          inline_data: {
+            mime_type: f.mimeType,
+            data: f.base64,
+          },
+        });
       }
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+    const response = await fetch(url, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-1.5-flash",
-        messages: [{ role: "user", content: contentParts }],
+        contents: [{ role: "user", parts }],
       }),
     });
 
     if (!response.ok) {
+      const errText = await response.text();
+      console.error("Gemini API error:", response.status, errText);
+
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please try again later." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      if (response.status === 401 || response.status === 403) {
+        return new Response(JSON.stringify({ error: "Invalid Gemini API key." }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
-      return new Response(JSON.stringify({ error: `AI service error (${response.status})` }), {
+      return new Response(JSON.stringify({ error: `Gemini API error (${response.status})` }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || "";
+    const text =
+      data?.candidates?.[0]?.content?.parts
+        ?.map((p: { text?: string }) => p?.text ?? "")
+        .join("") || "";
 
     return new Response(JSON.stringify({ result: text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
