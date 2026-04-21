@@ -103,11 +103,19 @@ export default function TATPage() {
 
   return (
     <div className="space-y-6 scroll-reveal">
-      <div className="gold-border-left">
-        <h1 className="text-2xl">TAT — Thematic Apperception Test</h1>
-        <p className="text-muted-foreground font-body text-sm mt-1">
-          Analyze a single TAT story or upload your full TAT PDF for complete review.
-        </p>
+      <div className="gold-border-left flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl">TAT — Thematic Apperception Test</h1>
+          <p className="text-muted-foreground font-body text-sm mt-1">
+            Analyze a single TAT story or upload your full TAT PDF for complete review.
+          </p>
+        </div>
+        {(tatSummary || story.story.trim() || story.analysis) && (
+          <button onClick={handleClear} className="glass-button text-xs flex items-center gap-2 text-destructive hover:bg-destructive/10 border-destructive/20 transition-all duration-300">
+             <Trash2 className="h-3.5 w-3.5" />
+             Clear All
+          </button>
+        )}
       </div>
 
       <div className="gold-stripe" />

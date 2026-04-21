@@ -24,6 +24,7 @@ export default function WATPage() {
     setWatResponses([{ word: '', sentence: '' }]);
     if (document.getElementById('wat-images')) (document.getElementById('wat-images') as HTMLInputElement).value = '';
     if (document.getElementById('wat-pdf')) (document.getElementById('wat-pdf') as HTMLInputElement).value = '';
+    toast.info('Analysis cleared');
   };
 
   const updateRow = (i: number, field: 'word' | 'sentence', value: string) => {
@@ -65,7 +66,6 @@ export default function WATPage() {
   };
 
   const handlePdfUpload = async (file: File) => {
-
     setPdfLoading(true);
     try {
       const base64 = await fileToBase64(file);
@@ -86,8 +86,6 @@ export default function WATPage() {
   const analyzeAll = async () => {
     if (filledRows.length === 0) { toast.error('Type some WAT responses first.'); return; }
     
-
-    // Check for gibberish in sentences
     const allSentences = filledRows.map(r => r.sentence).join(' ');
     const gibberishMsg = detectGibberish(allSentences);
     if (gibberishMsg) {
@@ -97,7 +95,6 @@ export default function WATPage() {
     setLoading(true);
     try {
       const result = await callGemini(buildWatPrompt(filledRows));
-      
       setWatSummary(result.replace(/\*/g, ''));
       saveToHistory('WAT', { responses: filledRows }, result);
       toast.success('WAT analysis complete');
@@ -110,11 +107,19 @@ export default function WATPage() {
 
   return (
     <div className="space-y-6 scroll-reveal">
-      <div className="gold-border-left">
-        <h1 className="text-2xl">WAT — Word Association Test</h1>
-        <p className="text-muted-foreground font-body text-sm mt-1">
-          Type your responses below, upload handwritten sheets, or upload full WAT PDF.
-        </p>
+      <div className="gold-border-left flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl">WAT — Word Association Test</h1>
+          <p className="text-muted-foreground font-body text-sm mt-1">
+            Type your responses below, upload handwritten sheets, or upload full WAT PDF.
+          </p>
+        </div>
+        {(watSummary || filledRows.length > 0) && (
+          <button onClick={handleClear} className="glass-button text-xs flex items-center gap-2 text-destructive hover:bg-destructive/10 border-destructive/20 transition-all duration-300">
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear All
+          </button>
+        )}
       </div>
       <div className="gold-stripe" />
 

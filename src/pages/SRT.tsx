@@ -111,11 +111,19 @@ export default function SRTPage() {
 
   return (
     <div className="space-y-6 scroll-reveal">
-      <div className="gold-border-left">
-        <h1 className="text-2xl">SRT — Situation Reaction Test</h1>
-        <p className="text-muted-foreground font-body text-sm mt-1">
-          Type responses below, upload handwritten sheets, or upload full SRT PDF.
-        </p>
+      <div className="gold-border-left flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl">SRT — Situation Reaction Test</h1>
+          <p className="text-muted-foreground font-body text-sm mt-1">
+            Type responses below, upload handwritten sheets, or upload full SRT PDF.
+          </p>
+        </div>
+        {(srtSummary || filledRows.length > 0) && (
+          <button onClick={handleClear} className="glass-button text-xs flex items-center gap-2 text-destructive hover:bg-destructive/10 border-destructive/20 transition-all duration-300">
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear All
+          </button>
+        )}
       </div>
       <div className="gold-stripe" />
 
