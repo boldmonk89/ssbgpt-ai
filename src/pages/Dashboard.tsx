@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, Menu, ClipboardList, BrainCircuit, BookOpen, GraduationCap, FileText, Users, ExternalLink, Swords, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { motion, type Variants } from 'framer-motion';
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -17,13 +15,13 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { 
     opacity: 1, 
     y: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 100,
       damping: 15
     }
@@ -165,7 +163,7 @@ export default function DashboardPage() {
           <Button
             onClick={() => navigate('/full-analysis')}
             variant="default"
-            size="xl"
+            size="lg"
             className="w-fit"
           >
             Start Full Analysis

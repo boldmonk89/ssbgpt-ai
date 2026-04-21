@@ -3,13 +3,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
-import { callGemini, fileToBase64 } from '@/lib/gemini';
+import { callGemini, callGeminiMultiPart, fileToBase64 } from '@/lib/gemini';
 import { Loader2, Upload, ImageIcon, Pencil, Zap, Eye, EyeOff, Users, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -19,13 +19,13 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { 
     opacity: 1, 
     y: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 100,
       damping: 15
     }
@@ -567,9 +567,12 @@ export default function AIPracticePage() {
     setPpdtLoading(true);
     setPpdtData({ result: '' });
     try {
-
-      setPpdtData({ result: result });
-      toast.success('PPDT Analysis complete (-25 Credits)');
+      const result = await callGeminiMultiPart(
+        `Analyze this PPDT picture for SSB. Provide a complete story (past, present, future), identify characters, mood, and OLQs demonstrated.`,
+        [{ base64: ppdtImage, mimeType: 'image/jpeg' }]
+      );
+      setPpdtData({ result: result.replace(/\*/g, ''), image: ppdtImage, name: ppdtImageName });
+      toast.success('PPDT Analysis complete');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
     } finally {

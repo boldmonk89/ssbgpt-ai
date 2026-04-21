@@ -32,7 +32,7 @@ export default function Footer() {
           <Button 
             asChild
             variant="outline"
-            size="xl"
+            size="lg"
             className="w-full md:w-64 h-16 rounded-2xl border-gold/30 hover:border-gold hover:bg-gold/5 transition-all group overflow-hidden relative"
           >
             <a
@@ -54,7 +54,7 @@ export default function Footer() {
           <Button 
             asChild
             variant="outline"
-            size="xl"
+            size="lg"
             className="w-full md:w-64 h-16 rounded-2xl border-gold/30 hover:border-gold hover:bg-gold/5 transition-all group overflow-hidden relative"
           >
             <a
