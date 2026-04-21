@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useAppStore } from '@/lib/store';
+import { useAppStore } from '@/store/appStore';
 import { callGemini, callGeminiMultiPart, buildInterviewModeAPrompt, buildInterviewModeBPrompt, buildInterviewModeCPrompt } from '@/lib/gemini';
 import { MessageSquare, RefreshCw, ChevronRight, Loader2, Target, Users, Mic, Trash2, StopCircle, Volume2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';

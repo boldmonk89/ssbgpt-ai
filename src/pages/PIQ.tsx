@@ -4,6 +4,7 @@ import { callGemini, buildPiqPrompt, fileToBase64, buildVerifyDocumentPrompt, ca
 import { LoadingCard } from '@/components/LoadingCard';
 import { Upload, User, CheckCircle, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export default function PIQPage() {
   const { piqContext, setPiqContext, piqImageUrl, setPiqImageUrl } = useAppStore();
@@ -55,9 +56,6 @@ export default function PIQPage() {
     setLoading(true);
     try {
       const result = await callGemini(buildPiqPrompt(), fileData);
-      
-      const success = await deductCredits(10);
-      if (!success) throw new Error('Credit deduction failed');
 
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -65,7 +63,7 @@ export default function PIQPage() {
       } else {
         setPiqContext({ rawAnalysis: result });
       }
-      toast.success('PIQ analysis complete (-10 Credits)');
+      toast.success('PIQ analysis complete');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed.');
     } finally {
@@ -131,52 +129,60 @@ export default function PIQPage() {
           {loading ? (
             <LoadingCard message="Analyzing PIQ... extracting personality indicators..." />
           ) : piqContext ? (
+            (() => {
+              const ctx = (typeof piqContext === 'string' ? { rawAnalysis: piqContext } : piqContext) as Record<string, unknown>;
+              const traits = ctx.traits as string[] | undefined;
+              const keyThemes = ctx.keyThemes as string[] | undefined;
+              const olq = ctx.olqInitialMapping as Record<string, unknown> | undefined;
+              return (
             <div className="glass-card space-y-4 relative">
               <h3 className="text-base font-heading font-bold text-gold gold-border-left pr-24">Psychological Profile</h3>
               <div className="gold-stripe" />
-              {piqContext.overallProfile && (
-                <p className="font-body text-sm leading-relaxed text-foreground/85">{piqContext.overallProfile}</p>
+              {ctx.overallProfile && (
+                <p className="font-body text-sm leading-relaxed text-foreground/85">{ctx.overallProfile as string}</p>
               )}
-              {piqContext.traits && Array.isArray(piqContext.traits) && (
+              {traits && Array.isArray(traits) && (
                 <div>
                   <p className="font-heading font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Personality Traits</p>
                   <div className="flex flex-wrap gap-2">
-                    {piqContext.traits.map((t: string, i: number) => (
+                    {traits.map((t: string, i: number) => (
                       <span key={i} className="olq-badge border-accent/50 text-accent">{t}</span>
                     ))}
                   </div>
                 </div>
               )}
-              {piqContext.keyThemes && Array.isArray(piqContext.keyThemes) && (
+              {keyThemes && Array.isArray(keyThemes) && (
                 <div>
                   <p className="font-heading font-semibold text-xs text-muted-foreground uppercase tracking-wider mb-2">Key Themes</p>
                   <div className="flex flex-wrap gap-2">
-                    {piqContext.keyThemes.map((t: string, i: number) => (
+                    {keyThemes.map((t: string, i: number) => (
                       <span key={i} className="olq-badge border-gold/50 text-gold">{t}</span>
                     ))}
                   </div>
                 </div>
               )}
-              {piqContext.olqInitialMapping && typeof piqContext.olqInitialMapping === 'object' && (
+              {olq && typeof olq === 'object' && (
                 <div className="grid grid-cols-2 gap-4 mt-4">
                   <div>
                     <p className="font-heading font-semibold text-xs text-success uppercase tracking-wider mb-2">Likely Strong OLQs</p>
-                    {((piqContext.olqInitialMapping as Record<string, unknown>).likelyStrong as string[])?.map((o: string, i: number) => (
+                    {(olq.likelyStrong as string[])?.map((o: string, i: number) => (
                       <p key={i} className="text-sm font-body text-success/80">• {o}</p>
                     ))}
                   </div>
                   <div>
                     <p className="font-heading font-semibold text-xs text-destructive uppercase tracking-wider mb-2">Likely Weak OLQs</p>
-                    {((piqContext.olqInitialMapping as Record<string, unknown>).likelyWeak as string[])?.map((o: string, i: number) => (
+                    {(olq.likelyWeak as string[])?.map((o: string, i: number) => (
                       <p key={i} className="text-sm font-body text-destructive/80">• {o}</p>
                     ))}
                   </div>
                 </div>
               )}
-              {piqContext.rawAnalysis && (
-                <p className="font-body text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">{piqContext.rawAnalysis}</p>
+              {ctx.rawAnalysis && (
+                <p className="font-body text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">{ctx.rawAnalysis as string}</p>
               )}
             </div>
+              );
+            })()
           ) : (
             <div className="glass-card flex flex-col items-center justify-center min-h-[300px] text-muted-foreground">
               <User className="h-12 w-12 mb-4 opacity-30" />

@@ -3,7 +3,7 @@ import { useAppStore } from '@/store/appStore';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Timer, FileText, Share2, Shield, Upload, Clock, AlertTriangle, CheckCircle, Zap, UserCircle } from 'lucide-react';
+import { Timer, FileText, Share2, Shield, Upload, Clock, AlertTriangle, CheckCircle, Zap, UserCircle, FlaskConical } from 'lucide-react';
 import { WAT_WORDS, SRT_SITUATIONS } from '@/data/psychTestData';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonAnalysis } from '@/components/SkeletonAnalysis';
@@ -103,7 +103,7 @@ export default function FullAnalysisPage() {
       {step === 'WAT' && <WatStep onComplete={(data) => { setWatData(data); nextStep(); }} />}
       {step === 'SRT' && <SrtStep onComplete={(data) => { setSrtData(data); nextStep(); }} />}
       {step === 'SD' && <SdStep onComplete={(data) => { setSdData(data); nextStep(); }} />}
-      {step === 'ANALYSIS' && <FinalAnalysisStep stats={examStats} piq={piqData} tat={tatData} wat={watData} srt={srtData} sd={sdData} />}
+      {step === 'ANALYSIS' && <FinalAnalysisStep stats={examStats as unknown as Record<string, unknown>} piq={piqData} tat={tatData} wat={watData} srt={srtData} sd={sdData} />}
     </div>
   );
 }
