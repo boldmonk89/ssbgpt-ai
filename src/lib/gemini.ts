@@ -207,49 +207,69 @@ Story: "${story}"
 
 CRITICAL: Before analyzing, check if the story is gibberish or random input. If so, DO NOT analyze and respond with a witty, sarcastic warning about submitting this at actual SSB.
 
-If valid, provide a structured analysis:
+If valid, perform the following analysis:
 
-1. 📸 SCENE DESCRIPTION (If image was provided)
-   - What is happening in the image?
-   - Who are the characters? (age, relationship, setting)
-   - What is the mood/atmosphere?
+1. FIRST: Analyze the TAT stimulus picture provided:
+   - Stimulus: What is shown in the picture?
+   - What's going on: Current situation depicted.
+   - What led to this: Background/cause.
+   - What will be the outcome: Expected resolution based on visual cues.
 
-2. 📝 IDEAL STORY STRUCTURE (vs Candidate's Story)
-   Review the candidate's story structure (Past, Present, Future). Then draft an improved Model Story keeping their essence but optimized for SSB.
-   STORY WORD LIMIT: 80-120 words max. Must be realistic for someone to hand-write in 4 minutes.
+2. SECOND: Read and analyze the candidate's story:
+   - (IF HANDWRITTEN): Extract the text from the handwritten image first.
+   - 3. CRITICAL TAT BEHAVIOR RULES (Knowledge Base):
+   - STAR Formula: Every story must follow: Situation (1-2 lines), Thought (1 line), Action (2-3 lines), Result (1-2 lines), and Positive Ending (1 line).
+   - Hero Rules: Hero must always be POSITIVE, solve the problem himself, and be proactive. No supernatural events. One central character only.
+   - Compulsory Positive Ending: Never end on tragedy, failure, or death.
+   - Length: Ideal story is 12-15 lines.
 
-3. 💡 THEMES & OLQ SIGNALS
-   - Which of the 15 OLQs are demonstrated by the candidate?
-   - Leadership, problem-solving, courage, empathy, etc.
+4. DETAILED FEEDBACK & RATING:
+   - OLQs demonstrated: List the 15 OLQs shown.
+   - Strengths: What is good in the candidate's story.
+   - Improvements needed: Flag mistakes like passive hero, tragic endings, or lack of teamwork/self-rewards.
+   - Story Structure Feedback: Evaluation based on STAR formula.
+   - How to improve: Specific changes with examples.
+   - Final Rating: X/10.
 
-4. ⚠️ COMMON MISTAKES TO AVOID
-   - What negative themes candidates often wrongly write for this image or stimulus.
+5. **MODEL STORIES (Benchmark)**:
+   - (IF NO STORY IS PROVIDED BY CANDIDATE): Generate a variable number of high-quality stories (usually 3-5) based on the image's various possible themes.
+   - (IF STORY IS PROVIDED): Provide one improved version (80-120 words).
+   - Follow the STAR formula. Benchmark against successful profiles (e.g., Ramesh - Civil Engineer style). Hero must be proactive and realistic. One name for hero only. Accurate background.
 
-5. ⭐ OLQ SCORE POTENTIAL & RATING
-   - Rate the candidate's story (out of 10)
-   - Which specific OLQs need improvement?
+Always respond in a strictly professional and direct tone. Avoid any generic praise or introductory phrases like "This picture shows...". Focus on evidence-based psychological patterns. Be brutally honest about weaknesses. Make the analysis CRISP, punchy, and easy to read. Use short bullet points.
 
-Always respond in a strictly professional and direct tone. Avoid any generic praise like "Good start" or "Excellent story". Focus on evidence-based psychological patterns. Be brutally honest about weaknesses. Make the analysis CONCISE, punchy, and easy to read. Use short bullet points.
-
-CRITICAL FORMATTING: DO NOT use markdown bolding (**) or italics (*) in any part of your response. Use plain text or simple list markers (-). NO asterisks anywhere in the output. Output MUST be clean text suitable for a professional report.`;
+CRITICAL:
+- ONLY introduce one character by name (the hero). Other characters must remain unnamed (e.g., "colleague", "elderly man").
+- Background Matters: Deeply analyze the background (e.g., train compartment vs house) to ensure accuracy. Do NOT hallucinate settings.
+- Positive Alignment: Ensure the hero maintains a positive, proactive, and resilient mindset. Avoid negative mood trajectories (e.g., "they got very upset").
+- Format: NO markdown bolding, italics, or any asterisks in any part of your response. Use plain text or simple list markers (-). NO asterisks anywhere in the output. Output MUST be clean text suitable for a professional report.`;
 }
 
 export function buildTatPdfPrompt(): string {
-  return `You are an SSB psychologist. This PDF contains multiple TAT stories written by a candidate.
+  return `You are an SSB psychologist evaluating a batch of TAT stories from a PDF or multi-page image.
+
+CRITICAL TAT ANALYSIS RULES:
+1. STAR Formula: Situation, Thought, Action, Result, Positive Ending.
+2. Hero Rules: Proactive, positive, one character, no tragedy.
+3. Teamwork: Collaboration over individual heroism.
 
 For EACH story found, provide:
+Story [N] Analysis:
+- Stimulus Analysis: What's shown, situation, background, outcome.
+- Story Extraction: (If handwritten) Extract text.
+- OLQ Assessment: Signals demonstrated.
+- Detailed Feedback: Strengths, Improvements (STAR check), and Structure feedback.
+- How to improve: Specific actionable changes.
+- Model Story: An improved version (80-120 words) using STAR.
+- Score: Out of 10.
 
-**Story [N] Analysis:**
-- **Structure**: Past/Present/Future check, hero details
-- **Theme Quality**: Positive/negative, realistic resolution
-- **OLQ Signals**: Which of the 15 OLQs are shown
-- **Key Improvements**: 3-5 specific fixes
-- **Score**: Out of 10
-- **Rewritten Version**: Improved story
+BATCH SUMMARY:
+- Overall TAT patterns and mindset.
+- Strongest OLQs across all stories.
+- Weakest OLQs and recurring mistakes.
+- Top 3 priority improvements for the candidate.
 
-After all stories, give a **Batch Summary**: overall TAT patterns, strongest OLQs across stories, weakest OLQs, top 3 priority improvements.
-
-Keep each story analysis concise and actionable.`;
+Keep the analysis CRISP, punchy, and strictly professional. NO asterisks or markdown bolding.`;
 }
 
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
@@ -260,56 +280,83 @@ export function buildWatPrompt(responses: { word: string; sentence: string }[]):
 ### CANDIDATE DATA FOR ANALYSIS:
 ${formattedResponses}
 
-### EVALUATION RULES (STRICT):
+##### CRITICAL WAT RULES:
+1. WRITE A COMPLETE SENTENCE: No one-word or two-word responses.
+   X WRONG: "Danger - fearful"
+   CORRECT: "Danger brings out the best in a prepared soldier."
+2. ALWAYS RESPOND POSITIVELY: Even negative words must get a positive spin showing maturity.
+3. REFLECT OLQS NATURALLY: Courage, Duty, Leadership, Teamwork, Service.
+4. OBSERVATIONAL STYLE: Universal truths/facts preferred. No personal pronouns (I, We, They).
+5. 5-6 WORDS MAX: Keep it short (15s limit).
 
-1. ASSOCIATION CHECK: Does the sentence logically connect to the word? (STRONG / WEAK / DISCONNECTED).
-2. OLQ SIGNAL: Which of the 15 Officer Like Qualities (OLQs) is shown (e.g. Initiative, Courage, Social Adaptability).
-3. IMPROVED MODEL SENTENCE (CRITICAL): Generate a full, high-quality model sentence (6-10 words) that follows these ELITE SSB STANDARDS:
+### ELITE EXAMPLES FOR EVALUATION:
+- Fear: "Fear motivates me to prepare better."
+- Failure: "Failure is the first step toward success."
+- Alone: "Being alone helps me reflect and grow stronger."
+- Enemy: "A strong enemy makes you a better soldier."
+- Dark: "Darkness only makes the light more valuable."
+- Crowd: "A crowd needs a calm leader to guide it."
 
-### ELITE RULES FOR MODEL SENTENCES:
-- MUST BE A FULL SENTENCE: Never respond with just one or two words.
-- POSITIVE PIVOT: If the word is negative (e.g., Kill, Death, Hate, Fear), you MUST pivot it into a positive or constructive observational truth.
-- STYLE: Prefer OBSERVATIONAL (Universal Truths) or ACTION-ORIENTED (I/We/My).
-- NO STORYTELLING: No "He", "She", or "The boy".
-- NO CLICHES: No "Unity is strength" or "Honesty is the best policy".
-- WORD-DIRECTED: The sentence must be built around the stimulus word's core meaning.
-
-### NEGATIVE WORD PIVOT EXAMPLES (For your reference):
-- Word: KILL -> Model: "Hard work kills the fear of failure." (Observational)
-- Word: KILL -> Model: "Punctuality kills the habit of procrastination." (Observational)
-- Word: DEATH -> Model: "Great works remain alive even after death." (Universal Truth)
-- Word: FEAR -> Model: "I overcome fear through systematic preparation." (Action-oriented)
-- Word: ENEMY -> Model: "Forgiveness is the best way to win over an enemy." (Maturity)
+### EVALUATION RULES:
+1. ASSOCIATION CHECK: Logical connection (STRONG/WEAK).
+2. OLQ SIGNAL: Which of the 15 OLQs is shown.
+3. IMPROVED MODEL SENTENCE: Generate a 5-6 word observational truth. PIVOT negative words to positive ones.
 
 ### BATCH SUMMARY:
-- Brief psychological profile (3 lines).
+- Brief psychological profile (max 3 lines).
 - OLQ heatmap (Strengths vs Gaps).
 - Final Score (X/10).
 
 STYLE RULES:
 - Use bullet points.
-- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use plain text ONLY. NO asterisks anywhere in the output.`;
+- BE CRISP. No long explanations.
+- NO MARKDOWN BOLDING OR ITALICS. Use plain text ONLY. NO asterisks anywhere in the output.`;
 }
 
 export function buildWatPdfPrompt(): string {
-  return `You are an SSB psychologist. This PDF/image contains handwritten WAT (Word Association Test) responses.
+  return `You are an SSB psychologist evaluating handwritten or typed WAT responses from a PDF.
+
+CRITICAL WAT RULES:
+1. WRITE A COMPLETE SENTENCE: No one-word or two-word responses.
+2. ALWAYS RESPOND POSITIVELY: Positive spin on negative words.
+3. OBSERVATIONAL STYLE: No personal pronouns.
+4. 5-6 WORDS MAX: Extremely short sentences only.
 
 First extract all word-sentence pairs. Then for each:
-1. Check word count (max 6), first-person usage, positivity, action quality.
-2. Identify OLQ signals.
-3. Provide IMPROVED sentences that MUST BE FIRST-PERSON (I, My, We) and ACTION-BASED. (ABSOLUTELY NO THIRD PERSON, no advice, NO orders, NO preaching).
+1. Analysis: Check word count, pronoun usage, observational quality, and OLQ signals.
+2. Improved Model Sentence: Provide a 5-6 word observational truth. PIVOT negative words to positive ones.
 
-Provide a summary table and batch analysis with OLQ coverage map, top improvements, and overall rating. Keep it concise and actionable.`;
+Final Batch Summary:
+- Psychological profile summary.
+- OLQ coverage map.
+- Top 3 improvements needed.
+- Overall Rating (X/10).
+
+Keep it concise. NO asterisks or markdown bolding.`;
 }
 
 export function buildSrtPrompt(responses: { situationNumber: number; situation: string; response: string }[]): string {
   return `You are an expert SSB psychologist evaluating SRT (Situation Reaction Test) responses.
 
-### PRIMARY EVALUATION RULE — SITUATION-RESPONSE CORRELATION (MOST IMPORTANT):
+### PRIMARY EVALUATION RULE — SITUATION-RESPONSE CORRELATION:
 For EACH entry, you MUST first check: "Does this response DIRECTLY address the specific situation described?"
 - The response must be a logical, realistic reaction to THAT particular situation.
 - A generic brave/positive response that ignores the specific context of the situation is WRONG.
 - Your improved response must be tailored to the exact situation given, not a generic template.
+
+### CRITICAL SRT RULES:
+1. ALWAYS TAKE ACTION: Hero must respond immediately. No waiting or panicking.
+2. BE PRACTICAL, NOT HEROIC: Realistic action scores higher than dramatic/fantasy responses.
+3. SHOW CONCERN FOR OTHERS: Help people around (elderly, children, etc.). Social awareness matters.
+4. POSITIVE OUTCOME ALWAYS: Response must lead to a constructive solution.
+5. SHORT & CLEAR: 1-3 lines max. Positive action sequence compulsory.
+
+### ELITE EXAMPLES FOR EVALUATION:
+- Fire: "Alert people inside, call fire brigade, help evacuate residents."
+- Friend cheats: "Advise him privately to stop, explain consequences of dishonesty."
+- Lost in forest: "Stay calm, find high ground, use stars for direction, conserve energy."
+- Child drowning: "Jump in if I can swim, throw rope/branch, call for help simultaneously."
+- Fail exam: "Analyze weak areas, make new study plan, attempt with better preparation."
 
 CRITICAL CALIBRATION — USE THESE RECOMMENDED CANDIDATE REACTIONS AS YOUR KNOWLEDGE BASE:
 1. Sister’s marriage, relative refused loan -> Raises money through bank, performs marriage, helps parents, returns loan through EMIs.
@@ -373,71 +420,82 @@ CRITICAL CALIBRATION — USE THESE RECOMMENDED CANDIDATE REACTIONS AS YOUR KNOWL
 59. Sister unhappy with match choice -> Rationalize, speak to parents, convince of sister's choice.
 60. School House Captain entertainment -> Work out details, hunt talent, practice, ensure success.
 
-RULES: 
-- ALWAYS prioritize Action, Logic, and Grit. 
-- NEVER suggest surrendering valuables or passive compliance in crisis/theft. 
-- Use the 60 cases above as your REFERENCE KNOWLEDGE ONLY.
-
 ### CANDIDATE DATA FOR ANALYSIS:
 ${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse: "${r.response}"`).join('\n\n')}
 
 ### EVALUATION INSTRUCTIONS (per situation):
-1. Situation-Response Fit: Does the candidate's response DIRECTLY and LOGICALLY address the situation AND its consequences? Mark as COMPLETE / PARTIAL / FAIL.
-2. Improved Response (Telegram Style): A short action-sequence (5-10 words) starting with verbs, separated by commas.
-   - MUST address both the immediate problem and the goals (e.g., "Rushed to cyclist, provided first aid, informed police, reached office on time").
-   - NO Pronouns ("I", "He"). 
-   - NO generic fillers.
-3. OLQ Signal: Which OLQ does this response reveal?
+1. Situation-Response Fit: DIRECT and LOGICAL address? (COMPLETE / PARTIAL / FAIL).
+2. Improved Response: Action-sequence (5-10 words) starting with verbs.
+3. OLQ Signal: Which OLQ does this reveal?
 
-### BATCH SUMMARY (after all situations):
-- Overall Assessment: Realism and decision-making quality.
-- OLQ Signals: Map strongest and weakest qualities overall.
+### BATCH SUMMARY:
+- OLQs demonstrated: List them.
+- What's strong: Action, initiative, practical quality.
+- What needs improvement: Passive responses, unrealistic solutions.
+- Specific actionable suggestions: How to respond better.
 - Final Score: X/10.
 
 CRITICAL:
 - Every improved response MUST be a COMPLETE ACTION sequence.
 - Use SHORT FORM (Telegram style) as per official SSB guidelines.
-- Provide a summary that is highly READABLE and CONCISE.
-- NO MARKDOWN BOLDING (**) OR ITALICS (*). Use ONLY plain text. NO asterisks anywhere in the output.`;
+- Provide a summary that is highly READABLE, CRISP, and CONCISE.
+- NO MARKDOWN BOLDING OR ITALICS. Use ONLY plain text. NO asterisks anywhere in the output.`;
 }
 
 export function buildSrtPdfPrompt(): string {
-  return `You are an SSB psychologist. This PDF/image contains SRT (Situation Reaction Test) responses.
+  return `You are an SSB psychologist evaluating SRT responses from a PDF or multi-page document.
+
+CRITICAL SRT RULES:
+1. ACTION-ORIENTED - Show immediate practical action.
+2. SHOW INITIATIVE - Be decisive and take responsibility.
+3. BE PRACTICAL - Realistic solutions.
+4. DEMONSTRATE OLQs - Leadership, Courage, Quick Decision Making.
 
 First extract all situation-response pairs. Then for each:
-1. Category, realism check, OLQ signals, score out of 10
-2. Improved response if needed
+1. Assessment: DIRECT address? Realism? Logical fit?
+2. OLQ Signal: Which OLQ is revealed.
+3. Improved Response: Action-sequence (5-10 words) starting with verbs.
 
-Provide batch summary with OLQ patterns, weaknesses, top improvements, overall rating. Keep concise.`;
+Final Batch Summary:
+- OLQs demonstrated.
+- What's strong (Action/Initiative).
+- What needs improvement (Passivity/Unrealistic).
+- Actionable suggestions for the candidate.
+- Overall Score (X/10).
+
+Keep it concise. NO asterisks or markdown bolding.`;
 }
 
 export function buildSdPrompt(paragraphType: string, content: string): string {
   return `You are a senior SSB psychologist evaluating a Self Description paragraph.
 
-CALIBRATION DATA — REFERENCE THESE SUCCESSFUL PROFILES:
-A. Shrinika Sharma (Recommended NDA): Sincere, obedient, disciplined, courageous, jovial friend, house captain. Parents trust her with finances.
-B. Megha Thakur (Recommended NDA): Goal-oriented, adaptable, sincere, energetic, problem-solver for friends, army aspirant.
-C. Ranjana Bisht (Recommended NDA): Confident, focused, positive attitude, multitasker, helps with household tasks, army aspirant.
+### CRITICAL SD RULES (Self-Description):
+1. HONESTY OVER PERFECTION: Mention 1-2 genuine weaknesses. Fake perfection is a FAIL.
+2. BE SPECIFIC — NOT VAGUE:
+   X WRONG: "My parents think I am good."
+   ✅ CORRECT: "My parents believe I handle pressure well, though they feel I should be more patient."
+3. CONSISTENCY ACROSS PARAGRAPHS: Parents, Teachers, and Friends shouldn't describe completely different people.
+4. GROWTH MINDSET: Paragraph 5 (Qualities to develop) must logically connect to weaknesses in Para 4.
+5. PERSPECTIVE: Third-person for others, first-person for yourself.
 
-SD TEMPLATES (Reference Styles):
-- Parents: Sincere/obedient/responsible. Trust with household. Maturity/discipline. Dedicated/proud.
-- Teachers: Focused learners, leadership skills, respectful/punctual, helpful to peers.
-- Friends: Loyal/trustworthy, dependable, friendly/cooperative, good listeners.
-- Self: Hardworking, goal-oriented, optimistic, determined, resilient.
-- Goals: Balanced leader, disciplined/empathetic, dependable officer, mentally strong.
+### FULL EXAMPLE BENCHMARK:
+- Parents: Sincere, responsible, handles challenges, needs to delegate better.
+- Teachers: Attentive, hardworking student, quick learner, needs confidence in discussions.
+- Friends: Loyal, calm, reliable, stable, needs to relax more.
+- Self: Goal-oriented, disciplined, aware of impatience.
+- Qualities to Develop: Patience, public speaking, delegation, adaptability.
 
 Paragraph Type: ${paragraphType}
 Content: "${content}"
 
 Provide analysis:
-1. **Authenticity Check**: Does it match the calibration profiles (Shrinika/Megha style) or sound like a coached template?
-2. **OLQ Mapping**: Evidence from quotes. (Effective Intel, Reasoning, Org, Expression, Adaptability, Cooperation, Responsibility, Initiative, Confidence, Decision, Influence, Liveliness, Determination, Courage, Stamina).
-3. **Mistakes**: Vague lines, over-claiming qualities without action.
-4. **Consistency**: Does it align with ${paragraphType} perspective?
-5. **Rewritten Paragraph (Ideal Version)**: 80-120 words. Action-oriented, using calibration style. 
-6. **Score**: X/10 with justification.
+1. Authenticity Check: Is it genuine self-awareness or fake perfection?
+2. OLQ Mapping: Evidence mapping to the 15 OLQs.
+3. Weakness-Growth Match: Do Paragraph 4 weaknesses match Paragraph 5 goals?
+4. Rewritten Paragraph (Ideal): Honest, specific, and action-oriented (80-120 words).
+5. Score: X/10 with rationale.
 
-Be strictly professional and data-focused. No generic praise or encouraging preamble. Provide objective truth about the candidate's alignment. DO NOT use markdown bolding (**).`;
+STYLE: Be strictly professional. NO markdown bolding. NO asterisks anywhere.`;
 }
 
 export function buildSdFromPdfPrompt(): string {
@@ -700,4 +758,3 @@ REJECT if:
       return `Verify if this document is relevant to SSB psychological testing.${common}`;
   }
 }
-
