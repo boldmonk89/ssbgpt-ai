@@ -43,12 +43,21 @@ import logoSrt from '@/assets/logos/logo-srt.png';
 import logoSd from '@/assets/logos/logo-sd.png';
 import logoPiq from '@/assets/logos/logo-piq.png';
 import logoGto from '@/assets/logos/logo-gto.png';
+import logoPpdt from '@/assets/logos/logo-ppdt.png';
 
 
 
 const SLIDES = [slide1, slide2, slide3, slide4, slide5, slide6];
 
 const TEST_CARDS = [
+  {
+    label: 'PPDT',
+    path: '/ppdt',
+    logo: logoPpdt,
+    title: 'Picture Perception & Description Test',
+    desc: 'Upload a hazy PPDT picture. Get AI-generated perception analysis, multiple themed stories with STAR formula, narration scripts, and GD tips.',
+    color: '#e67e22',
+  },
   {
     label: 'TAT',
     path: '/tat',
