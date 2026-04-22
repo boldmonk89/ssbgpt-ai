@@ -13,6 +13,7 @@ const TATPage         = lazy(() => import("./pages/TAT"));
 const WATPage         = lazy(() => import("./pages/WAT"));
 const SRTPage         = lazy(() => import("./pages/SRT"));
 const SDPage          = lazy(() => import("./pages/SD"));
+const PPDTPage        = lazy(() => import("./pages/PPDT"));
 const AIPracticePage  = lazy(() => import("./pages/AIPractice"));
 const GTOPage         = lazy(() => import("./pages/GTO"));
 const SelectionBoardsPage = lazy(() => import("./pages/SelectionBoards"));
@@ -110,6 +111,7 @@ const App = () => {
                     <Route path="/wat"           element={<WATPage />} />
                     <Route path="/srt"           element={<SRTPage />} />
                     <Route path="/sd"            element={<SDPage />} />
+                    <Route path="/ppdt"          element={<PPDTPage />} />
                     <Route path="/ai-practice"   element={<AIPracticePage />} />
                     <Route path="/gto"           element={<GTOPage />} />
                     <Route path="/selection-boards" element={<SelectionBoardsPage />} />

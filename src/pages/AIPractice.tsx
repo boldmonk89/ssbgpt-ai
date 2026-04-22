@@ -442,11 +442,6 @@ export default function AIPracticePage() {
     ppdtImage, ppdtImageName, ppdtResult, setPpdtData
   } = usePracticeStore();
 
-  const [watUserSentence, setWatUserSentence] = useState('');
-  const [srtUserResponse, setSrtUserResponse] = useState('');
-  const [tatUserStory, setTatUserStory] = useState('');
-  const [ppdtUserStory, setPpdtUserStory] = useState('');
-
   const [showOlqTags, setShowOlqTags] = useState(true);
   const [tatLoading, setTatLoading] = useState(false);
   const [watLoading, setWatLoading] = useState(false);
@@ -456,8 +451,8 @@ export default function AIPracticePage() {
   const navigate = useNavigate();
 
   const handleClearTat = () => { setTatData({ result: '', image: null, name: '' }); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
-  const handleClearWat = () => { setWatData({ result: '', word: '' }); setWatUserSentence(''); };
-  const handleClearSrt = () => { setSrtData({ result: '', situation: '' }); setSrtUserResponse(''); };
+  const handleClearWat = () => { setWatData({ result: '', word: '' }); };
+  const handleClearSrt = () => { setSrtData({ result: '', situation: '' }); };
   const handleClearPpdt = () => { setPpdtData({ result: '', image: null, name: '' }); if (document.getElementById('ppdt-upload')) (document.getElementById('ppdt-upload') as HTMLInputElement).value = ''; };
 
   const handleTatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -480,13 +475,12 @@ export default function AIPracticePage() {
       toast.error('Please upload a TAT image first');
       return;
     }
-    
 
     setTatLoading(true);
     setTatData({ result: '' });
     try {
       const result = await callGeminiMultiPart(
-        `Imagine a complete TAT story for this picture. Analyze its psychology, OLQs, and Mansa-Vacha-Karma alignment. PICTURE BASELINE ENCLOSED.`,
+        SYSTEM_PROMPT_TAT + `\n\nGenerate high-fidelity TAT stories for this picture. Analyze its psychology, OLQs, and Mansa-Vacha-Karma alignment.`,
         [{ base64: tatImage, mimeType: 'image/jpeg' }]
       );
       
@@ -500,7 +494,6 @@ export default function AIPracticePage() {
   };
 
   const analyzeWat = async () => {
-    const trimmed = watUserSentence.trim();
     if (!watWord.trim()) {
       toast.error('Please enter a word');
       return;
@@ -510,7 +503,7 @@ export default function AIPracticePage() {
     setWatData({ result: '' });
     try {
       const result = await callGemini(
-        `Provide a professional psych analysis of this WAT association: Word: "${watWord}", Response: "${trimmed}". Analyze OLQs and subconscious bias.`
+        SYSTEM_PROMPT_WAT + `\n\nProvide model associations and psych analysis for the word: "${watWord}".`
       );
       
       setWatData({ word: watWord, result: result.replace(/\*/g, '') });
@@ -568,7 +561,7 @@ export default function AIPracticePage() {
     setPpdtData({ result: '' });
     try {
       const result = await callGeminiMultiPart(
-        `Analyze this PPDT picture for SSB. Provide a complete story (past, present, future), identify characters, mood, and OLQs demonstrated.`,
+        SYSTEM_PROMPT_PPDT + `\n\nAnalyze this PPDT picture. Provide complete stories, perception table, and narration script.`,
         [{ base64: ppdtImage, mimeType: 'image/jpeg' }]
       );
       setPpdtData({ result: result.replace(/\*/g, ''), image: ppdtImage, name: ppdtImageName });
@@ -659,16 +652,6 @@ export default function AIPracticePage() {
                 )}
               </label>
 
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Your Story (Optional)</p>
-                <Textarea
-                  placeholder="Record your story here to get it reviewed by AI..."
-                  value={tatUserStory}
-                  onChange={(e) => setTatUserStory(e.target.value)}
-                  className="min-h-[120px] bg-background/30 border-border/20 text-sm focus:border-gold/30"
-                />
-              </div>
-
               <button
                 onClick={analyzeTat}
                 disabled={tatLoading || !tatImage}
@@ -697,16 +680,6 @@ export default function AIPracticePage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Your Response (Optional)</p>
-                <Textarea
-                  placeholder="Type your sentence here to get it analyzed..."
-                  value={watUserSentence}
-                  onChange={(e) => setWatUserSentence(e.target.value)}
-                  className="min-h-[80px] bg-background/30 border-border/20 text-sm focus:border-gold/30"
-                />
-              </div>
-              
               <div className="flex gap-2">
                 <button
                   onClick={analyzeWat}
@@ -739,16 +712,6 @@ export default function AIPracticePage() {
                   value={srtSituation}
                   onChange={(e) => setSrtData({ situation: e.target.value })}
                   className="min-h-[100px] text-sm bg-background/50 border-border/20 focus:border-gold/30"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Your Response (Optional)</p>
-                <Textarea
-                  placeholder="Type your reaction here to get it analyzed..."
-                  value={srtUserResponse}
-                  onChange={(e) => setSrtUserResponse(e.target.value)}
-                  className="min-h-[100px] bg-background/30 border-border/20 text-sm focus:border-gold/30"
                 />
               </div>
 
@@ -792,16 +755,6 @@ export default function AIPracticePage() {
                   </>
                 )}
               </label>
-
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold text-gold/60 uppercase tracking-widest pl-1">Your Narration (Optional)</p>
-                <Textarea
-                  placeholder="Record your PPDT narration here to get it reviewed by AI..."
-                  value={ppdtUserStory}
-                  onChange={(e) => setPpdtUserStory(e.target.value)}
-                  className="min-h-[120px] bg-background/30 border-border/20 text-sm focus:border-gold/30"
-                />
-              </div>
 
               <button
                 onClick={analyzePpdt}
