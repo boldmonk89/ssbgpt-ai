@@ -132,21 +132,21 @@ export function getFileMimeType(file: File): string {
 // ── Extraction prompts ──
 
 export function buildExtractTextFromImagePrompt(context: string): string {
-  return `Extract ALL handwritten or printed text from this image exactly as written. This is a ${context}. Output the extracted text only, no commentary.`;
+  return `Extract ALL handwritten or printed text from this image exactly as written. This is a ${context}. Output the extracted text only, no commentary. NO asterisks or markdown formatting.`;
 }
 
 export function buildExtractWatFromImagePrompt(): string {
   return `This is a handwritten WAT (Word Association Test) response sheet. It has two columns: Word and Sentence.
 Extract ALL word-sentence pairs from this image. Output ONLY as a JSON array, no extra text:
 [{"word": "...", "sentence": "..."}, ...]
-Be precise — extract exactly what is written.`;
+Be precise — extract exactly what is written. NO asterisks or markdown formatting.`;
 }
 
 export function buildExtractSrtFromImagePrompt(): string {
   return `This is a handwritten SRT (Situation Reaction Test) response sheet. It has two columns: Situation and Reaction/Response.
 Extract ALL situation-response pairs from this image. Output ONLY as a JSON array, no extra text:
 [{"situation": "...", "response": "..."}, ...]
-Be precise — extract exactly what is written.`;
+Be precise — extract exactly what is written. NO asterisks or markdown formatting.`;
 }
 
 // ── Analysis prompts (NO PIQ context in individual tests) ──
@@ -220,29 +220,35 @@ If valid, perform the following analysis:
    - 3. CRITICAL TAT BEHAVIOR RULES (Knowledge Base):
    - STAR Formula: Every story must follow: Situation (1-2 lines), Thought (1 line), Action (2-3 lines), Result (1-2 lines), and Positive Ending (1 line).
    - Hero Rules: Hero must always be POSITIVE, solve the problem himself, and be proactive. No supernatural events. One central character only.
+   - Team Player Rules: Praise your team, show teamwork and collective effort. No individual heroism only.
+   - Never give rewards to yourself (medals/awards/self-glory). Hero earns respect through ACTION, not awards.
+   - No negative mood trajectories (e.g., "they got very upset", "he was devastated"). Hero is always positive.
    - Compulsory Positive Ending: Never end on tragedy, failure, or death.
    - Length: Ideal story is 12-15 lines.
 
 4. DETAILED FEEDBACK & RATING:
    - OLQs demonstrated: List the 15 OLQs shown.
    - Strengths: What is good in the candidate's story.
-   - Improvements needed: Flag mistakes like passive hero, tragic endings, or lack of teamwork/self-rewards.
+   - Improvements needed: Flag mistakes like passive hero, tragic endings, self-rewards, or lack of teamwork.
    - Story Structure Feedback: Evaluation based on STAR formula.
    - How to improve: Specific changes with examples.
    - Final Rating: X/10.
 
-5. **MODEL STORIES (Benchmark)**:
-   - (IF NO STORY IS PROVIDED BY CANDIDATE): Generate a variable number of high-quality stories (usually 3-5) based on the image's various possible themes.
+5. MODEL STORIES (Benchmark):
+   - (IF NO STORY IS PROVIDED BY CANDIDATE): Generate a variable number of high-quality stories based on the image's various possible themes. AI decides the number of themes based on the stimulus.
+   - State: "Based on this picture, I have generated [N] different themes in English."
    - (IF STORY IS PROVIDED): Provide one improved version (80-120 words).
-   - Follow the STAR formula. Benchmark against successful profiles (e.g., Ramesh - Civil Engineer style). Hero must be proactive and realistic. One name for hero only. Accurate background.
+   - Follow the STAR formula. Hero must be proactive and realistic. One name for hero only. Accurate background.
 
-Always respond in a strictly professional and direct tone. Avoid any generic praise or introductory phrases like "This picture shows...". Focus on evidence-based psychological patterns. Be brutally honest about weaknesses. Make the analysis CRISP, punchy, and easy to read. Use short bullet points.
+Always respond in a strictly professional and direct tone. NO meta-talk like "This picture shows...". Focus on evidence-based psychological patterns. Be brutally honest about weaknesses. Make the analysis CRISP, punchy, and easy to read. Use short bullet points.
 
 CRITICAL:
 - ONLY introduce one character by name (the hero). Other characters must remain unnamed (e.g., "colleague", "elderly man").
 - Background Matters: Deeply analyze the background (e.g., train compartment vs house) to ensure accuracy. Do NOT hallucinate settings.
-- Positive Alignment: Ensure the hero maintains a positive, proactive, and resilient mindset. Avoid negative mood trajectories (e.g., "they got very upset").
-- Format: NO markdown bolding, italics, or any asterisks in any part of your response. Use plain text or simple list markers (-). NO asterisks anywhere in the output. Output MUST be clean text suitable for a professional report.`;
+- Positive Alignment: Ensure the hero maintains a positive, proactive, and resilient mindset. Avoid negative mood trajectories.
+- NO MARKDOWN BOLDING, ITALICS, OR ASTERISKS (*) ANYWHERE IN THE OUTPUT.
+- USE PLAIN TEXT ONLY. No headings with # or ##. Use simple capitalised text for sections.
+- Output MUST be clean text suitable for a professional report.`;
 }
 
 export function buildTatPdfPrompt(): string {
@@ -281,26 +287,30 @@ export function buildWatPrompt(responses: { word: string; sentence: string }[]):
 ${formattedResponses}
 
 ##### CRITICAL WAT RULES:
-1. WRITE A COMPLETE SENTENCE: No one-word or two-word responses.
-   X WRONG: "Danger - fearful"
-   CORRECT: "Danger brings out the best in a prepared soldier."
-2. ALWAYS RESPOND POSITIVELY: Even negative words must get a positive spin showing maturity.
-3. REFLECT OLQS NATURALLY: Courage, Duty, Leadership, Teamwork, Service.
-4. OBSERVATIONAL STYLE: Universal truths/facts preferred. No personal pronouns (I, We, They).
-5. 5-6 WORDS MAX: Keep it short (15s limit).
+1. OBSERVATIONAL SENTENCES ONLY: No personal opinions or feelings.
+   X WRONG: "I think soldiers are brave", "He is honest", "Danger - fearful"
+   CORRECT: "Soldiers protect the nation", "Honesty builds trust", "Courage overcomes fear"
+2. NO PERSONAL PRONOUNS: Never use I, We, They, He, She, You in model sentences.
+3. 5-6 WORDS MAX: Keep it extremely short (15s limit).
+4. ALWAYS RESPOND POSITIVELY: Even negative words must get a positive spin showing maturity.
+5. REFLECT OLQS NATURALLY: Courage, Duty, Leadership, Teamwork, Service.
+6. SHOW OLQs NATURALLY: Display Leadership, Courage, Determination, etc. through the sentence meaning.
 
 ### ELITE EXAMPLES FOR EVALUATION:
-- Fear: "Fear motivates me to prepare better."
-- Failure: "Failure is the first step toward success."
-- Alone: "Being alone helps me reflect and grow stronger."
-- Enemy: "A strong enemy makes you a better soldier."
-- Dark: "Darkness only makes the light more valuable."
-- Crowd: "A crowd needs a calm leader to guide it."
+- Fear: "Courage silences all fear."
+- Failure: "Failure sharpens the path to success."
+- Alone: "Self-introspection strengthens inner resolve."
+- Enemy: "Alertness neutralises approaching danger."
+- Dark: "Darkness only makes light valuable."
+- Crowd: "Calm leadership guides every crowd."
+- Suicide: "Suicide is never an option."
+- Corruption: "e-governance curbs corruption effectively."
 
 ### EVALUATION RULES:
 1. ASSOCIATION CHECK: Logical connection (STRONG/WEAK).
 2. OLQ SIGNAL: Which of the 15 OLQs is shown.
-3. IMPROVED MODEL SENTENCE: Generate a 5-6 word observational truth. PIVOT negative words to positive ones.
+3. PRONOUN CHECK: Does it contain personal pronouns? If yes, flag it.
+4. IMPROVED MODEL SENTENCE: Generate a 5-6 word observational truth with NO pronouns. PIVOT negative words to positive ones.
 
 ### BATCH SUMMARY:
 - Brief psychological profile (max 3 lines).
@@ -345,22 +355,27 @@ For EACH entry, you MUST first check: "Does this response DIRECTLY address the s
 - Your improved response must be tailored to the exact situation given, not a generic template.
 
 ### CRITICAL SRT RULES:
-1. ALWAYS TAKE ACTION: Hero must respond immediately. No waiting or panicking.
-2. BE PRACTICAL, NOT HEROIC: Realistic action scores higher than dramatic/fantasy responses.
-3. SHOW CONCERN FOR OTHERS: Help people around (elderly, children, etc.). Social awareness matters.
-4. POSITIVE OUTCOME ALWAYS: Response must lead to a constructive solution.
-5. SHORT & CLEAR: 1-3 lines max. Positive action sequence compulsory.
+1. TELEGRAPHIC LANGUAGE: Action sequences only. Short, action-oriented, crisp.
+   WRONG: "I will immediately alert the guard and try to close the door."
+   CORRECT: "Alerted guard, closed main door, informed police."
+2. ACTION-ORIENTED: Show immediate practical action. No waiting or panicking.
+3. NO PRONOUNS: Avoid "I", "We", "I will". Start directly with verbs.
+4. BE PRACTICAL, NOT HEROIC: Realistic action scores higher than dramatic/fantasy responses.
+5. SHOW CONCERN FOR OTHERS: Help people around (elderly, children, etc.). Social awareness matters.
+6. POSITIVE OUTCOME ALWAYS: Response must lead to a constructive solution.
+7. SHORT & CLEAR: 1-3 lines max. Positive action sequence compulsory.
+8. INITIATIVE & PRACTICALITY: Realistic solutions only.
 
 ### ELITE EXAMPLES FOR EVALUATION:
-- Fire: "Alert people inside, call fire brigade, help evacuate residents."
-- Friend cheats: "Advise him privately to stop, explain consequences of dishonesty."
-- Lost in forest: "Stay calm, find high ground, use stars for direction, conserve energy."
-- Child drowning: "Jump in if I can swim, throw rope/branch, call for help simultaneously."
-- Fail exam: "Analyze weak areas, make new study plan, attempt with better preparation."
+- Fire: "Alerted people, called fire brigade, evacuated residents."
+- Friend cheats: "Warned him privately, explained consequences."
+- Lost in forest: "Stayed calm, found high ground, used stars for direction."
+- Child drowning: "Jumped in, rescued child, gave first aid."
+- Fail exam: "Analysed weak areas, made new plan, cleared next attempt."
 
 CRITICAL CALIBRATION — USE THESE RECOMMENDED CANDIDATE REACTIONS AS YOUR KNOWLEDGE BASE:
-1. Sister’s marriage, relative refused loan -> Raises money through bank, performs marriage, helps parents, returns loan through EMIs.
-2. Sister’s marriage, no leave due to inspection -> Inquires welfare telephonically, assist by raising funds, sends money online, requests relatives to ensure ceremony. Visits later.
+1. Sister's marriage, relative refused loan -> Raises money through bank, performs marriage, helps parents, returns loan through EMIs.
+2. Sister's marriage, no leave due to inspection -> Inquires welfare telephonically, assist by raising funds, sends money online, requests relatives to ensure ceremony. Visits later.
 3. Bharat Bandh likely during leave -> Contact unit, leaves house in sufficient time to reach duty on time.
 4. Noise at midnight, theft through window -> Raise alarm, catch intruder, pull chain, hand over to police.
 5. Traffic jam on way to important meeting -> Gets down, runs distance/clears jam/takes alt means, attends on time.
@@ -425,7 +440,7 @@ ${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse
 
 ### EVALUATION INSTRUCTIONS (per situation):
 1. Situation-Response Fit: DIRECT and LOGICAL address? (COMPLETE / PARTIAL / FAIL).
-2. Improved Response: Action-sequence (5-10 words) starting with verbs.
+2. Improved Response: Telegraphic style action-sequence starting with verbs. No pronouns.
 3. OLQ Signal: Which OLQ does this reveal?
 
 ### BATCH SUMMARY:
@@ -436,7 +451,8 @@ ${responses.map(r => `Situation ${r.situationNumber}: "${r.situation}"\nResponse
 - Final Score: X/10.
 
 CRITICAL:
-- Every improved response MUST be a COMPLETE ACTION sequence.
+- Every improved response MUST use TELEGRAPHIC LANGUAGE: "Stayed calm, helped others, ensured children rescued first."
+- NO pronouns (I, We, I will) in improved responses. Start directly with verbs.
 - Use SHORT FORM (Telegram style) as per official SSB guidelines.
 - Provide a summary that is highly READABLE, CRISP, and CONCISE.
 - NO MARKDOWN BOLDING OR ITALICS. Use ONLY plain text. NO asterisks anywhere in the output.`;
