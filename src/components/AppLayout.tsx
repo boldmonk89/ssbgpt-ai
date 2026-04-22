@@ -16,11 +16,11 @@ import splashImg from '@/assets/splash.png';
 const navItems = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
   { to: '/piq', label: 'PIQ', icon: UserCircle },
+  { to: '/ppdt', label: 'PPDT', icon: ShieldAlert },
   { to: '/tat', label: 'TAT', icon: FileText },
   { to: '/wat', label: 'WAT', icon: MessageSquare },
   { to: '/srt', label: 'SRT', icon: Zap },
   { to: '/sd', label: 'SD', icon: Shield },
-  { to: '/ppdt', label: 'PPDT', icon: ShieldAlert },
   { to: '/gto', label: 'GTO', icon: Swords },
   { to: '/interview', label: 'Interview Practice', icon: Users },
   { to: '/ai-practice', label: 'AI Practice Sandbox', icon: BrainCircuit },

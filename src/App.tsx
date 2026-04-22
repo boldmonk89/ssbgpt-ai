@@ -107,11 +107,11 @@ const App = () => {
                   <Routes>
                     <Route path="/"              element={<DashboardPage />} />
                     <Route path="/piq"           element={<PIQPage />} />
+                    <Route path="/ppdt"          element={<PPDTPage />} />
                     <Route path="/tat"           element={<TATPage />} />
                     <Route path="/wat"           element={<WATPage />} />
                     <Route path="/srt"           element={<SRTPage />} />
                     <Route path="/sd"            element={<SDPage />} />
-                    <Route path="/ppdt"          element={<PPDTPage />} />
                     <Route path="/ai-practice"   element={<AIPracticePage />} />
                     <Route path="/gto"           element={<GTOPage />} />
                     <Route path="/selection-boards" element={<SelectionBoardsPage />} />
