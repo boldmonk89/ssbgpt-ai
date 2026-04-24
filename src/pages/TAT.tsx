@@ -6,7 +6,7 @@ import { detectGibberish } from '@/lib/gibberishDetector';
 import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
-import { Upload, ImageIcon, FileText } from 'lucide-react';
+import { Upload, ImageIcon, FileText, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 

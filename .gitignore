@@ -25,3 +25,6 @@ dist-ssr
 .vercel
 .env
 .env*.local
+.agents/
+skills-lock.json
+supabase/.temp/
