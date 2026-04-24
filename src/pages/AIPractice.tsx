@@ -16,6 +16,132 @@ import { motion, type Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { usePracticeStore } from '@/store/practiceStore';
 
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15
+    }
+  }
+};
+
+export default function AIPracticePage() {
+  const {
+    aiActiveTab: activeTab, setAiActiveTab: setActiveTab,
+    tatImage, tatImageName, tatResult, setTatData,
+    watWord, watResult, setWatData,
+    srtSituation, srtResult, setSrtData,
+    ppdtImage, ppdtImageName, ppdtResult, setPpdtData
+  } = usePracticeStore();
+
+  const [showOlqTags, setShowOlqTags] = useState(true);
+  const [tatLoading, setTatLoading] = useState(false);
+  const [watLoading, setWatLoading] = useState(false);
+  const [srtLoading, setSrtLoading] = useState(false);
+  const [ppdtLoading, setPpdtLoading] = useState(false);
+  
+  const navigate = useNavigate();
+
+  const handleClearTat = () => { setTatData({ result: '', image: null, name: '' }); if (document.getElementById('tat-upload')) (document.getElementById('tat-upload') as HTMLInputElement).value = ''; };
+  const handleClearWat = () => { setWatData({ result: '', word: '' }); };
+  const handleClearSrt = () => { setSrtData({ result: '', situation: '' }); };
+  const handleClearPpdt = () => { setPpdtData({ result: '', image: null, name: '' }); if (document.getElementById('ppdt-upload')) (document.getElementById('ppdt-upload') as HTMLInputElement).value = ''; };
+
+  const handleTatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image must be under 10MB');
+      return;
+    }
+    const base64 = await fileToBase64(file);
+    setTatData({ image: base64, name: file.name });
+  };
+
+  const analyzeTat = async () => {
+    if (!tatImage) {
+      toast.error('Please upload a TAT image first');
+      return;
+    }
+
+    setTatLoading(true);
+    setTatData({ result: '' });
+    try {
+      const result = await callGeminiMultiPart(
+        SYSTEM_PROMPT_TAT + `\n\nGenerate high-fidelity TAT stories for this picture. Analyze its psychology, OLQs, and Mansa-Vacha-Karma alignment.`,
+        [{ base64: tatImage, mimeType: 'image/jpeg' }]
+      );
+      
+      setTatData({ result, image: tatImage, name: tatImageName });
+      toast.success('TAT practiced');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
+    } finally {
+      setTatLoading(false);
+    }
+  };
+
+  const analyzeWat = async () => {
+    if (!watWord.trim()) {
+      toast.error('Please enter a word');
+      return;
+    }
+
+    setWatLoading(true);
+    setWatData({ result: '' });
+    try {
+      const result = await callGemini(
+        SYSTEM_PROMPT_WAT + `\n\nProvide model associations and psych analysis for the word: "${watWord}".`
+      );
+      
+      setWatData({ word: watWord, result });
+      toast.success('WAT practiced');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
+    } finally {
+      setWatLoading(false);
+    }
+  };
+
+  const analyzeSrt = async () => {
+    const trimmed = srtSituation.trim();
+    if (!trimmed) {
+      toast.error('Please enter a situation');
+      return;
+    }
+
+    setSrtLoading(true);
+    setSrtData({ result: '' });
+    try {
+      const result = await callGemini(SYSTEM_PROMPT_SRT + `\n\nThe situation is: "${trimmed}"\n\nGenerate SRT reactions as instructed.`);
+
+      setSrtData({ situation: trimmed, result });
+      toast.success('SRT Analysis complete');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Analysis failed');
+    } finally {
+      setSrtLoading(false);
+    }
+  };
+
   const handlePpdtImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -44,7 +170,7 @@ import { usePracticeStore } from '@/store/practiceStore';
         SYSTEM_PROMPT_PPDT + `\n\nAnalyze this PPDT picture. Provide complete stories, perception table, and narration script.`,
         [{ base64: ppdtImage, mimeType: 'image/jpeg' }]
       );
-      setPpdtData({ result: result.replace(/\*/g, ''), image: ppdtImage, name: ppdtImageName });
+      setPpdtData({ result, image: ppdtImage, name: ppdtImageName });
       toast.success('PPDT Analysis complete');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Analysis failed');
@@ -84,6 +210,7 @@ import { usePracticeStore } from '@/store/practiceStore';
           onClick={() => setShowOlqTags(!showOlqTags)}
           className="glass-button flex items-center gap-2 text-xs"
         >
+          {showOlqTags ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
           {showOlqTags ? 'Hide' : 'Show'} OLQ Tags
         </button>
       </motion.div>
@@ -243,13 +370,17 @@ import { usePracticeStore } from '@/store/practiceStore';
               >
                 {ppdtLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'GENERATE ANALYSIS'}
               </button>
+              {ppdtResult && (
+                  <button onClick={handleClearPpdt} className="glass-button w-full h-10 border-destructive/20 text-destructive flex items-center justify-center gap-2">
+                    <Trash2 className="h-4 w-4" /> Clear All
+                  </button>
+                )}
             </div>
           </div>
 
           {ppdtResult && <AnalysisOutput content={ppdtResult} title="AI-Generated PPDT Story & Narration" />}
         </TabsContent>
       </Tabs>
-
-      </motion.div>
+    </motion.div>
   );
 }
