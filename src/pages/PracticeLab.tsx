@@ -33,10 +33,11 @@ const shuffle = <T,>(array: T[]): T[] => [...array].sort(() => Math.random() - 0
 type LabMode = 'DASHBOARD' | 'TAT' | 'WAT' | 'SRT' | 'SD' | 'ANALYSIS';
 
 const speak = (text: string) => {
+  window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.95;
+  utterance.rate = 1.0;
   utterance.pitch = 1;
-  speechSynthesis.speak(utterance);
+  window.speechSynthesis.speak(utterance);
 };
 
 export default function PracticeLabPage() {
@@ -738,10 +739,10 @@ function FinalAnalysisStep({ stats, onBack }: { stats: Record<string, unknown>, 
       ];
 
       const res = files.length > 0 
-        ? await callGeminiMultiPart(prompt + "\n\nAnalyze the provided documents strictly. Output must be clean text without asterisks.", files)
-        : await callGemini(prompt + "\n\nAnalyze the provided test summaries. Output must be clean text without asterisks.");
+        ? await callGeminiMultiPart(prompt, files)
+        : await callGemini(prompt);
       
-      setAnalysisResult(res.replace(/\*/g, ''));
+      setAnalysisResult(res);
     } catch (e: unknown) {
       toast.error("Analysis generation failed");
     } finally {

@@ -22,10 +22,11 @@ function convertMarkdownToHtml(text: string): string {
 }
 
 const speak = (text: string) => {
+  window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.95;
+  utterance.rate = 1.0;
   utterance.pitch = 1;
-  speechSynthesis.speak(utterance);
+  window.speechSynthesis.speak(utterance);
 };
 
 export default function FullAnalysisPage() {
@@ -120,7 +121,7 @@ function InstructionsSection({ onStart }: { onStart: () => void }) {
         </div>
         <div>
           <h2 className="text-xl font-heading font-bold uppercase tracking-tight">Standard SSB Procedure</h2>
-          <p className="text-xs text-muted-foreground uppercase tracking-widest text-[10px]">Follow instructions carefullly. Timers are absolute.</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-widest text-[10px]">Follow instructions carefully. Timers are absolute.</p>
         </div>
       </div>
       
@@ -704,7 +705,7 @@ function FinalAnalysisStep({ stats, piq, tat, wat, srt, sd }: { stats: Record<st
         ...(sd ? [{ base64: sd, mimeType: 'application/pdf' }] : []),
       ];
 
-      const result = await callGeminiMultiPart(prompt + "\n\nIMPORTANT: Use the provided actual response sheets for analysis. Be extremely professional and strictly verify Mansa-Vacha-Karma alignment. The report MUST be CONCISE, structured with bullet points, and highly readable. DO NOT use markdown bolding (**) in your response. Output plain text report.", files);
+      const result = await callGeminiMultiPart(prompt, files);
       
       setAnalysisResult(result);
       toast.success('Psych Profile Analysis Complete');

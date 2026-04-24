@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import PageTransition from '@/components/PageTransition';
+import { toast } from 'sonner';
 
 import intImg1 from '@/assets/interview/int-1.jpg';
 import intImg2 from '@/assets/interview/int-2.jpg';
@@ -103,12 +104,12 @@ export default function Interview() {
         });
       }, 1000);
     } catch (err) {
-      alert('Microphone access denied. Please allow mic access.');
+      toast.error('Microphone access denied. Please allow mic access.');
     }
   }, [stopRecording]);
 
   const analyzeRecordedA = async () => {
-    if (!videoBlobA || !questionA.trim()) { alert('Need question and recording'); return; }
+    if (!videoBlobA || !questionA.trim()) { toast.error('Need question and recording'); return; }
     setLoadingA(true);
     setResultA('');
     try {
@@ -120,11 +121,11 @@ export default function Interview() {
         [{ base64, mimeType: 'audio/webm' }]
       );
       setResultA(response);
-    } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Analysis failed'); } finally { setLoadingA(false); }
+    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : 'Analysis failed'); } finally { setLoadingA(false); }
   };
 
   const analyzeRecordedB = async () => {
-    if (!videoBlobB) { alert('Need recording'); return; }
+    if (!videoBlobB) { toast.error('Need recording'); return; }
     setLoadingB(true);
     setResultB('');
     try {
@@ -136,7 +137,7 @@ export default function Interview() {
         [{ base64, mimeType: 'audio/webm' }]
       );
       setResultB(response);
-    } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Analysis failed'); } finally { setLoadingB(false); }
+    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : 'Analysis failed'); } finally { setLoadingB(false); }
   };
 
 
@@ -147,7 +148,7 @@ export default function Interview() {
       const response = await callGemini(buildInterviewModeAPrompt(questionA, answerA));
       setResultA(response);
     } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : 'Analysis failed');
+      toast.error(e instanceof Error ? e.message : 'Analysis failed');
     } finally {
       setLoadingA(false);
     }
@@ -160,7 +161,7 @@ export default function Interview() {
       const response = await callGemini(buildInterviewModeBPrompt(statementB));
       setResultB(response);
     } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : 'Analysis failed');
+      toast.error(e instanceof Error ? e.message : 'Analysis failed');
     } finally {
       setLoadingB(false);
     }
@@ -168,15 +169,11 @@ export default function Interview() {
 
 
   const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9; // Slightly slower for formal feel
-      utterance.pitch = 1.0;
-      window.speechSynthesis.speak(utterance);
-    } else {
-      alert('Your browser does not support speech synthesis.');
-    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
   };
 
   return (
