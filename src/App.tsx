@@ -24,6 +24,7 @@ const PracticeLabPage = lazy(() => import("./pages/PracticeLab"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
 // LoginPage is removed
 
+
 import { useAuthStore } from "@/store/authStore";
 import { useEffect } from "react";
 
