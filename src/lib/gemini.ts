@@ -67,7 +67,7 @@ async function callGeminiDirectly(prompt: string, files?: FilePart[]): Promise<s
   }
 
   try {
-    const model = "gemini-2.0-flash"; // Switched back to 2.0-flash as it's the stable optimized one for this task
+    const model = "gemini-1.5-flash"; // Switched to 1.5-flash for maximum stability and availability
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
       {
