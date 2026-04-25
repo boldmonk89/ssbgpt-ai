@@ -76,7 +76,7 @@ async function callGeminiDirectly(prompt: string, files?: FilePart[]): Promise<s
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [{ parts }],
+          contents: [{ role: "user", parts }],
           generationConfig: {
             temperature: 0.7,
             topK: 40,
