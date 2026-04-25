@@ -1,101 +1,11 @@
 import { useState } from 'react';
 import { callGeminiMultiPart, fileToBase64 } from '@/lib/gemini';
+import { callGeminiMultiPart, fileToBase64, buildPpdtPrompt } from '@/lib/gemini';
 import { LoadingCard } from '@/components/LoadingCard';
 import { AnalysisOutput } from '@/components/AnalysisOutput';
 import { useHistorySave } from '@/hooks/useHistorySave';
 import { ImageIcon, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-
-const PPDT_PROMPT = `You are an SSB (Services Selection Board) PPDT (Picture Perception & Description Test) expert assistant.
-
-STEP 1 — DEEP IMAGE ANALYSIS (show first):
-You MUST deeply analyze the picture before writing any story. Think like a detective:
-
-A. BACKGROUND FIRST:
-- What is the setting? Indoor/outdoor? Urban/rural/transport/institutional?
-- Look for clues: windows, walls, furniture, vehicles, landscapes, boards, signs
-- The background DEFINES the story. NEVER ignore it.
-- SSB PPDT images are intentionally hazy/blurry. Acknowledge this ambiguity but still analyze what is visible.
-
-B. CHARACTER ANALYSIS:
-- How many characters are visible? Male/Female?
-- What are they WEARING? Clothing = profession clue.
-- Body language, facial expressions, what they are doing
-- Who is the most active/central = potential hero
-
-C. INTERACTION BETWEEN CHARACTERS:
-- Are they talking, helping, arguing, working together?
-- What relationship could they have?
-
-D. MOOD ASSESSMENT:
-- NEVER label mood as "Negative" unless someone is clearly crying or in visible distress
-- Stressed/worried/tense = "Neutral" NOT "Negative"
-
-E. LOGICAL DEDUCTION:
-- Combine background + clothing + activity + expressions to form a LOGICAL scenario
-- The story MUST emerge from what you SEE
-
-Display as:
-Picture Analysis:
-Characters perceived: [X male, Y female]
-Character 1 - Sex: Male, Age: [XX], Mood: [Positive/Neutral]
-Character 2 - Sex: Female, Age: [XX], Mood: [Positive/Neutral]
-(List each character on a separate line. Do NOT use table format.)
-
-STEP 2 — DETERMINE THEME COUNT:
-Based on the picture, determine how many DIFFERENT themes are realistically possible without losing the stimulus.
-Tell user: "Based on this picture, I can generate [N] different themes."
-
-STEP 3 — GENERATE PPDT STORIES (one per theme):
-
-HERO RULES:
-- HERO AGE SELECTION (CRITICAL):
-  1. If ANY character appears to be 18-26 years old, MALE, and has a positive/neutral mood, HE is the hero.
-  2. If no male 18-26 is visible, check for a female 18-26 with positive/neutral mood, SHE is the hero.
-  3. ONLY if NO character aged 18-26 exists, you may pick an older character as hero.
-  4. NEVER make a 40+ year old the hero when a young 18-26 character is visible.
-- SET NAME BASED ON PICTURE appearance (Sikh/Christian/South Indian/Hindu/Muslim)
-- ONLY the hero gets a name. NO other character gets a name.
-- Other characters: "his colleague", "a fellow passenger", "her friend", "the elderly man", etc.
-- Hero must be PROACTIVE — taking initiative, helping others.
-
-MANDATORY STORY STRUCTURE (80-120 words per story):
-1. Character Introduction: [Name], [age], [profession]. One line background.
-2. Past (1-2 sentences): Why this situation arose. Keep SHORT.
-3. Present (4-5 crisp actions): Hero DOING things. Must match what is visible in picture.
-4. Future (1-2 sentences): Positive resolution.
-
-STAR Formula: Situation, Thought, Action, Result, Positive Ending.
-Team Player Rules: Praise the team, show collective effort. No individual heroism only.
-Never give rewards to yourself (medals/awards/self-glory).
-
-OUTPUT FORMAT FOR EACH STORY:
-
-PPDT Story [N] — Theme: [Theme Name]
-
-Characters: [X male, Y female] | Ages: [range] | Mood: [positive/neutral]
-
-Story:
-[Name], [age], [profession]. [Past]. [4-5 present actions]. [Future resolution].
-
-Narration Script (ready-to-speak):
-"Friends, from the picture shown to us, I have perceived [X male / X female] with age [XX-XX] years. [Male/Female] mood is [positive/neutral]. The action of my story is [one line theme summary]. My story goes like this —
-[Character name], [age], [profession]. [What led to story]. [4-5 present actions]. [Future]. Thank you."
-
-After all stories:
-GD Tips:
-- Stand in MIDDLE of queue (3rd-4th batch)
-- Listen to every candidate's narration — note good points
-- During chaos: stay silent, then speak with bold clear voice when energy drops
-- Say: "As most of us perceived [theme]... without wasting time, the theme is [X] and actions can be [Y, Z]. Do we all agree?"
-- For gender/age arguments: "Friends, we have time constraints. Let us assume age 20-25 and move on to actions."
-- If nominated for common story: "WE as a GROUP have discussed..." — never "I think" or "my story"
-
-CRITICAL FORMATTING:
-- Do NOT use emojis, stars (*), or special unicode characters anywhere.
-- Do NOT use table format with | pipes. Use plain text lists.
-- NO MARKDOWN BOLDING OR ASTERISKS ANYWHERE IN THE OUTPUT.
-- USE PLAIN TEXT ONLY.`;
 
 export default function PPDTPage() {
   const [loading, setLoading] = useState(false);
@@ -128,7 +38,7 @@ export default function PPDTPage() {
     try {
       const mimeType = pictureBase64.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
       const result = await callGeminiMultiPart(
-        PPDT_PROMPT + `\n\nAnalyze this PPDT picture. Provide complete perception, stories, and narration scripts.`,
+        buildPpdtPrompt('', true),
         [{ base64: pictureBase64, mimeType }]
       );
 
