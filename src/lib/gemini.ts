@@ -213,6 +213,23 @@ Finally, provide a Batch Summary of patterns and strongest/weakest OLQs.
 ${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
+export function buildPpdtPrompt(story?: string, hasPicture?: boolean): string {
+  let prompt = `${SYSTEM_PROMPT_PPDT}`;
+  
+  if (story) {
+    prompt += `\n\nCANDIDATE DATA FOR ANALYSIS:
+Candidate Story: "${story}"
+${hasPicture ? "[Picture context provided via image attachment]" : ""}
+
+Please perform the picture analysis (if picture provided), and then analyze the CANDIDATE'S story against the PPDT rules. Provide an IMPROVED version of the candidate's story as well.
+${GIBBERISH_GUARD_INSTRUCTION}`;
+  } else {
+    prompt += `\n\nAnalyze this PPDT picture. Provide complete perception, possible themes, stories, and narration scripts.`;
+  }
+  
+  return prompt;
+}
+
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
   const formattedResponses = responses.map((r, i) => `${i + 1}. Word: "${r.word}" -> Sentence: "${r.sentence}"`).join('\n');
 

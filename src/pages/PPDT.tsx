@@ -154,8 +154,8 @@ export default function PPDTPage() {
         </div>
         {(analysis || picturePreview) && (
           <button onClick={handleClear} className="glass-button text-xs flex items-center gap-2 text-destructive hover:bg-destructive/10 border-destructive/20 transition-all duration-300">
-             <Trash2 className="h-3.5 w-3.5" />
-             Clear All
+            <Trash2 className="h-3.5 w-3.5" />
+            Clear All
           </button>
         )}
       </div>
@@ -195,7 +195,7 @@ export default function PPDTPage() {
               </div>
               <div className="flex gap-3 justify-center relative z-10 mt-2">
                 <button onClick={handleClear} className="glass-button text-xs px-4 py-2 hover:border-destructive hover:text-destructive flex items-center gap-2">
-                   Delete & Upload New Image
+                  Delete & Upload New Image
                 </button>
               </div>
             </div>

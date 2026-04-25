@@ -398,4 +398,11 @@ GD Tips:
 - During chaos: stay silent, then speak with bold clear voice when energy drops
 - Say: "As most of us perceived [theme]... without wasting time, the theme is [X] and actions can be [Y, Z]. Do we all agree?"
 - For gender/age arguments: "Friends, we have time constraints. Let us assume age 20-25 and move on to actions."
-- If nominated for common story: "WE as a GROUP have discussed..." — never "I think" or "my story"`;
+- If nominated for common story: "WE as a GROUP have discussed..." — never "I think" or "my story"
+
+IF ANALYZING CANDIDATE INPUT:
+If you are provided with a candidate's story, add this section AFTER the analysis:
+RE-WRITTEN IMPROVED STORY:
+[Provide a version of the candidate's story that is polished to RECOMMENDED SSB standards, keeping their original theme but enhancing the actions and logic.]
+Narration Script:
+[Provide a crisp 1-minute narration script based on the improved story.]`;
