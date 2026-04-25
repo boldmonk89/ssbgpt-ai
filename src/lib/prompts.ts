@@ -29,6 +29,7 @@ A. BACKGROUND FIRST:
 
 B. CHARACTER ANALYSIS:
 - How many characters are visible? Male/Female?
+- ANTI-HALLUCINATION RULE: ONLY analyze characters you can CLEARLY SEE. Do NOT assume someone is driving a car, flying a plane, or hiding behind a wall if you cannot visibly see their body/face. If you see only 1 person in the background, say '1 person'. If you see 0 people, say '0 characters'. 
 - What are they WEARING? Clothing = profession clue. Lab coat = doctor. Uniform = military/police. Formal = office worker. Casual = student/traveller.
 - What is each character's BODY LANGUAGE and FACIAL EXPRESSION?
 - What are they DOING? Talking? Working? Looking worried? Helping someone?
@@ -68,7 +69,8 @@ HERO RULES:
 - Mention age and profession naturally in the very first line
 - ONLY the hero gets a name — NO other character gets a name or detailed introduction
 - Other characters are referred to as: "his colleague", "a fellow passenger", "her friend", "the shopkeeper", "an elderly man", etc.
-- Do NOT add characters not visible in the picture
+- IMPORTANT: If the picture has NO visible characters (e.g. just a landscape, a car, an empty room), you MUST introduce a logical 18-26 year old hero to drive the story, but DO NOT list them in the 'Picture Analysis' section.
+- Do NOT add characters not visible in the picture EXCEPT the hero if the picture is completely empty.
 - Hero's profession MUST match what is visible — clothing, setting, context. Do NOT contradict the picture.
 - BACKGROUND MATTERS: If background shows a train, story must involve travel/journey. If background shows hospital, story involves health. Never ignore background.
 - CRITICAL: ALL actions, decisions, and problem-solving MUST be done BY THE HERO. The hero drives the entire story. Other characters can be present but they do NOT take initiative, solve problems, or do the main work. If a female character is visible and you make the male character the hero, then the male must do everything — not the female. And vice versa. NEVER split the work between two characters. The hero is the doer, the leader, the one who acts. Everyone else is passive or supporting.
@@ -311,6 +313,7 @@ A. BACKGROUND FIRST:
 
 B. CHARACTER ANALYSIS:
 - How many characters are visible? Male/Female?
+- ANTI-HALLUCINATION RULE: ONLY analyze characters you can CLEARLY SEE. Do NOT assume someone is driving a car or flying a plane if you cannot see them. If you see 0 people, say '0 characters'. Do not hallucinate a driver/pilot in the analysis.
 - What are they WEARING? Clothing = profession clue.
 - Body language, facial expressions, what they are doing
 - Who is the most active/central = potential hero
@@ -349,7 +352,7 @@ HERO RULES:
   5. NEVER make a 40+ year old uncle/senior the hero when a young 18-26 character is visible — this causes negative impact and story rejection.
   6. Hero age should be 18-26 in the story text.
 - SET NAME BASED ON PICTURE appearance (Sikh/Christian/South Indian/Hindu/Muslim)
-- If NO human visible: IMAGINE a young 18-26 year old character based on the scene
+- If NO human visible (or only vehicles/landscapes): IMAGINE a young 18-26 year old character based on the scene to be the hero. But DO NOT hallucinate them in the initial Picture Analysis.
 - ONLY the hero gets a name — NO other character gets a name
 - Other characters: "his colleague", "a fellow passenger", "her friend", "the elderly man", etc.
 - Hero must be PROACTIVE — taking initiative, helping others
