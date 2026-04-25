@@ -5,6 +5,7 @@ import {
   SYSTEM_PROMPT_SRT, 
   SYSTEM_PROMPT_PPDT 
 } from "./prompts";
+import { GIBBERISH_GUARD_INSTRUCTION } from "./gibberishDetector";
 
 export interface FilePart {
   base64: string;
@@ -66,7 +67,7 @@ async function callGeminiDirectly(prompt: string, files?: FilePart[]): Promise<s
   }
 
   try {
-    const model = "gemini-2.5-flash"; // Switched to the latest stable model as requested
+    const model = "gemini-2.0-flash"; // Switched back to 2.0-flash as it's the stable optimized one for this task
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -199,7 +200,8 @@ Story Number: ${storyNumber}
 Candidate Story: "${story}"
 ${hasPicture ? "[Picture context provided via image attachment]" : ""}
 
-Generate the analysis according to the expert instructions above.`;
+Generate the analysis according to the expert instructions above.
+${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
 export function buildTatPdfPrompt(): string {
@@ -207,7 +209,8 @@ export function buildTatPdfPrompt(): string {
 
 You are evaluating a batch of TAT stories from a PDF or multi-page image.
 For EACH story found, provide analysis, OLQ assessment, and a model improved version.
-Finally, provide a Batch Summary of patterns and strongest/weakest OLQs.`;
+Finally, provide a Batch Summary of patterns and strongest/weakest OLQs.
+${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
 export function buildWatPrompt(responses: { word: string; sentence: string }[]): string {
@@ -218,7 +221,8 @@ export function buildWatPrompt(responses: { word: string; sentence: string }[]):
 CANDIDATE DATA FOR ANALYSIS:
 ${formattedResponses}
 
-Analyze the candidate's responses and provide the Batch Summary as instructed.`;
+Analyze the candidate's responses and provide the Batch Summary as instructed.
+${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
 export function buildWatPdfPrompt(): string {
@@ -226,7 +230,8 @@ export function buildWatPdfPrompt(): string {
 
 You are evaluating handwritten or typed WAT responses from a PDF.
 First extract all 60 word-sentence pairs, then provide analysis and model improvements for each.
-Finally, provide the Batch Summary.`;
+Finally, provide the Batch Summary.
+${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
 export function buildSrtPrompt(responses: { situationNumber: number; situation: string; response: string }[]): string {
@@ -237,7 +242,8 @@ export function buildSrtPrompt(responses: { situationNumber: number; situation: 
 CANDIDATE DATA FOR ANALYSIS:
 ${formattedData}
 
-Generate the detailed reactions and OLQ reflections as instructed.`;
+Generate the detailed reactions and OLQ reflections as instructed.
+${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
 export function buildSrtPdfPrompt(): string {
@@ -245,7 +251,8 @@ export function buildSrtPdfPrompt(): string {
 
 You are evaluating SRT responses from a PDF.
 Extract all 60 situation-response pairs, assess each, and provide improved reactions.
-Finally, provide the Batch Summary.`;
+Finally, provide the Batch Summary.
+${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
 export function buildSdPrompt(paragraphType: string, content: string): string {
@@ -263,13 +270,15 @@ Provide:
 1. Authenticity Check.
 2. OLQ Mapping.
 3. Rewritten Paragraph (Ideal/Honest version, 80-120 words).
-4. Score: X/10.`;
+4. Score: X/10.
+${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
 export function buildSdFromPdfPrompt(): string {
   return `You are an SSB psychologist evaluating a full 5-paragraph Self Description PDF.
 Analyze each paragraph for authenticity, OLQ coverage, and provide rewritten versions.
-Consistency Check across all 5 sections is mandatory.`;
+Consistency Check across all 5 sections is mandatory.
+${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 
 export function buildFullReportPrompt(

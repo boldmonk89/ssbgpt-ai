@@ -67,6 +67,19 @@ export function detectGibberish(text: string): string | null {
     }
   }
 
+  // Check 4: Short irrelevant sentences (e.g., "i am tejas", "hello there", "how are you")
+  const commonShortPhrases = [
+    "i am", "hello", "hi there", "how are you", "who are you", 
+    "what is this", "test test", "testing", "nice", "good",
+    "bad", "okay", "ok", "cool"
+  ];
+  if (words.length <= 4) {
+    const lowerText = trimmed.toLowerCase();
+    if (commonShortPhrases.some(phrase => lowerText.includes(phrase)) || /^[a-zA-Z\s]{1,10}$/.test(trimmed)) {
+      return getRandomResponse(IRRELEVANT_RESPONSES);
+    }
+  }
+
   return null;
 }
 
