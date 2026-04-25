@@ -1,4 +1,4 @@
-import { BrainCircuit } from 'lucide-react';
+import ssbgptLogo from '@/assets/logo-ssbgpt.png';
 
 export default function ClinicalSeal({ className = "" }: { className?: string }) {
   return (
@@ -8,8 +8,8 @@ export default function ClinicalSeal({ className = "" }: { className?: string })
          <div className="absolute inset-0 bg-gold/20 rounded-full blur-xl animate-pulse" />
          <div className="absolute -inset-2 border border-gold/10 rounded-full animate-ping-slow" />
          
-         <div className="relative h-16 w-16 rounded-full border-2 border-gold/40 bg-black flex items-center justify-center shadow-[0_0_20px_rgba(207,169,78,0.2)]">
-            <BrainCircuit className="h-8 w-8 text-gold" />
+         <div className="relative h-16 w-16 rounded-full border-2 border-gold/40 bg-black flex items-center justify-center shadow-[0_0_20px_rgba(207,169,78,0.2)] overflow-hidden">
+            <img src={ssbgptLogo} alt="SSBGPT Logo" className="h-10 w-10 object-contain drop-shadow-[0_0_8px_rgba(207,169,78,0.8)]" />
          </div>
       </div>
       
