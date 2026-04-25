@@ -425,8 +425,13 @@ Story:
 [Name], [age], [profession]. [Past — keep short]. [4-5 present actions]. [Future resolution].
 
 Narration Script (ready-to-speak):
-"Friends, from the picture shown to us, I have perceived [X male / X female] with age [XX-XX] years. [Male/Female] mood is [positive/neutral]. The action of my story is [one line theme summary]. My story goes like this —
-[Character name], [age], [profession]. [What led to story]. [4-5 present actions]. [Future]. Thank you."
+(If characters ARE visible in the picture):
+"Friends, from the picture shown to us, I have perceived [X male / X female] with age [XX-XX] years. Their mood is [positive/neutral]. The action of my story is [one line theme summary]. My story goes like this —
+[Story text]. Thank you."
+
+(If ZERO characters are visible in the picture):
+"Friends, I do not perceive any characters in the picture shown to us. However, based on the [mountains/scenery/objects] visible, I have imagined a [Male/Female] character of age [XX-XX] years. The action of my story is [one line theme summary]. My story goes like this —
+[Story text]. Thank you."
 
 After all stories:
 GD Tips:
