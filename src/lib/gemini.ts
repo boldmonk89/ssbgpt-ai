@@ -238,7 +238,7 @@ export function buildWatPrompt(responses: { word: string; sentence: string }[]):
 CANDIDATE DATA FOR ANALYSIS:
 ${formattedResponses}
 
-Analyze the candidate's responses and provide the Batch Summary as instructed.
+Analyze the candidate's responses strictly using the provided format (Point-wise bullet points ONLY. Zero paragraphs). Provide 2-3 improved target sentences for each word. Finally, provide the Batch Summary as instructed.
 ${GIBBERISH_GUARD_INSTRUCTION}`;
 }
 

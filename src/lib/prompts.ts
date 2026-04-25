@@ -219,8 +219,15 @@ OUTPUT FORMAT:
 IF ANALYZING CANDIDATE INPUT:
 If you are provided with a candidate's sentence(s), for EACH sentence, provide:
 Candidate Sentence: [original]
-Analysis: [concise psych feedback]
-IMPROVED VERSION: [Provide the RECOMMENDED SSB-level version of this sentence, following the 6-8 word rule and observational style.]`;
+Analysis: 
+- [Bullet point 1: Brevity/Pronoun check]
+- [Bullet point 2: Depth and OLQ assessment]
+- [Bullet point 3: What is missing or negative]
+(STRICT RULE: NO PARAGRAPHS. Use ONLY 2-3 short, brutal, point-wise bullet points for analysis. Do not explain in long paragraphs.)
+IMPROVED VERSIONS (Provide 2-3 distinct RECOMMENDED SSB-level versions):
+1. [Improved version 1] — OLQ: [name]
+2. [Improved version 2] — OLQ: [name]
+3. [Improved version 3] — OLQ: [name]`;
 
 export const SYSTEM_PROMPT_SRT = `You are an expert SSB psychologist specializing in SRT (Situation Reaction Test) for Indian defence selection.
 
